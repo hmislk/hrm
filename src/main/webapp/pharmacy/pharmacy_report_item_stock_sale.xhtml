@@ -61,12 +61,18 @@
                     <p:dataTable id="tbl1" value="#{report3DController.itemCounts}" var="s">
                         <p:column >
                             <f:facet name="header">
-                                <h:outputText value="Item Name"/>
+                                <h:outputText value="Item Code"/>
                             </f:facet>
-                            <h:outputText value="#{s.item.name}" rendered="#{s.item ne null}" />
+                            <h:outputText value="#{s.item.code}" rendered="#{s.item ne null}" />
                             <h:outputText value="Total" rendered="#{s.item eq null}" />
                         </p:column>
                         <p:column >
+                            <f:facet name="header">
+                                <h:outputText value="Item Name"/>
+                            </f:facet>
+                            <h:outputText value="#{s.item.name}" rendered="#{s.item ne null}" />
+                        </p:column>
+                        <p:column style="color: green;" styleClass="numberCol">
                             <f:facet name="header">
                                 <h:outputText value="Current Stock"/>
                             </f:facet>

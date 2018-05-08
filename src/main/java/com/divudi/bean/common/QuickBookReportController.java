@@ -1022,7 +1022,8 @@ public class QuickBookReportController implements Serializable {
             temMap.put("cd", creditCompany);
 
         } else {
-            jpql += " and bf.department.institution=:ins ";
+            // RHRHD/87626 set fee depart ment collecting center
+//            jpql += " and bf.department.institution=:ins ";
         }
         jpql += " group by i.name, bi.bill.billClassType "
                 + " order by c.name, i.name, bf.fee.feeType ";

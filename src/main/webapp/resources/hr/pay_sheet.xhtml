@@ -19,7 +19,7 @@
         <h:outputStylesheet library="css" name="paySheet.css" ></h:outputStylesheet>
         <div style="position: relative!important;
              /*padding-left: 0.5%!important;*/
-             height:100%!important;
+             height:95%!important;
              width:100%!important; 
              /*             overflow:hidden!important; */
              font-family: Times New Roman!important; 
@@ -28,7 +28,9 @@
              padding: 1px!important;
              /*             background-size: 100% auto!important;*/
              letter-spacing: 0px;
-             /*             border: 1px solid!important;*/">
+             page-break-after: always;
+                          /*border: 1px solid!important;*/
+             ">
 
             <div class="institutionName" style="text-align: center!important;
                  font-weight: bold!important;
@@ -39,8 +41,8 @@
             <div style="font-size: 10px!important; font-family: Times New Roman!important; letter-spacing: 0px;">
                 <table>
 
-                    <tr>
-                        <td>
+                    <tr >
+                        <td width="49%">
                             <h:outputLabel value="#{cc.attrs.bill.institution.transAddress1}"/>
                             <br/>
                             <h:outputLabel value="#{cc.attrs.bill.institution.transAddress2}"/>
@@ -50,14 +52,15 @@
                             <h:outputLabel value="#{cc.attrs.bill.institution.transAddress4}"/>
                             <br/>
                         </td>
-                        <td></td>
-                        <td></td>
+                        <td width="1%"></td>
+                        <td width="30%"></td>
+                        <td width="20%"></td>
                     </tr>
 
                     <tr>
                         <td>
                             <h:outputLabel value="#{commonController.currentDateTime}">
-                                <f:convertDateTime pattern="yyyy/MMM/dd" />
+                                <f:convertDateTime pattern="dd MMMM yyyy" />
                             </h:outputLabel>
                         </td>
                         <td></td>
@@ -118,6 +121,8 @@
                         <td></td>
                     </tr>
 
+
+
                     <tr>
                         <td>
                             <p:spacer height="10"/>
@@ -127,7 +132,7 @@
 
                     <tr>
                         <td colspan="3">
-                            <h:outputLabel value="At the request of #{cc.attrs.bill.staff.person.nameWithTitle}"/>
+                            <h:outputLabel value="At the request of #{cc.attrs.bill.staff.person.title} . #{cc.attrs.bill.staff.person.fullName}"/>
                         </td>
 
                     </tr>
@@ -141,7 +146,10 @@
 
                     <tr>
                         <td colspan="3">
-                            <h:outputLabel value="who is employed by us, we append below the particulars of his/her salary and deductions."/>
+                            <h:outputLabel value="who is employed by us, we append below the particulars of "/>
+                            <h:outputLabel value="he" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
+                            <h:outputLabel value="she" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
+                            <h:outputLabel value=" salary and deductions."/>
                             <h:outputLabel value="#{staffSalaryController.reportKeyWord.salaryCycle.salaryFromDate}" >
                                 <f:convertDateTime pattern="yyyy-MMMM" />
                             </h:outputLabel>
@@ -157,8 +165,29 @@
                     </tr>
 
                     <tr>
+                        <td colspan="3">
+                            <h:outputLabel value="Salary Period : "/>
+                            <h:outputLabel value="#{staffSalaryController.salaryCycle.salaryFromDate}">
+                                <f:convertDateTime pattern="dd MMMM yyyy" />
+                            </h:outputLabel>
+                            <h:outputLabel value=" - "/>
+                            <h:outputLabel value="#{staffSalaryController.salaryCycle.salaryToDate}">
+                                <f:convertDateTime pattern="dd MMMM yyyy" />
+                            </h:outputLabel>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <p:spacer height="10"/>
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
                         <td style="text-align: left;">
-                            <h:outputText value="Basic Salary + BR" style="text-align: left;"/> 
+                            <h:outputText value="Basic Salary + BR Allowance" style="text-align: left;"/> 
                         </td>
                         <td>
                             <h:outputLabel value=":"/>
@@ -271,11 +300,11 @@
                         <tr>
                             <td style="text-align: left;">
                                 <h:outputText value="#{we.staffPaysheetComponent.paysheetComponent.name}" rendered="#{we.componantValue ne 0.0}"/> 
-                                <h:outputText value="( " rendered="#{we.staffPaysheetComponent.paysheetComponent.componentType eq 'PerformanceAllowance' and we.componantValue ne 0.0}" />
+<!--                                <h:outputText value="( " rendered="#{we.staffPaysheetComponent.paysheetComponent.componentType eq 'PerformanceAllowance' and we.componantValue ne 0.0}" />
                                 <h:outputText value="#{we.staffPaysheetComponentPercentage.staffPaySheetComponentValue}" rendered="#{we.staffPaysheetComponent.paysheetComponent.componentType eq 'PerformanceAllowance' and we.componantValue ne 0.0}">
                                     <f:convertNumber pattern="##0" />
                                 </h:outputText>
-                                <h:outputText value="% )" rendered="#{we.staffPaysheetComponent.paysheetComponent.componentType eq 'PerformanceAllowance' and we.componantValue ne 0.0}"/>
+                                <h:outputText value="% )" rendered="#{we.staffPaysheetComponent.paysheetComponent.componentType eq 'PerformanceAllowance' and we.componantValue ne 0.0}"/>-->
                             </td>
                             <td></td>
                             <td style="text-align: right;">
@@ -359,50 +388,29 @@
 
                     <tr>
                         <td>
-                            <p:spacer height="10"/>
+                            <h:outputLabel value="Over Time"/>
                         </td>
                         <td></td>
+                        <td style="text-align: right;">
+                            <h:outputText value="#{cc.attrs.bill.overTimeValue+cc.attrs.bill.extraDutyNormalValue+cc.attrs.bill.extraDutyMerchantileValue
+                                                   +cc.attrs.bill.extraDutyPoyaValue+cc.attrs.bill.extraDutyDayOffValue+cc.attrs.bill.extraDutySleepingDayValue}">                                 
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputText>
+                        </td>
                     </tr>
 
                     <tr>
-                        <td colspan="3">
-                            <p>
-                                <h:outputLabel value="The above named is employed as a #{cc.attrs.bill.staff.speciality} and "/>
-                                <p:outputLabel value="He" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
-                                <p:outputLabel value="She" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
-                                <h:outputLabel value=" pay sheet/Service No. is #{cc.attrs.bill.staff.code} "/>
-                            </p>
+                        <td>
+                            <h:outputLabel value="Total Pay"/>
                         </td>
-
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <p>
-                                <h:outputLabel value="and "/>
-                                <p:outputLabel value="He" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
-                                <p:outputLabel value="She" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
-                                <h:outputLabel value=" is due to retire on "/>
-                                <h:outputLabel value="#{commonController.retiermentDate(cc.attrs.bill.staff.person.dob)}" rendered="#{cc.attrs.bill ne null}">
-                                    <f:convertDateTime pattern="yyyy MMM dd" />
-                                </h:outputLabel>
-                                <p:outputLabel value=". He" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
-                                <p:outputLabel value="She" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
-                                <h:outputLabel value=" has been in the permanent."/>
-                            </p>
+                        <td></td>
+                        <td style="text-align: right;">
+                            <h:outputText value="#{cc.attrs.bill.transNetSalry+cc.attrs.bill.overTimeValue+cc.attrs.bill.extraDutyNormalValue+cc.attrs.bill.extraDutyMerchantileValue
+                                                   +cc.attrs.bill.extraDutyPoyaValue+cc.attrs.bill.extraDutyDayOffValue+cc.attrs.bill.extraDutySleepingDayValue}" 
+                                          style="text-align: right;  border-bottom: 1px solid black; border-top: 1px solid black;" >                                 
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputText>
                         </td>
-
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <p>
-                                <h:outputLabel value="Sevice Since "/>
-                                <h:outputLabel value="#{cc.attrs.bill.staff.dateJoined}">
-                                    <f:convertDateTime pattern="yyyy MMM dd" />
-                                </h:outputLabel>
-                                <h:outputLabel value=" The above information is Certified correct."/>
-                            </p>
-                        </td>
-
                     </tr>
 
                     <tr>
@@ -410,6 +418,68 @@
                             <p:spacer height="10"/>
                         </td>
                         <td></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="4">
+                            <p>
+                                <h:outputLabel value="The above named is employed as a #{cc.attrs.bill.staff.speciality} and "/>
+                                <h:outputLabel value="his" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
+                                <h:outputLabel value="her" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
+                                <h:outputLabel value=" Employee No. is #{cc.attrs.bill.staff.code} and "/>
+                            </p>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p>
+                                <!--<h:outputLabel value="and "/>-->
+                                <h:outputLabel value="he" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
+                                <h:outputLabel value="she" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
+                                <h:outputLabel value=" is due to retire on "/>
+                                <h:outputLabel value="#{commonController.retiermentDate(cc.attrs.bill.staff.person.dob)}" rendered="#{cc.attrs.bill ne null}">
+                                    <f:convertDateTime pattern="dd MMMM yyyy" />
+                                </h:outputLabel>
+                                <h:outputLabel value=". He" rendered="#{cc.attrs.bill.staff.person.sex eq 'Male'}"/>
+                                <h:outputLabel value=". She" rendered="#{cc.attrs.bill.staff.person.sex eq 'Female'}"/>
+                                <h:outputLabel value=" has been in the permanent sevice since "/>
+                                <h:outputLabel value="#{cc.attrs.bill.staff.dateJoined}">
+                                    <f:convertDateTime pattern="dd MMMM yyyy" />
+                                </h:outputLabel>
+                                <h:outputLabel value="."/>
+                            </p>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <p>
+                                <!--                                <h:outputLabel value="Sevice Since "/>
+                                                                <h:outputLabel value="#{cc.attrs.bill.staff.dateJoined}">
+                                                                    <f:convertDateTime pattern="yyyy MMM dd" />
+                                                                </h:outputLabel>-->
+                                <h:outputLabel value=" The above information is certified correct."/>
+                            </p>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <p:spacer height="25"/>
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <h:outputLabel value="Signature over Official Rubber Stamp"/>
+                        </td>
+                        <td></td>
+                        <td>
+                            <h:outputLabel value=":...................................................."/>
+                        </td>
                     </tr>
 
                     <tr>
@@ -448,15 +518,7 @@
                         <td></td>
                     </tr>
 
-                    <tr>
-                        <td>
-                            <h:outputLabel value="Signature over Official Rubber Stamp"/>
-                        </td>
-                        <td></td>
-                        <td>
-                            <h:outputLabel value=":...................................................."/>
-                        </td>
-                    </tr>
+
 
                 </table>
 

@@ -286,6 +286,14 @@
                                         <h:outputLabel value="#{bip.bill.deptId} - "/>
                                         <h:outputLabel value="#{bip.bill.id}"/>
                                     </p:column>
+                                    <p:column>
+                                        <f:facet name="header">dep</f:facet>
+                                        <h:outputLabel value="#{bip.department.name}"/>
+                                    </p:column>
+                                    <p:column>
+                                        <f:facet name="header">ins</f:facet>
+                                        <h:outputLabel value="#{bip.department.institution.name}"/>
+                                    </p:column>
 <!--                                    <p:column headerText="Bill Edit" rendered="false">
                                         <p:cellEditor>
                                             <f:facet name="output" >

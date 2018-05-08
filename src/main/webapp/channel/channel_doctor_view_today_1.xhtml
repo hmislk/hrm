@@ -48,6 +48,12 @@
                         </f:facet>
                         <p:outputLabel value="#{a.serviceSession.staff.person.name}" />
                     </p:column>   
+                    <p:column >
+                        <f:facet name="header">
+                            <p:outputLabel value="Creater" style="float: left;"/>
+                        </f:facet>
+                        <p:outputLabel value="#{a.creater.webUserPerson.name}" />
+                    </p:column>   
                     <p:column sortBy="#{a.serviceSession.startingTime}">
                         <f:facet name="header">
                             <p:outputLabel value="Session Time" style="float: left;"/>
