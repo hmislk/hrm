@@ -19,9 +19,9 @@
                           itemValue="#{mys}"
                           converter="stfcon"   >   
             <p:column headerText="Name">
-                #{mys.person.name}
+                #{mys.person.nameWithTitle}
             </p:column>
         </p:autoComplete> 
-        <p:watermark for="staff" value="Staff"/>
+        <p:watermark for="staff" value="Consultant"/>
     </cc:implementation>
 </html>

@@ -217,7 +217,7 @@ public class StoreReportsStock implements Serializable {
 
     public void fillDepartmentInventryStocks() {
         if (institution == null) {
-            UtilityController.addErrorMessage("Please select a department");
+            UtilityController.addErrorMessage("Please select a Institution");
             return;
         }
         Map m = new HashMap();
