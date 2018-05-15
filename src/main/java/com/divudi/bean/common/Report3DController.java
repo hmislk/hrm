@@ -39,6 +39,8 @@ public class Report3DController implements Serializable {
 
     @Inject
     SessionController sessionController;
+    @Inject
+    CommonController commonController;
 
     @EJB
     ItemFacade itemFacade;
@@ -66,6 +68,7 @@ public class Report3DController implements Serializable {
             JsfUtil.addErrorMessage("Please Select Category.");
             return;
         }
+        Date startTime = new Date();
 
         columnModels = new ArrayList<>();
         fetchHeaders();
@@ -101,12 +104,15 @@ public class Report3DController implements Serializable {
             columnModels.add(c);
             l++;
         }
+        commonController.printReportDetails(getReportKeyWord().getFromDate(), getReportKeyWord().getToDate(), startTime, 
+                "(/pharmacy/pharmacy_report_item_stock_sale.xhtml)");
+
     }
 
     private void fetchItemSaleMovement() {
         itemCounts = new ArrayList<>();
 
-        for (Item i : fetchSaleItems(getReportKeyWord().getCategory(),null,getReportKeyWord().getDepartment())) {
+        for (Item i : fetchSaleItems(getReportKeyWord().getCategory(), null, getReportKeyWord().getDepartment())) {
             System.out.println("i.getName() = " + i.getName());
             ItemCount row = new ItemCount();
             row.setItem(i);
@@ -206,14 +212,14 @@ public class Report3DController implements Serializable {
 //                cal.set(Calendar.MONTH, in);
 //                System.out.println("cal.getTime() = " + cal.getTime());
                 if (Integer.parseInt(s) == in) {
-                    c = co;
+                    c = Math.abs(co);
                     break;
                 }
-                total += c;
             }
+            total += c;
             ds.add(c);
         }
-
+        System.out.println("total = " + total);
         ds.add(total);
 
         System.out.println("ds.size() = " + ds.size());
@@ -326,7 +332,7 @@ public class Report3DController implements Serializable {
         return items;
     }
 
-    private List<Item> fetchSaleItems(Category category,Item i,Department d) {
+    private List<Item> fetchSaleItems(Category category, Item i, Department d) {
         List<Item> items = new ArrayList<>();
         Map m = new HashMap();
         String sql;

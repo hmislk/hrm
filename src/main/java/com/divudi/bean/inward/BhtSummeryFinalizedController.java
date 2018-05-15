@@ -333,6 +333,16 @@ public class BhtSummeryFinalizedController implements Serializable {
             }
         }
     }
+    
+    public void updateAllPharmacyBillItems() {
+        if (pharmacyItems == null) {
+            return;
+        }
+
+        for (BillItem b : pharmacyItems) {
+            inwardReportControllerBht.updateBillItem(b);
+        }
+    }
 
     public void calculateService() {
         if (filterItems == null) {
