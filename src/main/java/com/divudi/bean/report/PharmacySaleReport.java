@@ -655,7 +655,7 @@ public class PharmacySaleReport implements Serializable {
         return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
-    
+
     private List<Object[]> fetchSaleValueByPaymentmethodBillDate() {
         String sql;
 
@@ -2235,7 +2235,7 @@ public class PharmacySaleReport implements Serializable {
         return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
-    
+
     private double calGrantTotalByPaymentMethodByBillItemBillDate(PaymentMethod paymentMethod) {
         //   List<Stock> billedSummery;
         String sql;
@@ -4585,7 +4585,7 @@ public class PharmacySaleReport implements Serializable {
         grantCreditTotal = calGrantTotalByPaymentMethodByBillItem(PaymentMethod.Credit);
 
     }
-    
+
     public void createSalePaymentMethodBillDate() {
         billedPaymentSummery = new PharmacyPaymetMethodSummery();
 
@@ -4597,28 +4597,34 @@ public class PharmacySaleReport implements Serializable {
             PaymentMethod pm = (PaymentMethod) obj[1];
             Double value = (Double) obj[2];
 
-            String2Value4 newRow = (String2Value4) hm.get(date);
+            System.out.println("date = " + date);
+            System.out.println("value = " + value);
+            System.out.println("pm = " + pm);
 
-            if (newRow == null) {
-                newRow = new String2Value4();
-                newRow.setDate(date);
-            } else {
-                hm.remove(date);
+            try {
+                String2Value4 newRow = (String2Value4) hm.get(date);
+                if (newRow == null) {
+                    newRow = new String2Value4();
+                    newRow.setDate(date);
+                } else {
+                    hm.remove(date);
+                }
+
+                switch (pm) {
+                    case Cash:
+                        newRow.setValue1(value);
+                        break;
+                    case Credit:
+                        newRow.setValue2(value);
+                        break;
+                    case Card:
+                        newRow.setValue3(value);
+                        break;
+                }
+
+                hm.put(date, newRow);
+            } catch (Exception e) {
             }
-
-            switch (pm) {
-                case Cash:
-                    newRow.setValue1(value);
-                    break;
-                case Credit:
-                    newRow.setValue2(value);
-                    break;
-                case Card:
-                    newRow.setValue3(value);
-                    break;
-            }
-
-            hm.put(date, newRow);
 
         }
 

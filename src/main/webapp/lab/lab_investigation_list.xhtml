@@ -35,17 +35,42 @@
                         <p:column headerText="No." >
                             <h:outputLabel value="#{rowIndex + 1}" ></h:outputLabel>
                         </p:column>  
-                        <p:column headerText="Investigation" >
+                        <p:column headerText="Name" >
                             <h:outputLabel value="#{ix.name}" ></h:outputLabel>
                         </p:column>
-                        <p:column headerText="Category" >
+                        <p:column headerText="Name Printing" >
+                            <h:outputLabel value="#{ix.printName}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Name Full" >
+                            <h:outputLabel value="#{ix.fullName}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Status" sortBy="#{ix.inactive}" >
+                            <h:outputLabel value="In-Active" rendered="#{ix.inactive eq true}" style="color: red" ></h:outputLabel>
+                            <h:outputLabel value="Active" rendered="#{ix.inactive eq false}" style="color: green" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Report Format" sortBy="#{ix.reportType}" >
+                            <h:outputLabel value="#{ix.reportType}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Report" sortBy="#{ix.reportFormat.name}" >
+                            <h:outputLabel value="#{ix.reportFormat.name}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Machine" sortBy="#{ix.machine.name}" >
+                            <h:outputLabel value="#{ix.machine.name}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Category" sortBy="#{ix.category.name}" >
                             <h:outputLabel value="#{ix.category.name}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Inward Category" >
+                            <h:outputLabel value="#{ix.inwardChargeType}" ></h:outputLabel>
                         </p:column>
                         <p:column headerText="Institution" sortBy="#{ix.institution.name}">
                             <h:outputLabel value="#{ix.institution.name}" ></h:outputLabel>
                         </p:column>
                         <p:column headerText="Department" sortBy="#{ix.department.name}">
                             <h:outputLabel value="#{ix.department.name}" ></h:outputLabel>
+                        </p:column>
+                        <p:column headerText="Consultant" sortBy="#{ix.staff.person.nameWithTitle}">
+                            <h:outputLabel value="#{ix.staff.person.nameWithTitle}" ></h:outputLabel>
                         </p:column>
                         
                     </p:dataTable>

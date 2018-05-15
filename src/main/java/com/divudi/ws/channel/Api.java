@@ -33,7 +33,9 @@ import com.divudi.entity.Patient;
 import com.divudi.entity.Person;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.ServiceSession;
+import com.divudi.entity.channel.ArrivalRecord;
 import com.divudi.facade.AgentHistoryFacade;
+import com.divudi.facade.ArrivalRecordFacade;
 import com.divudi.facade.BillFacade;
 import com.divudi.facade.BillFeeFacade;
 import com.divudi.facade.BillItemFacade;
@@ -103,6 +105,8 @@ public class Api {
     private PatientFacade patientFacade;
     @EJB
     private PersonFacade personFacade;
+    @EJB
+    ArrivalRecordFacade arrivalRecordFacade;
 
     @EJB
     private CommonFunctions commonFunctions;
@@ -686,6 +690,7 @@ public class Api {
         if (!billSessions.isEmpty()) {
             for (BillSession bs : billSessions) {
                 JSONObject jSONObject = new JSONObject();
+                jSONObject.put("app_id", bs.getBill().getId());
                 jSONObject.put("app_no", bs.getSerialNo());
                 jSONObject.put("patient_name", bs.getBill().getPatient().getPerson().getNameWithTitle());
                 if (bs.getBill().getPaidAmount() == 0) {
@@ -716,6 +721,37 @@ public class Api {
         System.err.println("~~~~~~Channel API~~~~~~ Json(Get Bill Sessions) = " + json);
         return json;
     }
+    
+    @GET
+    @Path("/docArrival/")
+    @Produces("application/json")
+    public String getDoctorArrivals() {
+        System.err.println("~~~~~~Channel API~~~~~~ Get All Doctors(/docs/)");
+        JSONArray array = new JSONArray();
+        List<ArrivalRecord> arrivalRecords=fetchDoctorArrival();
+        if (!arrivalRecords.isEmpty()) {
+            for (ArrivalRecord a : arrivalRecords) {
+                JSONObject jSONObject = new JSONObject();
+                jSONObject.put("arr_doc_name", a.getServiceSession().getStaff().getPerson().getName());
+                jSONObject.put("arr_ses_time", getCommonController().getTimeFormat24(a.getServiceSession().getStartingTime()));
+                jSONObject.put("arr_in_time", getCommonController().getTimeFormat24(a.getRecordTimeStamp()));
+                jSONObject.put("arr_out_time", getCommonController().getTimeFormat24(a.getApprovedAt()));
+                array.put(jSONObject);
+            }
+
+        } else {
+//            jSONObjectOut.put("specilities", array);
+//            jSONObjectOut.put("error", "1");
+//            jSONObjectOut.put("error_description", "No Data.");
+        }
+
+        String json = array.toString();
+//        String json = jSONObjectOut.toString();
+        System.err.println("~~~~~~Channel API~~~~~~ Json(Get All Doctors) = " + json);
+        return json;
+    }
+    
+    
 
     //----------------------------------------------------
     public List<Object[]> doctorsList(String doc_code, Long spec_id) {
@@ -746,7 +782,9 @@ public class Api {
             m.put("spec_id", spec_id);
         }
 
-        sql += " order by pi.staff.speciality.name,pi.staff.person.name ";
+        sql += " order by pi.staff.codeInterger, "
+                + " pi.staff.speciality.name,"
+                + " pi.staff.person.name ";
 
         m.put("typ", PersonInstitutionType.Channelling);
         consultants = getStaffFacade().findAggregates(sql, m);
@@ -1002,9 +1040,17 @@ public class Api {
             try {
                 map.put("bill_id", billObjects.get(0).getBill().getId());
                 map.put("bill_number", billObjects.get(0).getBill().getInsId());
-                map.put("bill_agent", billObjects.get(0).getBill().getCreditCompany().getId());
+                if (billObjects.get(0).getBill().getCreditCompany() != null) {
+                    map.put("bill_agent", billObjects.get(0).getBill().getCreditCompany().getName()+" ("+billObjects.get(0).getBill().getCreditCompany().getInstitutionCode()+")");
+                } else {
+                    if (billObjects.get(0).getBill().getToStaff() != null) {
+                        map.put("bill_agent", billObjects.get(0).getBill().getToStaff().getPerson().getName() + " (" + billObjects.get(0).getBill().getToStaff().getCode() + ")");
+                    } else {
+                        map.put("bill_agent", "");
+                    }
+                }
                 map.put("bill_app_no", billObjects.get(0).getBill().getSingleBillSession().getSerialNo());
-                map.put("bill_patient_name", billObjects.get(0).getBill().getPatient().getPerson().getName());
+                map.put("bill_patient_name", billObjects.get(0).getBill().getPatient().getPerson().getNameWithTitle());
                 map.put("bill_phone", billObjects.get(0).getBill().getPatient().getPerson().getPhone());
                 map.put("bill_doc_name", billObjects.get(0).getBill().getStaff().getPerson().getName());
                 map.put("bill_session_date", getCommonController().getDateFormat(billObjects.get(0).getBill().getSingleBillSession().getSessionDate()));
@@ -1703,6 +1749,27 @@ public class Api {
         } else {
             return false;
         }
+    }
+    
+    public List<ArrivalRecord> fetchDoctorArrival() {
+
+        String sql;
+        Map m = new HashMap();
+        List<ArrivalRecord> arrivalRecords = new ArrayList<>();
+
+        sql = " select ar from ArrivalRecord ar where "
+                + " ar.sessionDate between :fd and :td "
+                + " and ar.retired=false "
+                + " order by ar.recordTimeStamp desc ";
+
+        m.put("fd", commonFunctions.getStartOfDay());
+        m.put("td", commonFunctions.getEndOfDay());
+
+        arrivalRecords = arrivalRecordFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("arrivalRecords.size() = " + arrivalRecords.size());
+        
+        return arrivalRecords;
+
     }
 
     /**

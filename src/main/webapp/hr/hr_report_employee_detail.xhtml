@@ -90,6 +90,18 @@
                                     </f:facet>
                                     <p:outputLabel value="#{s.person.name}" />
                                 </p:column>
+                                <p:column filterBy="#{s.person.name}" headerText="phone">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="phone" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{s.person.phone}" />
+                                </p:column>
+                                <p:column filterBy="#{s.person.name}" headerText="phone">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="phone" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{s.person.mobile}" />
+                                </p:column>
                                 <p:column headerText="Full Name" >
                                     <f:facet name="header" >
                                         <p:outputLabel value="Full Name" />

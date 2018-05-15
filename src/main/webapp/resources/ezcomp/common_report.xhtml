@@ -52,6 +52,13 @@
                     <f:param name="id" value="#{cc.attrs.patientReport.approveUser.staff.id}" />
                 </p:graphicImage>
 
+                <p:graphicImage rendered="#{myCli.reportItemType eq 'DoctorSignature' and myCli.retired eq false 
+                                            and cc.attrs.patientReport.item.staff.id ne null
+                                            and cc.attrs.patientReport.approved}" 
+                                value="#{staffImageController.signatureById}" style="#{myCli.innerCssStyle};"  >
+                    <f:param name="id" value="#{cc.attrs.patientReport.item.staff.id}" />
+                </p:graphicImage>
+
             </div>
         </ui:repeat>
 

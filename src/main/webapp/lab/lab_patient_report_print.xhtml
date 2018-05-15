@@ -24,8 +24,8 @@
 
 
                     <p:commandButton styleClass="nonPrintBlock" ajax="false" value="Print" onclick="window.print();" actionListener="#{patientReportController.printPatientReport()}" />
-<!--                    <p:commandButton styleClass="nonPrintBlock" ajax="false" value="PDF" 
-                                     action="#{patientReportController.createPDF()}" onclick="this.form.target = '_blank'" />-->
+                    <!--                    <p:commandButton styleClass="nonPrintBlock" ajax="false" value="PDF" 
+                                                         action="#{patientReportController.createPDF()}" onclick="this.form.target = '_blank'" />-->
                     <!--<p:commandButton styleClass="nonPrintBlock" ajax="false" value="Back" action="/lab_search_for_reporting_ondemand"/>-->
 
 
@@ -127,6 +127,17 @@
                                     </div>
                                 </ui:repeat>
 
+                                <ui:repeat value="#{patientReportController.currentPatientReport.item.reportItems}" var="myIi" >
+                                    <div style="#{myIi.cssStyle}; position:absolute;">
+                                        <p:graphicImage rendered="#{myIi.retired ne true and myIi.ixItemType eq 'DoctorSignature' 
+                                                                    and patientReportController.currentPatientReport.item.staff.id ne null
+                                                                    and patientReportController.currentPatientReport.approved}"  
+                                                        value="#{staffImageController.signatureById}" >
+                                            <!--and patientReportController.currentPatientReport.approved-->
+                                            <f:param name="id" value="#{patientReportController.currentPatientReport.item.staff.id}" />
+                                        </p:graphicImage>
+                                    </div>
+                                </ui:repeat>
 
                             </div>
                         </h:panelGroup>
@@ -172,6 +183,12 @@
 
 
                                         </h:panelGroup>
+                                        <p:graphicImage rendered="#{myCli.reportItemType eq 'DoctorSignature' and myCli.retired eq false 
+                                                                    and patientReportController.currentPatientReport.item.staff.id ne null
+                                                                    and patientReportController.currentPatientReport.approved}" 
+                                                        value="#{staffImageController.signatureById}" style="min-width:50%;max-width:52%;width:100%;min-height:100%;max-height:100%;height:100%;padding:0px;margin:0px;border:0px;"  >
+                                            <f:param name="id" value="#{patientReportController.currentPatientReport.item.staff.id}" />
+                                        </p:graphicImage>
 
                                     </div>
                                 </ui:repeat>

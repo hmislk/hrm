@@ -5,7 +5,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:autocomplete="http://java.sun.com/jsf/composite/autocomplete">
 
 
     <ui:define name="content">
@@ -94,11 +95,6 @@
                                     <p:selectBooleanCheckbox  value="#{investigationController.current.vatable}" >
                                     </p:selectBooleanCheckbox>
 
-                                    <h:outputText value="VAT Percentage" ></h:outputText>
-                                    <p:inputText  autocomplete="off" 
-                                                  value="#{investigationController.current.vatPercentage}"  ></p:inputText>
-                                    
-                                    
                                     <p:outputLabel value="Report Format"/>
                                     <p:selectOneMenu value="#{investigationController.current.reportType}" >                               
                                         <f:selectItem itemLabel="General" itemValue="General"/>
@@ -190,6 +186,9 @@
                                         <f:selectItems value="#{enumController.inwardChargeTypesForSetting}" var="i" itemLabel="#{i.label}" itemValue="#{i}"/>
                                     </p:selectOneMenu>
 
+                                    <h:outputText value="Consultant" ></h:outputText>
+                                    <autocomplete:completeConsultant value="#{investigationController.current.staff}"/>
+                                    
                                     <h:outputText value="" ></h:outputText>
                                     <p:selectBooleanCheckbox value="#{investigationController.current.inactive}" itemLabel="Item Inactive"/>
 
