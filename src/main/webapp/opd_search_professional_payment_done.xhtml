@@ -141,6 +141,12 @@
                                 </h:outputLabel>
 
                             </p:column>
+                            <p:column headerText="Payment Bill WHT" >
+                                <h:outputLabel value="#{bi.bill.tax}" ></h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Payment Bill Total" >
+                                <h:outputLabel value="#{bi.bill.netTotal}" ></h:outputLabel>
+                            </p:column>
 
                         </p:dataTable>
 

@@ -154,6 +154,14 @@ public class FinalVariables {
             return 1;
         }
     }
+    
+    public double getWithHoldingTaxRate(){
+        if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
+            return 0.05;
+        }else{
+            return 0;
+        }
+    }
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")

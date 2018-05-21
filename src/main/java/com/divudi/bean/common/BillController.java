@@ -24,6 +24,7 @@ import com.divudi.data.Title;
 import com.divudi.data.dataStructure.BillListWithTotals;
 import com.divudi.data.dataStructure.PaymentMethodData;
 import com.divudi.data.dataStructure.YearMonthDay;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.ejb.BillEjb;
 import com.divudi.ejb.BillNumberGenerator;
 import com.divudi.ejb.CashTransactionBean;
@@ -174,6 +175,9 @@ public class BillController implements Serializable {
     private List<BillItem> lstBillItemsPrint;
     private List<BillEntry> lstBillEntriesPrint;
     BillType billType;
+    ReportKeyWord reportKeyWord;
+
+    List<DoctorTotalRow> doctorTotalRows;
 
     public BillType getBillType() {
         return billType;
@@ -771,11 +775,11 @@ public class BillController implements Serializable {
 
         commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
     }
-    
+
     public void onLineSettleBills() {
         Date startTime = new Date();
 
-        BillType[] billTypes = {BillType.OpdBill,billType.InwardPaymentBill};
+        BillType[] billTypes = {BillType.OpdBill, billType.InwardPaymentBill};
         PaymentMethod[] paymentMethods = {PaymentMethod.OnlineSettlement};
         BillListWithTotals r = billEjb.findBillsAndTotals(fromDate, toDate, billTypes, null, department, institution, paymentMethods);
         if (r == null) {
@@ -801,6 +805,138 @@ public class BillController implements Serializable {
         }
         if (r.getGrossTotal() != null) {
             grosTotal = r.getGrossTotal();
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
+    }
+
+    public void createWithHoldingTaxBills() {
+        Date startTime = new Date();
+
+        BillType[] billTypes;
+
+        if (getReportKeyWord().getString().equals("0")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill, BillType.WithHoldingTaxBillInward};
+        } else if (getReportKeyWord().getString().equals("1")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill};
+        } else {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBillInward};
+        }
+
+        String sql;
+        Map m = new HashMap();
+        sql = "Select b From Bill b where "
+                + " b.retired=false"
+                + " and b.createdAt between :frm and :to"
+                + " and b.billType in :bts ";
+
+        if (getReportKeyWord().getStaff() != null) {
+            sql += " and (b.staff=:s or b.toStaff=:s) ";
+            m.put("s", getReportKeyWord().getStaff());
+        }
+
+        if (getReportKeyWord().getSpeciality() != null) {
+            sql += " and (b.staff.speciality=:spe or b.toStaff.speciality=:spe) ";
+            m.put("spe", getReportKeyWord().getSpeciality());
+        }
+
+        if (getReportKeyWord().isBool1()) {
+            sql += " and b.netTotal!=:b ";
+            m.put("b", 0.0);
+        }
+
+        sql += " order by b.createdAt ";
+        m.put("frm", getReportKeyWord().getFromDate());
+        m.put("to", getReportKeyWord().getToDate());
+        m.put("bts", Arrays.asList(billTypes));
+
+        bills = getBillFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("bills.size() = " + bills.size());
+        total = 0.0;
+        netTotal = 0.0;
+        vat = 0.0;
+        for (Bill b : bills) {
+            if (b.getBackwardReferenceBill() != null) {
+                total += b.getBackwardReferenceBill().getTotal();
+                vat += b.getBackwardReferenceBill().getTax();
+                netTotal += b.getBackwardReferenceBill().getNetTotal();
+            }
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
+    }
+
+    public void createWithHoldingTaxBillSummery() {
+        Date startTime = new Date();
+
+        BillType[] billTypes;
+
+        if (getReportKeyWord().getString().equals("0")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill, BillType.WithHoldingTaxBillInward};
+        } else if (getReportKeyWord().getString().equals("1")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill};
+        } else {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBillInward};
+        }
+
+        doctorTotalRows = new ArrayList<>();
+        String sql;
+        Map m = new HashMap();
+        sql = "Select b.staff,"
+                + " b.fromStaff,"
+                + " sum(b.backwardReferenceBill.total),"
+                + " sum(b.backwardReferenceBill.tax),"
+                + " sum(b.backwardReferenceBill.netTotal) "
+                + " From Bill b where "
+                + " b.retired=false"
+                + " and b.createdAt between :frm and :to"
+                + " and b.billType in :bts ";
+
+        if (getReportKeyWord().getStaff() != null) {
+            sql += " and (b.staff=:s or b.toStaff=:s) ";
+            m.put("s", getReportKeyWord().getStaff());
+        }
+
+        if (getReportKeyWord().getSpeciality() != null) {
+            sql += " and (b.staff.speciality=:spe or b.toStaff.speciality=:spe) ";
+            m.put("spe", getReportKeyWord().getSpeciality());
+        }
+
+        if (getReportKeyWord().isBool1()) {
+            sql += " and b.netTotal!=:b ";
+            m.put("b", 0.0);
+        }
+
+        sql += " group by b.staff, b.fromStaff "
+                + " order by b.staff.speciality.name, b.staff.person.name ";
+        m.put("frm", getReportKeyWord().getFromDate());
+        m.put("to", getReportKeyWord().getToDate());
+        m.put("bts", Arrays.asList(billTypes));
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        total = 0.0;
+        netTotal = 0.0;
+        vat = 0.0;
+        for (Object[] ob : objects) {
+            DoctorTotalRow row = new DoctorTotalRow();
+            Staff s = (Staff) ob[0];
+            row.setS(s);
+            Staff ss = (Staff) ob[1];
+            row.setForStaff(ss);
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            double d1 = (double) ob[2];
+            row.setTotal(d1);
+            System.out.println("d1 = " + d1);
+            double d2 = (double) ob[3];
+            row.setTax(d2);
+            System.out.println("d2 = " + d2);
+            double d3 = (double) ob[4];
+            row.setNetTotal(d3);
+            System.out.println("d3 = " + d3);
+            total += d1;
+            vat += d2;
+            netTotal += d3;
+            doctorTotalRows.add(row);
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
@@ -888,7 +1024,7 @@ public class BillController implements Serializable {
         vat = r.getVat();
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Pharmacy all sale report/Pharmacy sale report(/faces/pharmacy/pharmacy_bill_report.xhtml)");
     }
-    
+
     public void getPharmacyBillsBilled() {
         Date startTime = new Date();
 
@@ -1941,6 +2077,15 @@ public class BillController implements Serializable {
         printPreview = false;
 
     }
+    
+    public void clearTotals() {
+        bills=new ArrayList<>();
+        doctorTotalRows=new ArrayList<>();
+        total = 0.0;
+        netTotal = 0.0;
+        vat = 0.0;
+
+    }
 
     public void removeBillItem() {
 
@@ -2124,6 +2269,65 @@ public class BillController implements Serializable {
         }
         billFacade.edit(bill);
         JsfUtil.addSuccessMessage("Ref Doctor Updated");
+    }
+
+    public List<DoctorTotalRow> getDoctorTotalRows() {
+        return doctorTotalRows;
+    }
+
+    public void setDoctorTotalRows(List<DoctorTotalRow> doctorTotalRows) {
+        this.doctorTotalRows = doctorTotalRows;
+    }
+
+    public class DoctorTotalRow {
+
+        Staff s;
+        Staff forStaff;
+
+        double total;
+        double tax;
+        double netTotal;
+
+        public Staff getS() {
+            return s;
+        }
+
+        public void setS(Staff s) {
+            this.s = s;
+        }
+        
+        public Staff getForStaff() {
+            return forStaff;
+        }
+
+        public void setForStaff(Staff forStaff) {
+            this.forStaff = forStaff;
+        }
+
+        public double getTotal() {
+            return total;
+        }
+
+        public void setTotal(double total) {
+            this.total = total;
+        }
+
+        public double getTax() {
+            return tax;
+        }
+
+        public void setTax(double tax) {
+            this.tax = tax;
+        }
+
+        public double getNetTotal() {
+            return netTotal;
+        }
+
+        public void setNetTotal(double netTotal) {
+            this.netTotal = netTotal;
+        }
+
     }
 
     public BillFacade getEjbFacade() {
@@ -2682,6 +2886,17 @@ public class BillController implements Serializable {
 
     public void setBillFeePaymentFacade(BillFeePaymentFacade billFeePaymentFacade) {
         this.billFeePaymentFacade = billFeePaymentFacade;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
     /**

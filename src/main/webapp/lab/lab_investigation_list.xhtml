@@ -18,7 +18,8 @@
 
                     <f:facet name="header" >
                         <h:outputLabel value="List of All Investigations"></h:outputLabel>
-                        <p:commandButton ajax="false" value="Refresh" action="#{investigationController.listAllIxs}" styleClass="noPrintButton" onclick="onSubmitButton();"  />
+                        <!--<p:commandButton ajax="false" value="Refresh" action="#{investigationController.listAllIxs}" styleClass="noPrintButton" onclick="onSubmitButton();"  />-->
+                        <p:commandButton ajax="false" value="Refresh" action="#{investigationController.createInvestigationTable}" styleClass="noPrintButton" onclick="onSubmitButton();"  />
                         <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
                             <p:printer target="panIx" />
                         </p:commandButton>
@@ -26,6 +27,29 @@
                             <p:dataExporter target="tbl" type="xls" fileName="List of All Investigations"  />
                         </p:commandButton>
                     </f:facet>
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="Report Format"/>
+                        <p:selectOneMenu value="#{investigationController.reportKeyWord.investigationReportType}" >                               
+                            <f:selectItem itemLabel="Select Item"/>
+                            <f:selectItem itemLabel="General" itemValue="General"/>
+                            <f:selectItem itemLabel="Microbiology" itemValue="Microbiology"/>
+                        </p:selectOneMenu>
+
+                        <h:outputText value="Invesitgation Category" ></h:outputText>
+                        <p:selectOneMenu id="cmbCat"   value="#{investigationController.reportKeyWord.investigationCategory}" >
+                            <f:selectItem itemLabel="Please select a category"/>
+                            <f:selectItems value="#{investigationCategoryController.items}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat}" />
+                        </p:selectOneMenu>
+
+                        <h:outputText value="Machine" ></h:outputText>
+                        <p:selectOneMenu id="cmbmac"   value="#{investigationController.reportKeyWord.machine}" >
+                            <f:selectItem itemLabel="Please select a Machine"/>
+                            <f:selectItems value="#{machineController.items}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat}" />
+                        </p:selectOneMenu>
+                        
+                        <h:outputText value="Active Item Only" ></h:outputText>
+                        <p:selectBooleanCheckbox value="#{investigationController.reportKeyWord.additionalDetails}"/>
+                    </h:panelGrid>
                     <div id="printHeader" style="text-align: center; font-family: serif;">
                         <h:outputLabel value="#{sessionController.institution.name}" style="font-size: 20px;"></h:outputLabel>
                         <br> </br>
@@ -72,7 +96,7 @@
                         <p:column headerText="Consultant" sortBy="#{ix.staff.person.nameWithTitle}">
                             <h:outputLabel value="#{ix.staff.person.nameWithTitle}" ></h:outputLabel>
                         </p:column>
-                        
+
                     </p:dataTable>
                 </p:panel>
             </h:form>

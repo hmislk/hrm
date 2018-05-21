@@ -8,6 +8,7 @@ import com.divudi.data.dataStructure.SearchKeyword;
 import com.divudi.ejb.BillNumberGenerator;
 import com.divudi.ejb.CashTransactionBean;
 import com.divudi.ejb.CommonFunctions;
+import com.divudi.ejb.FinalVariables;
 import com.divudi.entity.Bill;
 import com.divudi.entity.BillComponent;
 import com.divudi.entity.BillFee;
@@ -67,6 +68,8 @@ public class StaffPaymentBillController implements Serializable {
     @Inject
     SessionController sessionController;
     @EJB
+    FinalVariables finalVariables;
+    @EJB
     private CommonFunctions commonFunctions;
     @EJB
     private BillFacade billFacade;
@@ -81,11 +84,13 @@ public class StaffPaymentBillController implements Serializable {
     private List<Bill> items = null;
     String selectText = "";
     Staff currentStaff;
+    Staff forStaff;
     private List<BillFee> dueBillFeeReport;
     List<BillFee> dueBillFees;
     List<BillFee> payingBillFees;
     double totalDue;
     double totalPaying;
+    double totalTax;
     @EJB
     BillNumberGenerator billNumberBean;
     private Boolean printPreview = false;
@@ -132,7 +137,7 @@ public class StaffPaymentBillController implements Serializable {
 
     public void newPayment() {
         recreateModel();
-
+        getSearchKeyword().setActiveAdvanceOption(true);
     }
 
     private void recreateModel() {
@@ -153,6 +158,7 @@ public class StaffPaymentBillController implements Serializable {
         current = null;
         selectText = "";
         currentStaff = null;
+        forStaff = null;
         totalDue = 0.0;
         totalPaying = 0.0;
         printPreview = false;
@@ -247,7 +253,7 @@ public class StaffPaymentBillController implements Serializable {
                     + " b.retired=false"
                     + " and (b.bill.billType=:btp or b.bill.billType=:btpc) "
                     + " and b.bill.cancelled=false "
-//                    + " and b.bill.refunded=false "
+                    //                    + " and b.bill.refunded=false "
                     + " and (b.feeValue - b.paidValue) > 0 "
                     + " and b.staff.id = " + currentStaff.getId();
             h.put("btp", BillType.OpdBill);
@@ -263,8 +269,8 @@ public class StaffPaymentBillController implements Serializable {
                         + " and bi.bill.cancelled=false "
                         + " and type(bi.bill)=:class "
                         + " and bi.referanceBillItem.id=" + bf.getBillItem().getId();
-                h.put("class",RefundBill.class);
-                BillItem rbi = getBillItemFacade().findFirstBySQL(sql,h);
+                h.put("class", RefundBill.class);
+                BillItem rbi = getBillItemFacade().findFirstBySQL(sql, h);
 
                 if (rbi != null) {
                     System.out.println("rbi.getBill().isCancelled() = " + rbi.getBill().isCancelled());
@@ -303,6 +309,12 @@ public class StaffPaymentBillController implements Serializable {
             ////System.out.println("paid val is " + f.getPaidValue());
             totalPaying = totalPaying + (f.getFeeValue() - f.getPaidValue());
             ////System.out.println("totalPaying after " + totalPaying);
+        }
+        if (getSearchKeyword().isActiveAdvanceOption()) {
+            totalTax = totalPaying * getFinalVariables().getWithHoldingTaxRate();
+            System.out.println("totalTax = " + totalTax);
+        } else {
+            totalTax = 0.0;
         }
         ////System.out.println("total pay is " + totalPaying);
     }
@@ -393,11 +405,17 @@ public class StaffPaymentBillController implements Serializable {
         tmp.setDiscountPercent(0.0);
 
         tmp.setInstitution(getSessionController().getLoggedUser().getInstitution());
-        tmp.setNetTotal(0 - totalPaying);
         tmp.setPaymentMethod(paymentMethod);
         tmp.setStaff(currentStaff);
         tmp.setToStaff(currentStaff);
+        if (forStaff != null) {
+            tmp.setFromStaff(forStaff);
+        } else {
+            tmp.setFromStaff(currentStaff);
+        }
         tmp.setTotal(0 - totalPaying);
+        tmp.setTax(totalTax);
+        tmp.setNetTotal(0 - totalPaying + totalTax);
 
         return tmp;
     }
@@ -445,6 +463,7 @@ public class StaffPaymentBillController implements Serializable {
         getBillFacade().create(b);
         Payment p = createPayment(b, paymentMethod);
         saveBillCompo(b, p);
+        createWithHoldingTaxBill(b);
         printPreview = true;
 
         WebUser wb = getCashTransactionBean().saveBillCashOutTransaction(b, getSessionController().getLoggedUser());
@@ -621,6 +640,39 @@ public class StaffPaymentBillController implements Serializable {
         createBillFeePaymentAndPayment(bf, p);
     }
 
+    private void createWithHoldingTaxBill(Bill b) {
+        System.out.println("b.getTax() = " + b.getTax());
+        BilledBill tmp = new BilledBill();
+        tmp.setBillDate(Calendar.getInstance().getTime());
+        tmp.setBillTime(Calendar.getInstance().getTime());
+        tmp.setBillType(BillType.WithHoldingTaxBill);
+        tmp.setCreatedAt(Calendar.getInstance().getTime());
+        tmp.setCreater(getSessionController().getLoggedUser());
+        tmp.setDepartment(getSessionController().getLoggedUser().getDepartment());
+        tmp.setInstitution(getSessionController().getLoggedUser().getInstitution());
+
+        tmp.setDeptId(getBillNumberBean().departmentBillNumberGenerator(getSessionController().getDepartment(), BillType.WithHoldingTaxBill, BillClassType.BilledBill, BillNumberSuffix.WHTAX));
+        tmp.setInsId(getBillNumberBean().institutionBillNumberGenerator(getSessionController().getInstitution(), BillType.WithHoldingTaxBill, BillClassType.BilledBill, BillNumberSuffix.WHTAX));
+
+        tmp.setDiscount(0.0);
+        tmp.setDiscountPercent(0.0);
+
+        tmp.setStaff(currentStaff);
+        tmp.setToStaff(currentStaff);
+        if (forStaff != null) {
+            tmp.setFromStaff(forStaff);
+        } else {
+            tmp.setFromStaff(currentStaff);
+        }
+        tmp.setTotal(totalTax);
+        tmp.setNetTotal(totalTax);
+        tmp.setBackwardReferenceBill(b);
+        getBillFacade().create(tmp);
+
+        b.setForwardReferenceBill(tmp);
+        getBillFacade().edit(b);
+    }
+
     //for bill fee payments
     private BillFacade getFacade() {
         return billFacade;
@@ -786,6 +838,7 @@ public class StaffPaymentBillController implements Serializable {
     public SearchKeyword getSearchKeyword() {
         if (searchKeyword == null) {
             searchKeyword = new SearchKeyword();
+            searchKeyword.setActiveAdvanceOption(true);
         }
         return searchKeyword;
     }
@@ -816,6 +869,30 @@ public class StaffPaymentBillController implements Serializable {
 
     public void setBillFeePaymentFacade(BillFeePaymentFacade BillFeePaymentFacade) {
         this.BillFeePaymentFacade = BillFeePaymentFacade;
+    }
+
+    public FinalVariables getFinalVariables() {
+        return finalVariables;
+    }
+
+    public void setFinalVariables(FinalVariables finalVariables) {
+        this.finalVariables = finalVariables;
+    }
+
+    public double getTotalTax() {
+        return totalTax;
+    }
+
+    public void setTotalTax(double totalTax) {
+        this.totalTax = totalTax;
+    }
+
+    public Staff getForStaff() {
+        return forStaff;
+    }
+
+    public void setForStaff(Staff forStaff) {
+        this.forStaff = forStaff;
     }
 
 }

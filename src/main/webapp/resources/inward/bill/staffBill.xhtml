@@ -225,11 +225,35 @@
                         </p:dataTable>
                         <table style="min-width:100%;padding-left: 30px;">
                             <tr>
-                                <td style="min-width: 80%;text-align: left;font-size: 100%!important;">
-                                    <h:outputLabel value="TOTAL"/>
+                                <td style="min-width: 80%;text-align: left;font-size: 120%;">
+                                    <h:outputLabel value="Total" rendered="#{cc.attrs.bill.tax ne 0}"
+                                                   style="  text-align: right!important;  font-size: 15px!important; font-weight: bold;"/>
                                 </td>
-                                <td style="min-width: 30%;text-align: right;font-size: 100%!important;">
-                                    <h:outputLabel value="#{-cc.attrs.bill.netTotal}" >
+                                <td style="min-width: 30%;text-align: right;font-size: 120%;">
+                                    <h:outputLabel value="#{-cc.attrs.bill.total}" rendered="#{cc.attrs.bill.tax ne 0}"
+                                                   style="text-align: right!important;  font-size: 15px!important; font-weight: bold;">
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputLabel>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="min-width: 80%;text-align: left;font-size: 120%;">
+                                    <h:outputLabel value="With Holding Tax (5%)" rendered="#{cc.attrs.bill.tax ne 0}"
+                                                   style="  text-align: right!important;  font-size: 15px!important; font-weight: bold;"/>
+                                </td>
+                                <td style="min-width: 30%;text-align: right;font-size: 120%;">
+                                    <h:outputLabel value="#{-cc.attrs.bill.tax}" rendered="#{cc.attrs.bill.tax ne 0}"
+                                                   style="text-align: right!important;  font-size: 15px!important; font-weight: bold;">
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputLabel>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="min-width: 80%;text-align: left;font-size: 120%;">
+                                    <h:outputLabel value="Net Payment" style="  text-align: right!important;  font-size: 15px!important; font-weight: bold;"/>
+                                </td>
+                                <td style="min-width: 30%;text-align: right;font-size: 120%;">
+                                    <h:outputLabel value="#{-cc.attrs.bill.netTotal}"  style="text-align: right!important;  font-size: 15px!important; font-weight: bold;">
                                         <f:convertNumber pattern="#,##0.00" />
                                     </h:outputLabel>
                                 </td>
