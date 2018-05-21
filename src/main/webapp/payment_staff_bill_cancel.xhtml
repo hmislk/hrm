@@ -38,6 +38,8 @@
                                     <h:outputLabel value="#{billSearch.bill.total}" ></h:outputLabel>
                                     <h:outputLabel value="Discount :" ></h:outputLabel>
                                     <h:outputLabel value="#{billSearch.bill.discount}" ></h:outputLabel>
+                                    <h:outputLabel value="Tex :" ></h:outputLabel>
+                                    <h:outputLabel value="#{billSearch.bill.tax}" ></h:outputLabel>
                                     <h:outputLabel value="Net Total :" ></h:outputLabel>
                                     <h:outputLabel value="#{billSearch.bill.netTotal}" ></h:outputLabel>
                                 </p:panelGrid>
@@ -51,7 +53,7 @@
 
 
                     <h:panelGroup rendered="#{billSearch.printPreview}" >
-                         <bi:staffBill controller="#{billSearch}" bill="#{billSearch.bill}" dup="false"/>                       
+                         <bi:staffBill_1 controller="#{billSearch}" bill="#{billSearch.bill}" dup="false"/>                       
                     </h:panelGroup>
 
 

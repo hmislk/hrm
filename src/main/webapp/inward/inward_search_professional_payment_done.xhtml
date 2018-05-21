@@ -122,6 +122,16 @@
                                     <f:convertNumber pattern="#,##0.00"/>
                                 </h:outputLabel>
                             </p:column>
+                            <p:column headerText="Tax" styleClass="averageNumericColumn" >
+                                <h:outputLabel value="#{bi.bill.tax}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Net Total" styleClass="averageNumericColumn" >
+                                <h:outputLabel value="#{bi.bill.netTotal}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </p:column>
 
 
                         </p:dataTable>

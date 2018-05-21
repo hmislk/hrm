@@ -36,6 +36,12 @@
                                     <p:selectOneMenu  id="cmbPay" style="width: 400px;" value="#{staffPaymentBillController.paymentMethod}" >                                      
                                         <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}"  />
                                     </p:selectOneMenu>
+                                    
+                                    <h:outputLabel value="With Holding Tax Deduct" ></h:outputLabel>
+                                    <h:selectBooleanCheckbox value="#{staffPaymentBillController.searchKeyword.activeAdvanceOption}"  >
+                                        <f:ajax event="change" execute="@this" listener="#{staffPaymentBillController.performCalculations()}"   
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
+                                    </h:selectBooleanCheckbox>
 
                                     <!--                                    <p:commandButton ajax="false" value="Process" >
                                                                         </p:commandButton>-->
@@ -48,13 +54,13 @@
                                                var="bf" rowKey="#{bf.id}" >
 
                                     <f:ajax  event="rowSelectCheckbox" execute="tblFee" listener="#{staffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <f:ajax  event="rowUnselectCheckbox" execute="tblFee" listener="#{staffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <f:ajax  event="toggleSelect" execute="tblFee" listener="#{staffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <p:column selectionMode="multiple" >
 
@@ -129,12 +135,21 @@
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>
                                         <h:outputLabel value="Paying This time" ></h:outputLabel>
-                                        <h:outputLabel id="lblPay"  value="#{staffPaymentBillController.totalPaying }" >
+                                        <h:outputLabel id="lblPay"  value="#{staffPaymentBillController.totalPaying}" >
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel>  
+                                        <h:outputLabel value="With Holding Tax" ></h:outputLabel>
+                                        <h:outputLabel id="lblTax"  value="#{staffPaymentBillController.totalTax}" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>  
                                     </h:panelGrid>
                                 </p:panel>
                                 <h:panelGroup >
+                                    <h:outputLabel  value="Pay For" ></h:outputLabel>
+                                    <p:autoComplete  style="width: 400px;" forceSelection="true" value="#{staffPaymentBillController.forStaff}" id="scStaffFor"
+                                                     completeMethod="#{staffPaymentBillController.completeStaff}" var="mys" itemLabel="#{mys.person.nameWithTitle}" itemValue="#{mys}"
+                                                     converter="stfcon"   >
+                                    </p:autoComplete>
                                     <p:commandButton id="btnPay" ajax="false" value="Pay" action="#{staffPaymentBillController.settleBill()}" >
                                         <!--<f:ajax execute="@this cmbPay tblFee scStaff" render="@all" />-->
                                     </p:commandButton>
@@ -151,6 +166,7 @@
 
 
                     <h:panelGroup  rendered="#{staffPaymentBillController.printPreview}">
+                        <h:outputLabel value="***Without With Holding Tax****" style="color: red;font-size: 50pt;" rendered="#{staffPaymentBillController.searchKeyword.activeAdvanceOption ne true}" /><br></br>
                         <p:commandButton id="btnNewPayment" ajax="false" value="New Payment" action="payment_staff_bill" actionListener="#{staffPaymentBillController.newPayment}"/>
 
                         <bi:staffBill_1 controller="#{staffPaymentBillController}" bill="#{staffPaymentBillController.current}" dup="false"/>
