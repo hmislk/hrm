@@ -605,6 +605,12 @@
                                     <f:facet name="header">
                                         <h:outputLabel value="Name"/>
                                     </f:facet>
+                                    <h:outputLabel value="#{pf.bill.insId}"/>                                    
+                                </p:column>
+                                <p:column headerText="Name">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Name"/>
+                                    </f:facet>
                                     <h:outputLabel value="#{pf.staff.person.nameWithTitle}"/>                                    
                                 </p:column>
                                 <p:column headerText="Speciality" filterBy="#{pf.staff.speciality.name}" filterMatchMode="contains" >
