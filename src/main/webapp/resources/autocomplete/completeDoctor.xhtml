@@ -13,7 +13,7 @@
     <cc:implementation>
         <p:autoComplete   forceSelection="true" id="staff"
                           value="#{cc.attrs.value}" 
-                          completeMethod="#{staffController.completeConsultant}" 
+                          completeMethod="#{staffController.completeDoctor}" 
                           var="mys" styleClass="mediuminput"
                           itemLabel="#{mys.person.nameWithTitle}" 
                           itemValue="#{mys}"

@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:autocomplete="http://java.sun.com/jsf/composite/autocomplete">
+
+    <h:body>
+
+        <ui:composition template="./resources/template/template.xhtml">
+
+            <ui:define name="content">
+
+                <p:panel header="Add Doctor Signature" styleClass="verticalAndHorizontalCenteringLarge">
+
+                    <h:form enctype="multipart/form-data" >
+
+                        <h:panelGrid columns="3" >
+
+                            <h:outputLabel value="Select the Doctor" >
+                            </h:outputLabel>
+
+                            <autocomplete:completeConsultant value="#{staffController.current}"/>
+                            <h:commandButton value="Refresh" />
+
+                            <p:fileUpload value="#{staffImageController.file}" mode="simple"/>
+
+                            <h:commandButton id="btnSave" value="Save" action="#{staffImageController.saveSignature()}"/>
+                            <h:commandButton id="btnSave2" value="Remove" action="#{staffImageController.removeSignature()}"/>
+                            <p:defaultCommand target="btnSave"/>
+
+                            <p:graphicImage  value="#{staffImageController.signatureById}" >
+                                <f:param name="id" value="#{staffController.current.id}" />
+                            </p:graphicImage>
+                        </h:panelGrid>
+
+
+                    </h:form>
+
+
+
+                </p:panel>
+
+
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

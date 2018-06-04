@@ -6,6 +6,7 @@
 package com.divudi.data.hr;
 
 import com.divudi.data.BillType;
+import com.divudi.data.InvestigationReportType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.Sex;
 import com.divudi.data.SmsType;
@@ -28,6 +29,8 @@ import com.divudi.entity.hr.Shift;
 import com.divudi.entity.hr.StaffCategory;
 import com.divudi.entity.hr.StaffShift;
 import com.divudi.entity.inward.AdmissionType;
+import com.divudi.entity.lab.InvestigationCategory;
+import com.divudi.entity.lab.Machine;
 import com.divudi.entity.memberShip.MembershipScheme;
 import java.util.Date;
 import javax.inject.Inject;
@@ -95,6 +98,10 @@ public class ReportKeyWord {
     
     MembershipScheme membershipScheme;
     PatientEncounter patientEncounter;
+    
+    InvestigationReportType investigationReportType;
+    InvestigationCategory investigationCategory;
+    Machine machine;
 
     public PaysheetComponent getPaysheetComponent() {
         return paysheetComponent;
@@ -530,6 +537,30 @@ public class ReportKeyWord {
 
     public void setDepartmentFrom(Department departmentFrom) {
         this.departmentFrom = departmentFrom;
+    }
+
+    public InvestigationReportType getInvestigationReportType() {
+        return investigationReportType;
+    }
+
+    public void setInvestigationReportType(InvestigationReportType investigationReportType) {
+        this.investigationReportType = investigationReportType;
+    }
+
+    public InvestigationCategory getInvestigationCategory() {
+        return investigationCategory;
+    }
+
+    public void setInvestigationCategory(InvestigationCategory investigationCategory) {
+        this.investigationCategory = investigationCategory;
+    }
+
+    public Machine getMachine() {
+        return machine;
+    }
+
+    public void setMachine(Machine machine) {
+        this.machine = machine;
     }
 
 }

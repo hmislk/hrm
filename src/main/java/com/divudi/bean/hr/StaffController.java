@@ -22,12 +22,10 @@ import com.divudi.entity.Category;
 import com.divudi.entity.Consultant;
 import com.divudi.entity.Department;
 import com.divudi.entity.Doctor;
-import com.divudi.entity.DoctorSpeciality;
 import com.divudi.entity.Person;
 import com.divudi.entity.Speciality;
 import com.divudi.entity.Staff;
 import com.divudi.entity.hr.Roster;
-import com.divudi.entity.hr.SalaryCycle;
 import com.divudi.entity.hr.StaffDesignation;
 import com.divudi.entity.hr.StaffEmployeeStatus;
 import com.divudi.entity.hr.StaffEmployment;
@@ -41,7 +39,6 @@ import com.divudi.facade.CommonReportItemFacade;
 import com.divudi.facade.DepartmentFacade;
 import com.divudi.facade.FormItemValueFacade;
 import com.divudi.facade.PersonFacade;
-import com.divudi.facade.SalaryCycleFacade;
 import com.divudi.facade.StaffEmploymentFacade;
 import com.divudi.facade.StaffFacade;
 import com.divudi.facade.StaffSalaryFacade;
@@ -593,6 +590,28 @@ public class StaffController implements Serializable {
             sql = "select s from Staff s "
                     + " where s.retired=false "
                     + " and type(s)=:class "
+                    + " and LENGTH(s.person.name) > 0 "
+                    + " and upper(s.person.name) like '%" + query.toUpperCase() + "%' "
+                    + " order by s.person.name";
+
+            ////System.out.println(sql);
+            suggestions = getEjbFacade().findBySQL(sql, hm, 20);
+        }
+        return suggestions;
+    }
+    
+    public List<Staff> completeDoctor(String query) {
+        List<Staff> suggestions;
+        String sql;
+        HashMap hm = new HashMap();
+        hm.put("class1", Doctor.class);
+        hm.put("class2", Consultant.class);
+        if (query == null) {
+            suggestions = new ArrayList<>();
+        } else {
+            sql = "select s from Staff s "
+                    + " where s.retired=false "
+                    + " and (type(s)=:class1 or type(s)=:class2) "
                     + " and LENGTH(s.person.name) > 0 "
                     + " and upper(s.person.name) like '%" + query.toUpperCase() + "%' "
                     + " order by s.person.name";

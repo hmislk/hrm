@@ -311,8 +311,7 @@ public class Bill implements Serializable {
 //    private WebUser printedUser;
 //    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
 //    private Date printedAt;
-    
-    
+
     @Transient
     double transTotalCCFee;
     @Transient
@@ -327,9 +326,9 @@ public class Bill implements Serializable {
     double vatPlusStaffFee;
     @Transient
     double vatPlusHosFee;
-    
+
     @Transient
-    private boolean approvedAnyTest=false;
+    private boolean approvedAnyTest = false;
 
     public double getTransTotalSaleValue() {
         return transTotalSaleValue;
@@ -439,7 +438,7 @@ public class Bill implements Serializable {
         billerFee = 0 - bill.getBillerFee();
         discount = 0 - bill.getDiscount();
         vat = 0 - bill.getVat();
-        vatPlusNetTotal =0-bill.getVatPlusNetTotal();
+        vatPlusNetTotal = 0 - bill.getVatPlusNetTotal();
         netTotal = 0 - bill.getNetTotal();
         total = 0 - bill.getTotal();
         discountPercent = 0 - bill.getDiscountPercent();
@@ -454,6 +453,7 @@ public class Bill implements Serializable {
         hospitalFee = 0 - bill.getHospitalFee();
         margin = 0 - bill.getMargin();
         grnNetTotal = 0 - bill.getGrnNetTotal();
+        tax = 0 - bill.getTax();
 
     }
 
@@ -1770,7 +1770,6 @@ public class Bill implements Serializable {
 //    public void setPrintedAt(Date printedAt) {
 //        this.printedAt = printedAt;
 //    }
-
     public boolean isApprovedAnyTest() {
         return approvedAnyTest;
     }

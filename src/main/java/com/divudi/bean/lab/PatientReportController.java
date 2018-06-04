@@ -569,7 +569,8 @@ public class PatientReportController implements Serializable {
         currentPatientReport.setApproveInstitution(getSessionController().getLoggedUser().getInstitution());
         currentPatientReport.setApproveUser(getSessionController().getLoggedUser());
         getFacade().edit(currentPatientReport);
-        getStaffController().setCurrent(getSessionController().getLoggedUser().getStaff());
+//        getStaffController().setCurrent(getSessionController().getLoggedUser().getStaff());
+        getStaffController().setCurrent(currentPatientReport.getItem().getStaff());
         getTransferController().setStaff(getSessionController().getLoggedUser().getStaff());
         UtilityController.addSuccessMessage("Approved");
         commonController.printReportDetails(null, null, startTime, "Lab Report Aprove.");
@@ -825,6 +826,7 @@ public class PatientReportController implements Serializable {
         if (currentPatientReport != null) {
             getCommonReportItemController().setCategory(currentPatientReport.getItem().getReportFormat());
             currentPtIx = currentPatientReport.getPatientInvestigation();
+            getStaffController().setCurrent(currentPatientReport.getItem().getStaff());
             System.out.println("setcurrentPatientReport.currentPtIx = " + currentPtIx);
         }
     }

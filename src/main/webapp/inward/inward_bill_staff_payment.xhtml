@@ -48,6 +48,12 @@
                                                       value="#{inwardStaffPaymentBillController.paymentMethod}" >                                        
                                         <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}"/>
                                     </p:selectOneMenu>
+                                    
+                                    <h:outputLabel value="Payment Method" ></h:outputLabel>
+                                    <h:selectBooleanCheckbox value="#{inwardStaffPaymentBillController.searchKeyword.activeAdvanceOption}"  >
+                                        <f:ajax event="change" execute="@this" listener="#{inwardStaffPaymentBillController.performCalculations()}"   
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
+                                    </h:selectBooleanCheckbox>
 
                                 </h:panelGrid>
 
@@ -57,13 +63,13 @@
                                                var="bf" rowKey="#{bf.id}" >
 
                                     <f:ajax  event="rowSelectCheckbox" execute="tblFee" listener="#{inwardStaffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <f:ajax  event="rowUnselectCheckbox" execute="tblFee" listener="#{inwardStaffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <f:ajax  event="toggleSelect" execute="tblFee" listener="#{inwardStaffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} tblFee"  />  
+                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee"  />  
 
                                     <p:column selectionMode="multiple" ></p:column>
 
@@ -132,9 +138,20 @@
                                         <h:outputLabel id="lblPay"  value="#{inwardStaffPaymentBillController.totalPaying }" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>  
+                                        <h:outputLabel value="With Holding Tax" ></h:outputLabel>
+                                        <h:outputLabel id="lblTax"  value="#{inwardStaffPaymentBillController.totalTax}" >
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel> 
                                     </h:panelGrid>
                                 </p:panel>
                                 <h:panelGroup >
+                                    <h:outputLabel  value="Pay For" ></h:outputLabel>
+                                    <p:autoComplete  style="width: 400px;" forceSelection="true"
+                                                     value="#{inwardStaffPaymentBillController.forStaff}" id="scStaffFor"
+                                                     completeMethod="#{inwardStaffPaymentBillController.completeStaff}"
+                                                     var="mys" itemLabel="#{mys.person.nameWithTitle}" itemValue="#{mys}"
+                                                     converter="stfcon"   >
+                                    </p:autoComplete>
                                     <p:commandButton ajax="false" value="Pay" action="#{inwardStaffPaymentBillController.settleBill()}" onclick="onSubmitButton();" >
                                         <!--<f:ajax execute="@this cmbPay tblFee scStaff" render="@all" />-->
                                     </p:commandButton>
@@ -149,6 +166,7 @@
 
 
                     <h:panelGroup rendered="#{inwardStaffPaymentBillController.printPreview}" styleClass="alignTop" >
+                        <h:outputLabel value="***Without With Holding Tax****" style="color: red;font-size: 50pt;" rendered="#{inwardStaffPaymentBillController.searchKeyword.activeAdvanceOption ne true}" /><br></br>
                         <p:commandButton ajax="false" value="New Bill" action="#{inwardStaffPaymentBillController.recreateModel}" onclick="onSubmitButton();"/>
 
                         <bi:staffBill bill="#{inwardStaffPaymentBillController.current}" dup="false" />

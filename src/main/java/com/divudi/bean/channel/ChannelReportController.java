@@ -3716,6 +3716,104 @@ public class ChannelReportController implements Serializable {
         return bcsrs;
     }
 
+    public void test() {
+        List<BillType> bts;
+        if (agncyOnCall) {
+            bts = Arrays.asList(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid});
+        } else {
+            bts = Arrays.asList(new BillType[]{BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelPaid});
+        }
+        List<Object[]> objects = channelBillTotalByDate(false, new BilledBill(), bts, fromDate, toDate);
+        for (Object[] ob : objects) {
+            Date date = (Date) ob[0];
+            System.out.println("date = " + date);
+            double d1 = (double) ob[1];
+            System.out.println("d1 = " + d1);
+            double d2 = (double) ob[2];
+            System.out.println("d2 = " + d2);
+        }
+    }
+
+    public List<Object[]> channelBillTotalByDate(boolean createdDate, Bill bill, List<BillType> billTypes, Date fd, Date td) {
+
+        HashMap m = new HashMap();
+
+        String sql = " select ";
+
+        if (createdDate) {
+            sql += " FUNC('Date',b.createdAt), ";
+        } else {
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " FUNC('Date',b.singleBillSession.sessionDate), ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " FUNC('Date',b.createdAt), ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " FUNC('Date',b.createdAt), ";
+            }
+        }
+
+        sql += " sum(b.netTotal),sum(b.vat) "
+                + " from Bill b "
+                + " where b.retired=false ";
+
+        if (createdDate) {
+            sql += " and b.createdAt between :fDate and :tDate "
+                    + " and b.paidBill is not null ";
+        } else {
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fDate and :tDate "
+                        + " and b.paidBill is not null ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fDate and :tDate "
+                        + " and b.billedBill.paidBill is not null ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fDate and :tDate "
+                        + " and b.billedBill.paidBill is not null ";
+            }
+        }
+
+        if (!billTypes.isEmpty()) {
+            sql += " and b.billType in :bt ";
+            m.put("bt", billTypes);
+        }
+
+        if (bill != null) {
+            sql += " and type(b)=:class";
+            m.put("class", bill.getClass());
+        }
+
+        if (createdDate) {
+            sql += " group by FUNC('Date',b.createdAt) "
+                    + " order by b.createdAt ";
+        } else {
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " group by FUNC('Date',b.singleBillSession.sessionDate) "
+                        + " order by b.singleBillSession.sessionDate ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " group by FUNC('Date',b.createdAt) "
+                        + " order by b.createdAt ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " group by FUNC('Date',b.createdAt) "
+                        + " order by b.createdAt ";
+            }
+        }
+
+        m.put("fDate", fd);
+        m.put("tDate", td);
+
+        System.out.println("sql = " + sql);
+        System.out.println("m = " + m);
+
+        return billFacade.findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+    }
+
     public List<BillFee> getListBilledBillFees() {
         return listBilledBillFees;
     }
@@ -4064,7 +4162,7 @@ public class ChannelReportController implements Serializable {
 //                System.out.println("t.get(Calendar.MINUTE) = " + t.get(Calendar.MINUTE));
 //                System.out.println("t.get(Calendar.SECOND) = " + t.get(Calendar.SECOND));
 //                Calendar cal = Calendar.getInstance();
-                
+
                 t.set(Calendar.YEAR, d.get(Calendar.YEAR));
                 t.set(Calendar.MONTH, d.get(Calendar.MONTH));
                 t.set(Calendar.DATE, d.get(Calendar.DATE));
@@ -4074,7 +4172,7 @@ public class ChannelReportController implements Serializable {
 //                cal.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
 //                cal.set(Calendar.SECOND, t.get(Calendar.SECOND));
 //                System.out.println("cal.getTime() = " + cal.getTime());
-                if (getFromDate().getTime() <= t.getTime().getTime() 
+                if (getFromDate().getTime() <= t.getTime().getTime()
                         && t.getTime().getTime() <= getToDate().getTime()) {
                     rangeBills.add(b);
                     System.err.println("added*************************************************");
