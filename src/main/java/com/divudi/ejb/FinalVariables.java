@@ -154,6 +154,14 @@ public class FinalVariables {
             return 1;
         }
     }
+    
+    public double getWithHoldingTaxRate(){
+        if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
+            return 0.05;
+        }else{
+            return 0;
+        }
+    }
 
     public double getCreditCardCommission() {
         if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {

@@ -26,6 +26,8 @@ public enum BillType {
     CollectingCentreBill,
     CollectingCentreBatchBill,
     PaymentBill,//To Pay Professional Payments
+    WithHoldingTaxBill,//to add Tax to payment
+    WithHoldingTaxBillInward,//to add Tax to payment Inward
     OpdBill,
     OpdPreBill,
     InwardPaymentBill,
@@ -234,6 +236,10 @@ public enum BillType {
                 return "Channel Expenses Bill";
             case Channel:
                 return "Channel";
+            case WithHoldingTaxBill:
+                return "OPD Tax";
+            case WithHoldingTaxBillInward:
+                return "Inward Tax";
             case XrayScan:
                 return "X-Ray and Scan";
 

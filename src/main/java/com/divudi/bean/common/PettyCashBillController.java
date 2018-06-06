@@ -23,6 +23,7 @@ import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.PersonFacade;
 import com.divudi.facade.util.JsfUtil;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,7 +135,10 @@ public class PettyCashBillController implements Serializable {
         }
         Date fd = c.getTime();
         System.out.println("d = " + fd);
-        String inv = createInvoiceNumberSuffix() + getCurrent().getIntInvoiceNumber();
+        DecimalFormat df = new DecimalFormat("00000");
+        String s=df.format(getCurrent().getIntInvoiceNumber());
+        System.out.println("df = " + s);
+        String inv = createInvoiceNumberSuffix() + s;
         System.out.println("inv = " + inv);
         String sql = "Select b From BilledBill b where "
                 + " b.retired=false "
@@ -275,7 +279,10 @@ public class PettyCashBillController implements Serializable {
         }
 
         getCurrent().setTotal(getCurrent().getNetTotal());
-        getCurrent().setInvoiceNumber(createInvoiceNumberSuffix() + getCurrent().getIntInvoiceNumber());
+        DecimalFormat df = new DecimalFormat("00000");
+        String s=df.format(getCurrent().getIntInvoiceNumber());
+        System.out.println("df = " + s);
+        getCurrent().setInvoiceNumber(createInvoiceNumberSuffix() + s);
 
         saveBill();
         saveBillItem();

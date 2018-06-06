@@ -61,6 +61,9 @@
                             <p:column headerText="Code" >
                                 <h:outputLabel value="#{vt.code}"></h:outputLabel>
                             </p:column>
+                            <p:column headerText="Category" >
+                                <h:outputLabel value="#{vt.category.name}"></h:outputLabel>
+                            </p:column>
                             <p:column headerText="Pack Size" >
                                 <p:outputLabel value=" X #{vt.dblValue}" 
                                                rendered="#{vt.class eq 'class com.divudi.entity.pharmacy.Ampp'}"/>                            
@@ -79,6 +82,9 @@
                             </p:column>
                             <p:column headerText="Code" style="max-width: 100px;overflow-wrap: break-word;">
                                 <h:outputLabel value="#{vt.code}"></h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Category" >
+                                <h:outputLabel value="#{vt.category.name}"></h:outputLabel>
                             </p:column>
                             <p:column headerText="Pack Size" style="max-width: 50px;">
                                 <p:outputLabel value=" X #{vt.dblValue}" 

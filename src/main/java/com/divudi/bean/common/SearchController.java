@@ -4085,6 +4085,16 @@ public class SearchController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
+        
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and b.toDepartment=:dep ";
+            temMap.put("dep", getReportKeyWord().getDepartment());
+        }
+        
+        if (getReportKeyWord().getDepartmentFrom() != null) {
+            sql += " and b.fromDepartment=:depFrom ";
+            temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
+        }
 
         sql += " order by pi.id desc  ";
 //    
@@ -4274,6 +4284,16 @@ public class SearchController implements Serializable {
         if (patientEncounter != null) {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
+        }
+        
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and b.toDepartment=:dep ";
+            temMap.put("dep", getReportKeyWord().getDepartment());
+        }
+        
+        if (getReportKeyWord().getDepartmentFrom() != null) {
+            sql += " and b.fromDepartment=:depFrom ";
+            temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
         }
 
         sql += " order by pi.id desc  ";
@@ -5725,7 +5745,11 @@ public class SearchController implements Serializable {
         m.put("bts", bts);
         m.put("class", BilledBill.class);
 
-        billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        if (getReportKeyWord().isAdditionalDetails()) {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Payment/Payment done search(/faces/channel/channel_payment_bill_search.xhtml)");
 
@@ -5790,8 +5814,11 @@ public class SearchController implements Serializable {
         m.put("bt", BillType.ChannelProPayment);
         m.put("bts", bts);
         m.put("class", BilledBill.class);
-
-        billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        if (getReportKeyWord().isAdditionalDetails()) {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Payment/Payment done search(/faces/channel/channel_payment_bill_search.xhtml)");
 
@@ -5900,7 +5927,11 @@ public class SearchController implements Serializable {
         hm.put("bt", bts);
         hm.put("ftp", FeeType.Staff);
         hm.put("class", BilledBill.class);
-        billFees = billFeeFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
+        if (getReportKeyWord().isAdditionalDetails()) {
+            billFees = billFeeFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
+        } else {
+            billFees = billFeeFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP, 50);
+        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Payment/Payment due search(/faces/channel/channel_payments_due_search.xhtml)");
 
@@ -6974,6 +7005,7 @@ public class SearchController implements Serializable {
                     telephoneNumbers.add(number);
                 }
             }
+            System.out.println("telephoneNumbers.size() = " + telephoneNumbers.size());
             UtilityController.addSuccessMessage("Succesful. All the data in Excel File Impoted.");
         } catch (Exception e) {
         }
@@ -7090,11 +7122,11 @@ public class SearchController implements Serializable {
                         + " and bi.referanceBillItem.id=" + bf.getBillItem().getId();
             } else {
                 m = new HashMap();
-                m.put("class", RefundBill.class);
+//                m.put("class", RefundBill.class);
                 sql = "SELECT bi FROM BillItem bi where "
                         + " bi.retired=false"
                         + " and bi.bill.cancelled=false "
-                        + " and type(bi.bill)=:class "
+                        //                        + " and type(bi.bill)=:class "
                         + " and bi.referanceBillItem.id=" + bf.getBillItem().getId();
             }
             rbi = getBillItemFacade().findFirstBySQL(sql, m);
@@ -7273,6 +7305,10 @@ public class SearchController implements Serializable {
 //    }
     public void listnerBillTypeChange() {
         reportKeyWord.setArea(null);
+    }
+    
+    public void listnerReportSearch(){
+        getReportKeyWord().setDepartment(getSessionController().getLoggedUser().getDepartment());
     }
 
     public SearchController() {

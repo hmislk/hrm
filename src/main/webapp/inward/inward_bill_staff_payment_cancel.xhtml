@@ -5,6 +5,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"   
+      xmlns:bi="http://java.sun.com/jsf/composite/inward/bill"
       xmlns:bill="http://java.sun.com/jsf/composite/bill">
 
     <h:body>
@@ -52,7 +53,7 @@
 
                     <h:panelGroup rendered="#{inwardSearch.printPreview}" >
                   
-                        <bill:staffBill bill="#{inwardSearch.bill}" dup="true"/>
+                        <bi:staffBill bill="#{inwardSearch.bill}" dup="true"/>
                     </h:panelGroup>
 
 

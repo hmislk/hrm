@@ -20,6 +20,7 @@ public enum ReportItemType {
     BillNo,
     BillItemNo,
     AutherizedSignature,
+    DoctorSignature,
     DataEntrySignature,
     ReportedDate,
     ReportedTime,

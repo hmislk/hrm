@@ -60,7 +60,9 @@
                                                      action="#{patientReportController.calculate}" onclick="onSubmitButton();"   >
                                     </p:commandButton>
 
-                                    <p:commandButton styleClass="nonPrintBlock"  id="btnApprove"  disabled ="#{!(webUserController.hasPrivilege('LabAutherizing') eq true and patientReportController.currentPatientReport.dataEntered eq true)}"   value="Approve" action="#{patientReportController.approvePatientReport()}" ajax="false" onclick="onSubmitButton();"  >
+                                    <p:commandButton styleClass="nonPrintBlock"  id="btnApprove"  
+                                                     disabled ="#{!(webUserController.hasPrivilege('LabAutherizing') eq true and patientReportController.currentPatientReport.dataEntered eq true)}"   
+                                                     value="Approve" action="#{patientReportController.approvePatientReport()}" ajax="false" onclick="onSubmitButton();"  >
                                     </p:commandButton>
 
                                     <p:commandButton styleClass="nonPrintBlock"  
@@ -69,7 +71,7 @@
                                                      rendered="#{patientReportController.currentPatientReport.approved or userPreferenceController.userPreference.canPrintWithoutPermission }"
                                                      onclick="window.print();" 
                                                      actionListener="#{patientReportController.printPatientReport()}"/>
-                                   
+
                                     <p:spacer width="30" ></p:spacer>
                                     <p:commandButton  styleClass="nonPrintBlock"  value="Patient Report Search" action="#{patientReportController.patientReportSearch}" ajax="false" >
                                     </p:commandButton>
@@ -264,9 +266,9 @@
                         <div class="nonPrintBlock" >
                             <p:commandButton styleClass="nonPrintBlock"  ajax="false" value="Print" onclick="window.print();" actionListener="#{patientReportController.printPatientReport()}" 
                                              rendered="#{patientReportController.currentPatientReport.approved or userPreferenceController.userPreference.canPrintWithoutPermission }" />
-                        
-                            <p:commandButton styleClass="nonPrintBlock"  ajax="false" value="PDF" actionListener="#{patientReportController.pdfPatientReport()}" 
-                                             rendered="#{patientReportController.currentPatientReport.approved or userPreferenceController.userPreference.canPrintWithoutPermission }" />
+
+<!--                            <p:commandButton styleClass="nonPrintBlock"  ajax="false" value="PDF" actionListener="#{patientReportController.pdfPatientReport()}" 
+                                             rendered="#{patientReportController.currentPatientReport.approved or userPreferenceController.userPreference.canPrintWithoutPermission }" />-->
                         </div>
 
 
@@ -325,6 +327,18 @@
                                         <ui:repeat value="#{patientReportController.currentPatientReport.item.reportItems}" var="myIi" >
                                             <div style="#{myIi.cssStyle}; position:absolute;">
                                                 <h:outputText rendered="#{myIi.retired ne true and myIi.ixItemType eq 'Label' }" value="#{myIi.htmltext}" style="color: #{myIi.cssColor}" escape="false" ></h:outputText>
+                                            </div>
+                                        </ui:repeat>
+
+                                        <ui:repeat value="#{patientReportController.currentPatientReport.item.reportItems}" var="myIi" >
+                                            <div style="#{myIi.cssStyle}; position:absolute;">
+                                                <p:graphicImage rendered="#{myIi.retired ne true and myIi.ixItemType eq 'DoctorSignature' 
+                                                                            and patientReportController.currentPatientReport.item.staff.id ne null
+                                                                            and patientReportController.currentPatientReport.approved}"  
+                                                                value="#{staffImageController.signatureById}" >
+                                                    <!--and patientReportController.currentPatientReport.approved-->
+                                                    <f:param name="id" value="#{patientReportController.currentPatientReport.item.staff.id}" />
+                                                </p:graphicImage>
                                             </div>
                                         </ui:repeat>
 

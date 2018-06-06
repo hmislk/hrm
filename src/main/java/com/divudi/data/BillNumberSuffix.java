@@ -17,6 +17,11 @@ public enum BillNumberSuffix {
     PROPAY,//Professional Payment
     PROCAN,//Professional Cancel
     CHNPROPAY,//Channel Pro Pay
+    //Tax
+    WHTAX,
+    WHTAXCAN,
+    WHTAXIN,
+    WHTAXINCAN,
     //Pharmacy
     GRN,//Pharmacy GRN
     GRNCAN,//GRN Cancel

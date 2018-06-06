@@ -334,11 +334,10 @@ public class BillSearch implements Serializable {
         tmp.setEditedAt(new Date());
         tmp.setEditor(sessionController.getLoggedUser());
 
-        if (tmp.getPaidValue() != 0.0) {
-            UtilityController.addErrorMessage("Already Staff FeePaid");
-            return;
-        }
-
+//        if (tmp.getPaidValue() != 0.0) {
+//            UtilityController.addErrorMessage("Already Staff FeePaid");
+//            return;
+//        }
         getBillFeeFacade().edit(tmp);
 
     }
@@ -1324,6 +1323,7 @@ public class BillSearch implements Serializable {
 
             WebUser wb = getCashTransactionBean().saveBillCashInTransaction(cb, getSessionController().getLoggedUser());
             getSessionController().setLoggedUser(wb);
+            createWithHoldingTaxCancelBill(getBill());
             printPreview = true;
 
         } else {
@@ -2374,6 +2374,39 @@ public class BillSearch implements Serializable {
 
     public void setCommonController(CommonController commonController) {
         this.commonController = commonController;
+    }
+
+    private void createWithHoldingTaxCancelBill(Bill b) {
+        CancelledBill cb = new CancelledBill();
+        if (b.getForwardReferenceBill() != null) {
+            cb.copy(b.getForwardReferenceBill());
+            cb.invertValue(b.getForwardReferenceBill());
+
+            cb.setDeptId(getBillNumberBean().departmentBillNumberGenerator(getSessionController().getDepartment(), b.getForwardReferenceBill().getBillType(), BillClassType.CancelledBill, BillNumberSuffix.WHTAXCAN));
+            cb.setInsId(getBillNumberBean().institutionBillNumberGenerator(getSessionController().getInstitution(), b.getForwardReferenceBill().getBillType(), BillClassType.CancelledBill, BillNumberSuffix.WHTAXCAN));
+
+        }
+        cb.setBalance(0.0);
+        cb.setBilledBill(b.getForwardReferenceBill());
+        cb.setBillDate(new Date());
+        cb.setBillTime(new Date());
+        cb.setCreatedAt(new Date());
+        cb.setCreater(getSessionController().getLoggedUser());
+        cb.setDepartment(getSessionController().getDepartment());
+        cb.setInstitution(getSessionController().getInstitution());
+        cb.setComments(comment);
+        getBillFacade().create(cb);
+        
+        b.getForwardReferenceBill().setCancelled(true);
+        b.getForwardReferenceBill().setCancelledBill(cb);
+        getBillFacade().edit(b.getForwardReferenceBill());
+        
+        b.getCancelledBill().setForwardReferenceBill(cb);
+        getBillFacade().edit(b.getCancelledBill());
+        
+        cb.setBackwardReferenceBill(b.getCancelledBill());
+        getBillFacade().edit(cb);
+        
     }
 
     public class BillTypeIncomeRecord {

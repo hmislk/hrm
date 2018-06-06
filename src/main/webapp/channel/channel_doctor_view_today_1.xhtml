@@ -16,6 +16,8 @@
                     <p:outputLabel value="Arrived Doctors" />
                 </f:facet>
                 <p:panel>
+                    <p:poll interval="30"   
+                                listener="#{channelReportController.createDoctorArrival()}" update="@all" />
                     <h:panelGrid columns="2" >
                         
                         <p:commandButton value="Process" action="#{channelReportController.createDoctorArrival()}" ajax="false" />
@@ -45,6 +47,12 @@
                             <p:outputLabel value="Consultant" style="float: left;"/>
                         </f:facet>
                         <p:outputLabel value="#{a.serviceSession.staff.person.name}" />
+                    </p:column>   
+                    <p:column >
+                        <f:facet name="header">
+                            <p:outputLabel value="Creater" style="float: left;"/>
+                        </f:facet>
+                        <p:outputLabel value="#{a.creater.webUserPerson.name}" />
                     </p:column>   
                     <p:column sortBy="#{a.serviceSession.startingTime}">
                         <f:facet name="header">

@@ -261,7 +261,7 @@ public class QuickBookReportController implements Serializable {
         quickBookFormats = new ArrayList<>();
         List<QuickBookFormat> qbfs = new ArrayList<>();
 
-        List<PaymentMethod> paymentMethods = Arrays.asList(PaymentMethod.Cash, PaymentMethod.Cheque, PaymentMethod.Slip, PaymentMethod.Card);
+        List<PaymentMethod> paymentMethods = Arrays.asList(PaymentMethod.Cash, PaymentMethod.Cheque, PaymentMethod.Slip, PaymentMethod.Card, PaymentMethod.OnlineSettlement);
         qbfs.addAll(fetchOPdListWithProDayEndTable(paymentMethods, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), null));
         qbfs.addAll(createPharmacySale(BillType.PharmacySale, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate)));
         qbfs.addAll(createInwardCollection(commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate)));
@@ -299,7 +299,11 @@ public class QuickBookReportController implements Serializable {
         for (Institution i : fetchCreditCompany(commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), true, BillType.OpdBill)) {
             grantTot = 0.0;
             List<QuickBookFormat> qbfs = new ArrayList<>();
-            System.out.println("i.getName() = " + i.getName());
+            if (i!=null) {
+                System.out.println("****i.getName() = " + i.getName());
+            }else{
+                System.out.println("****i = " + i);
+            }
             qbfs.addAll(fetchOPdListWithProDayEndTable(paymentMethods, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), i));
             qbfs.addAll(fetchOPdDocPaymentTable(paymentMethods, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), i));
             QuickBookFormat qbf = new QuickBookFormat();
@@ -765,7 +769,7 @@ public class QuickBookReportController implements Serializable {
             qbf.setRowType("SPL");
             qbf.setTrnsType("Bill");
             qbf.setDate(sdf.format(b.getCreatedAt()));
-            qbf.setAccnt("INVENTORIES:" + b.getDepartment().getName());
+            qbf.setAccnt("INVENTORIES:" + b.getDepartment().gettName());
             qbf.setName("");
             qbf.setInvItemType("");
             qbf.setInvItem("");
@@ -821,7 +825,7 @@ public class QuickBookReportController implements Serializable {
             qbf.setRowType("SPL");
             qbf.setTrnsType("Bill Refund");
             qbf.setDate(sdf.format(b.getCreatedAt()));
-            qbf.setAccnt("INVENTORIES:" + b.getDepartment().getName());
+            qbf.setAccnt("INVENTORIES:" + b.getDepartment().gettName());
             qbf.setName("");
             qbf.setInvItemType("");
             qbf.setInvItem("");
@@ -878,7 +882,7 @@ public class QuickBookReportController implements Serializable {
             qbf.setRowType("SPL");
             qbf.setTrnsType("Bill Refund");
             qbf.setDate(sdf.format(b.getCreatedAt()));
-            qbf.setAccnt("INVENTORIES:" + b.getDepartment().getName());
+            qbf.setAccnt("INVENTORIES:" + b.getDepartment().gettName());
             qbf.setName("");
             qbf.setInvItemType("");
             qbf.setInvItem("");
@@ -935,7 +939,7 @@ public class QuickBookReportController implements Serializable {
             qbf.setRowType("SPL");
             qbf.setTrnsType("Bill");
             qbf.setDate(sdf.format(b.getCreatedAt()));
-            qbf.setAccnt("INVENTORIES:" + b.getDepartment().getName());
+            qbf.setAccnt("INVENTORIES:" + b.getDepartment().gettName());
             qbf.setName("");
             qbf.setInvItemType("");
             qbf.setInvItem("");
@@ -1018,7 +1022,8 @@ public class QuickBookReportController implements Serializable {
             temMap.put("cd", creditCompany);
 
         } else {
-            jpql += " and bf.department.institution=:ins ";
+            // RHRHD/87626 set fee depart ment collecting center
+//            jpql += " and bf.department.institution=:ins ";
         }
         jpql += " group by i.name, bi.bill.billClassType "
                 + " order by c.name, i.name, bf.fee.feeType ";
@@ -1229,7 +1234,7 @@ public class QuickBookReportController implements Serializable {
 
 //        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 //        Item itemBefore = null;
-        QuickBookFormat qbf = new QuickBookFormat("ACCRUED CHARGES:Consultant Advance:Professional",
+        QuickBookFormat qbf = new QuickBookFormat("ACCRUED CHARGES:Consultant Advance:OPD Credit Professional Fee",
                 "CREDIT COMPANY:" + creditCompany.getChequePrintingName(), "ACCRUED CHARGES:Consultant Advance:Professional",
                 0 - d, "OPD");
 
@@ -2212,7 +2217,8 @@ public class QuickBookReportController implements Serializable {
                 + " from Bill b "
                 + " where b.institution=:ins "
                 + " and b.billType= :bTp  "
-                + " and b.retired=false ";
+                + " and b.retired=false"
+                + " and b.creditCompany is not null ";
 
         if (isOpd) {
             jpql += " and b.createdAt between :fd and :td "

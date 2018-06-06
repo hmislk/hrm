@@ -73,7 +73,10 @@ public class ConsultantController implements Serializable {
                     + " where c.retired=false"
                     + " and upper(c.person.name) like :q ";
 
-            sql += " and c.speciality=:s ";
+            if (speciality != null) {
+                sql += " and c.speciality=:s ";
+                hm.put("s", speciality);
+            }
             sql += " order by c.codeInterger , c.person.name ";
             hm.put("s", speciality);
 

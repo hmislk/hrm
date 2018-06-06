@@ -256,7 +256,7 @@
 
 
 
-                        <p:tab title="Madicine Issue">
+                        <p:tab title="Madicine Issue" id="medIss">
                             <p:commandButton value="Export Excel" ajax="false" 
                                              styleClass="noPrintButton" onclick="onSubmitButton();" 
                                              >
@@ -268,6 +268,9 @@
                             </p:commandButton>
 
                             <p:commandButton ajax="false" value="Calculate" action="#{bhtSummeryFinalizedController.calculatePharmacy()}"/>
+                            <p:commandButton ajax="false" process="@this" value="Update Bill Items" 
+                                                     action="#{bhtSummeryFinalizedController.updateAllPharmacyBillItems}" 
+                                                     rendered="#{webUserController.hasPrivilege('Developers')}"/>
 
                             <p:panelGrid columns="6" styleClass="Border normalFont" style="text-align: right;">
                                 <h:outputLabel value=""/>
@@ -336,7 +339,7 @@
                                         <f:convertNumber pattern="#,##0.00"/>  
                                     </h:outputLabel>
                                 </p:column>
-                                <p:column headerText="Discount Value">
+                                <p:column headerText="Discount Value" id="dis">
                                     <f:facet name="header">
                                         <h:outputLabel value="Discount Value"/>
                                     </f:facet>
@@ -345,16 +348,18 @@
                                     </h:inputText>
 
                                 </p:column>
-                                <p:column style="text-align: right;" headerText="Net Value">
+                                <p:column style="text-align: right;" headerText="Net Value" id="tot">
                                     <f:facet name="header">
                                         <h:outputLabel value="Net Value"/>
                                     </f:facet>
-                                    <h:outputLabel  value="#{iss.netValue}" style="text-align: right;">
+                                    <h:outputLabel  value="#{iss.netValue}" style="text-align: right;color: #{iss.discount eq 0.0 ? '':'redText'}">
                                         <f:convertNumber pattern="#,##0.00"/>   
                                     </h:outputLabel>
                                 </p:column>
                                 <p:column>
-                                    <p:commandButton ajax="false" process="@this" value="Update Bill Item" action="#{inwardReportControllerBht.updateBillItem(iss)}" rendered="#{webUserController.hasPrivilege('Developers')}"/>
+                                    <p:commandButton ajax="false" process="@this" value="Update Bill Item" 
+                                                     action="#{inwardReportControllerBht.updateBillItem(iss)}" 
+                                                     rendered="#{webUserController.hasPrivilege('Developers')}"/>
                                 </p:column>
                             </p:dataTable>
                         </p:tab>

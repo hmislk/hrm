@@ -14,6 +14,7 @@ import com.divudi.data.BillNumberSuffix;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.Sex;
 import com.divudi.data.dataStructure.YearMonthDay;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.inward.SurgeryBillType;
 import com.divudi.ejb.BillNumberGenerator;
 import com.divudi.ejb.CashTransactionBean;
@@ -121,6 +122,8 @@ public class InwardSearch implements Serializable {
     /////////////////////
 
     PaymentMethod paymentMethod;
+    
+    ReportKeyWord reportKeyWord;
 
     private YearMonthDay yearMonthDay;
     Patient patient;
@@ -1084,6 +1087,7 @@ public class InwardSearch implements Serializable {
 
             WebUser wb = getCashTransactionBean().saveBillCashInTransaction(cb, getSessionController().getLoggedUser());
             getSessionController().setLoggedUser(wb);
+            createWithHoldingTaxCancelBill(getBill());
             printPreview = true;
 
         } else {
@@ -1244,6 +1248,39 @@ public class InwardSearch implements Serializable {
         this.bill = billFacade.find(bill.getId());
         paymentMethod = bill.getPaymentMethod();
 
+    }
+    
+    private void createWithHoldingTaxCancelBill(Bill b) {
+        CancelledBill cb = new CancelledBill();
+        if (b.getForwardReferenceBill() != null) {
+            cb.copy(b.getForwardReferenceBill());
+            cb.invertValue(b.getForwardReferenceBill());
+
+            cb.setDeptId(getBillNumberBean().departmentBillNumberGenerator(getSessionController().getDepartment(), b.getForwardReferenceBill().getBillType(), BillClassType.CancelledBill, BillNumberSuffix.WHTAXINCAN));
+            cb.setInsId(getBillNumberBean().institutionBillNumberGenerator(getSessionController().getInstitution(), b.getForwardReferenceBill().getBillType(), BillClassType.CancelledBill, BillNumberSuffix.WHTAXINCAN));
+
+        }
+        cb.setBalance(0.0);
+        cb.setBilledBill(b.getForwardReferenceBill());
+        cb.setBillDate(new Date());
+        cb.setBillTime(new Date());
+        cb.setCreatedAt(new Date());
+        cb.setCreater(getSessionController().getLoggedUser());
+        cb.setDepartment(getSessionController().getDepartment());
+        cb.setInstitution(getSessionController().getInstitution());
+        cb.setComments(comment);
+        getBillFacade().create(cb);
+        
+        b.getForwardReferenceBill().setCancelled(true);
+        b.getForwardReferenceBill().setCancelledBill(cb);
+        getBillFacade().edit(b.getForwardReferenceBill());
+        
+        b.getCancelledBill().setForwardReferenceBill(cb);
+        getBillFacade().edit(b.getCancelledBill());
+        
+        cb.setBackwardReferenceBill(b.getCancelledBill());
+        getBillFacade().edit(cb);
+        
     }
 
     public void setBillActionListener(String id) {
@@ -1475,6 +1512,17 @@ public class InwardSearch implements Serializable {
 
     public void setEncounterComponentFacade(EncounterComponentFacade encounterComponentFacade) {
         this.encounterComponentFacade = encounterComponentFacade;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord==null) {
+            reportKeyWord=new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
 }

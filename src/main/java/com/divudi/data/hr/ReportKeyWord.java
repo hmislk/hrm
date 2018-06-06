@@ -6,6 +6,7 @@
 package com.divudi.data.hr;
 
 import com.divudi.data.BillType;
+import com.divudi.data.InvestigationReportType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.Sex;
 import com.divudi.data.SmsType;
@@ -16,6 +17,7 @@ import com.divudi.entity.Department;
 import com.divudi.entity.Institution;
 import com.divudi.entity.Item;
 import com.divudi.entity.Patient;
+import com.divudi.entity.PatientEncounter;
 import com.divudi.entity.Speciality;
 import com.divudi.entity.Staff;
 import com.divudi.entity.WebUser;
@@ -27,6 +29,9 @@ import com.divudi.entity.hr.Shift;
 import com.divudi.entity.hr.StaffCategory;
 import com.divudi.entity.hr.StaffShift;
 import com.divudi.entity.inward.AdmissionType;
+import com.divudi.entity.lab.InvestigationCategory;
+import com.divudi.entity.lab.Machine;
+import com.divudi.entity.memberShip.MembershipScheme;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.persistence.Transient;
@@ -45,6 +50,7 @@ public class ReportKeyWord {
     Times times;
     Staff replacingStaff;
     Department department;
+    Department departmentFrom;
     StaffCategory staffCategory;
     Designation designation;
     Roster roster;
@@ -85,10 +91,17 @@ public class ReportKeyWord {
     @Transient
     String transAddress4;
     
-    int numOfRows=50;
+    int numOfRows=100;
 
     Date fromDate;
     Date toDate;
+    
+    MembershipScheme membershipScheme;
+    PatientEncounter patientEncounter;
+    
+    InvestigationReportType investigationReportType;
+    InvestigationCategory investigationCategory;
+    Machine machine;
 
     public PaysheetComponent getPaysheetComponent() {
         return paysheetComponent;
@@ -500,6 +513,54 @@ public class ReportKeyWord {
 
     public void setNumOfRows(int numOfRows) {
         this.numOfRows = numOfRows;
+    }
+
+    public MembershipScheme getMembershipScheme() {
+        return membershipScheme;
+    }
+
+    public void setMembershipScheme(MembershipScheme membershipScheme) {
+        this.membershipScheme = membershipScheme;
+    }
+
+    public PatientEncounter getPatientEncounter() {
+        return patientEncounter;
+    }
+
+    public void setPatientEncounter(PatientEncounter patientEncounter) {
+        this.patientEncounter = patientEncounter;
+    }
+
+    public Department getDepartmentFrom() {
+        return departmentFrom;
+    }
+
+    public void setDepartmentFrom(Department departmentFrom) {
+        this.departmentFrom = departmentFrom;
+    }
+
+    public InvestigationReportType getInvestigationReportType() {
+        return investigationReportType;
+    }
+
+    public void setInvestigationReportType(InvestigationReportType investigationReportType) {
+        this.investigationReportType = investigationReportType;
+    }
+
+    public InvestigationCategory getInvestigationCategory() {
+        return investigationCategory;
+    }
+
+    public void setInvestigationCategory(InvestigationCategory investigationCategory) {
+        this.investigationCategory = investigationCategory;
+    }
+
+    public Machine getMachine() {
+        return machine;
+    }
+
+    public void setMachine(Machine machine) {
+        this.machine = machine;
     }
 
 }

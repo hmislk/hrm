@@ -15,11 +15,11 @@
     <cc:implementation>
         <p:dataTable id="#{cc.id}" value="#{cc.attrs.data.bills}" var="b"   sortBy="#{b.billType}" rendered="#{cc.attrs.data.bills.size()>0}" >
             <f:facet name="header">  
-                <h:outputLabel value="PaymentsCancel" />
+                <h:outputLabel value="Payments Cancel" />
             </f:facet> 
             <p:column headerText="Time" rendered="#{commonReport.fromDate ne commonReport.toDate}"  >
                 <f:facet name="header">  
-                    <h:outputLabel value="PaymentsCancel" />
+                    <h:outputLabel value="Time" />
                 </f:facet>
                 <h:outputLabel value="#{b.createdAt}"  >
                     <f:convertDateTime pattern="hh:mm a"/>
@@ -31,6 +31,12 @@
                     <h:outputLabel value="Id" />
                 </f:facet>
                 <h:outputLabel value="#{b.insId}"/>
+            </p:column>
+            <p:column headerText="Ref Id" >
+                <f:facet name="header">  
+                    <h:outputLabel value="Ref Id" />
+                </f:facet>
+                <h:outputLabel value="#{b.billedBill.insId}"/>
             </p:column>
 
             <p:column headerText="For Wich Staff"  >
