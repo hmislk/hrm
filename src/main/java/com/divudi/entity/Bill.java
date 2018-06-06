@@ -327,6 +327,8 @@ public class Bill implements Serializable {
     double vatPlusStaffFee;
     @Transient
     double vatPlusHosFee;
+    @Transient
+    double creditCardCommission;
     
     @Transient
     private boolean approvedAnyTest=false;
@@ -1777,6 +1779,14 @@ public class Bill implements Serializable {
 
     public void setApprovedAnyTest(boolean approvedAnyTest) {
         this.approvedAnyTest = approvedAnyTest;
+    }
+
+    public double getCreditCardCommission() {
+        return creditCardCommission;
+    }
+
+    public void setCreditCardCommission(double creditCardCommission) {
+        this.creditCardCommission = creditCardCommission;
     }
 
 }

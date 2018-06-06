@@ -52,8 +52,9 @@
                                 <h:outputLabel value="#{i+1}"/>
                             </p:column>
                             <p:column headerText="View">
+                                
                                 <p:commandButton ajax="false" value="View Bill"
-                                                action="pharmacy_reprint_bill_sale">
+                                                action="#{searchController.viewPharmacySale(pi.bill)}">
                                     <f:setPropertyActionListener value="#{pi.bill.referenceBill}" target="#{pharmacyBillSearch.bill}"/>                                     
                                 </p:commandButton>
                             </p:column>

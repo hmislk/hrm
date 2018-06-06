@@ -1708,7 +1708,7 @@ public class PharmacyBillSearch implements Serializable {
             UtilityController.addErrorMessage("This Bill Already Discharged");
             return;
         }
-        
+
         if (getBill().getCheckedBy() != null) {
             UtilityController.addErrorMessage("Checked Bill. Can not cancel");
             return;
@@ -1837,7 +1837,7 @@ public class PharmacyBillSearch implements Serializable {
                 UtilityController.addErrorMessage("Checked Bill. Can not cancel");
                 return;
             }
-            
+
             if (getBill().getPatientEncounter().isPaymentFinalized()) {
                 UtilityController.addErrorMessage("This BHT Already Discharge..");
                 return;
@@ -1981,7 +1981,7 @@ public class PharmacyBillSearch implements Serializable {
         System.err.println("Ph Qty" + pharmaceuticalBillItem.getQty());
         System.err.println("Ph Qty" + pharmaceuticalBillItem.getFreeQty());
         System.err.println("Ph Qty" + pharmaceuticalBillItem.getFreeQtyInUnit());
-        if (Math.abs(pharmaceuticalBillItem.getQtyInUnit()+pharmaceuticalBillItem.getFreeQtyInUnit()) > stockQty) {
+        if (Math.abs(pharmaceuticalBillItem.getQtyInUnit() + pharmaceuticalBillItem.getFreeQtyInUnit()) > stockQty) {
             System.err.println("Check Item : " + pharmaceuticalBillItem.getBillItem().getItem());
             System.err.println("Item Qty : " + pharmaceuticalBillItem.getQtyInUnit());
             return true;
@@ -2015,7 +2015,6 @@ public class PharmacyBillSearch implements Serializable {
                 UtilityController.addErrorMessage("ITems for this GRN Already issued so you can't cancel ");
                 return;
             }
-            
 
             if (getBill().getPaidAmount() != 0) {
                 UtilityController.addErrorMessage("Payments for this GRN Already Given ");
@@ -2542,7 +2541,7 @@ public class PharmacyBillSearch implements Serializable {
     public void setBill(Bill bb) {
         recreateModel();
         this.bill = bb;
-        if (bb.getPaymentMethod() != null) {
+        if (bb != null && bb.getPaymentMethod() != null) {
             paymentMethod = bb.getPaymentMethod();
         }
 

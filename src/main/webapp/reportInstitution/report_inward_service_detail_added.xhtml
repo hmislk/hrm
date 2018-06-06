@@ -25,10 +25,14 @@
                         </p:calendar>
 
                         <h:outputLabel value="Service Name"/>
-                        <p:autoComplete value="#{serviceSummery.service}" completeMethod="#{itemController.completeService}" var="ix" 
+                        <p:autoComplete value="#{serviceSummery.service}" completeMethod="#{itemController.completeServiceAndTheaterServiceAndInwardService}" var="ix" 
                                         itemLabel="#{ix.name}" itemValue="#{ix}" size="30"  style="width: 400px;" forceSelection="true" >
                             <p:column>
                                 #{ix.name}
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Active" rendered="#{ix.inactive ne true}" />
+                                <p:outputLabel value="In-Active" rendered="#{ix.inactive eq true}" />
                             </p:column>
                             <p:column>
                                 #{ix.department.name}

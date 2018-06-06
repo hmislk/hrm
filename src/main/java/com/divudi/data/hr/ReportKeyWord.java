@@ -65,7 +65,7 @@ public class ReportKeyWord {
     Double to;
     Sex sex;
     EmployeeStatus employeeStatus;
-    boolean additionalDetails;
+    boolean additionalDetails=true;
     WebUser webUser;
     private String string = "0";
     private String string1 = "0";

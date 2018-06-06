@@ -1640,9 +1640,9 @@ public class ChannelReportTempController implements Serializable {
                 formatedDate = df.format(fd);
                 System.out.println("formatedDate = " + formatedDate);
             }
-            System.out.println("fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
-            System.out.println("fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
-            System.out.println("fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
             double tmpTot = fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null)
                     - (fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null)
                     + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
