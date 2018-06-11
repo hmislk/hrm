@@ -386,7 +386,7 @@ public class BookingController implements Serializable {
     }
 
     public List<Staff> getSelectedConsultants() {
-        System.err.println("Select Specility");
+//        System.err.println("Select Specility");
 //        System.out.println("selectText.length() = " + selectTextConsultant.length());
         String sql;
         Map m = new HashMap();
@@ -712,12 +712,12 @@ public class BookingController implements Serializable {
                 d = obj + obj2;
             }
         } else {
-            System.out.println("obj = " + obj);
+//            System.out.println("obj = " + obj);
 //            System.out.println("obj2 = " + obj2);
 //            System.out.println("obj2 * finalVariables.getVATPercentageWithAmount() = " + obj2 * finalVariables.getVATPercentageWithAmount());
 //            System.out.println("roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()) = " + (roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount())));
             d = obj + (commonFunctions.roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()));
-            System.out.println("d = " + d);
+//            System.out.println("d = " + d);
         }
 
         return d;
@@ -886,12 +886,12 @@ public class BookingController implements Serializable {
                 d = obj + obj2;
             }
         } else {
-            System.out.println("obj = " + obj);
+//            System.out.println("obj = " + obj);
 //            System.out.println("obj2 = " + obj2);
 //            System.out.println("obj2 * finalVariables.getVATPercentageWithAmount() = " + obj2 * finalVariables.getVATPercentageWithAmount());
 //            System.out.println("roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()) = " + (roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount())));
             d = obj + (commonFunctions.roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()));
-            System.out.println("d = " + d);
+//            System.out.println("d = " + d);
         }
 
         return d;
@@ -1059,8 +1059,8 @@ public class BookingController implements Serializable {
                 ss.setTotalFfee(fetchForiegnFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod));
                 ss.getOriginatingSession().setTotalFee(ss.getTotalFee());
                 ss.getOriginatingSession().setTotalFfee(ss.getTotalFfee());
-                System.out.println("ss.getTotalFee() = " + ss.getTotalFee());
-                System.out.println("ss.getTotalFfee() = " + ss.getTotalFfee());
+//                System.out.println("ss.getTotalFee() = " + ss.getTotalFee());
+//                System.out.println("ss.getTotalFfee() = " + ss.getTotalFfee());
 //                System.out.println("Math.round(ss.getTotalFee()) = " + Math.round(ss.getTotalFee()));
             }
             ss.setItemFees(fetchFee(ss.getOriginatingSession()));
@@ -1162,7 +1162,7 @@ public class BookingController implements Serializable {
         if (staff != null) {
 //            System.err.println("Time stage 4.1 = " + new Date());
             serviceSessions = getChannelBean().generateDailyServiceSessionsFromWeekdaySessionsNewByServiceSessionIdNew(staff, sessionStartingDate);
-            System.err.println("Fetch Created Sessions " + serviceSessions.size());
+            System.err.println("Fetch Created Sessions = " + serviceSessions.size());
 //            System.err.println("Time stage 4.2 = " + new Date());
         }
         if (getSessionController().getLoggedUser().getWebUserPerson() != null) {

@@ -329,18 +329,18 @@ public class PatientController implements Serializable {
                 + " or upper(p.phn) like :q) ";
 
         if (getReportKeyWord().isAdditionalDetails()) {
-            System.err.println("*** Additonal ***");
+//            System.err.println("*** Additonal ***");
             sql += " and p.code is not null ";
         }
 
         sql += " order by p.person.name";
         hm.put("q", "%" + query.toUpperCase() + "%");
         patientList = getFacade().findBySQL(sql, hm, 20);
-        System.out.println("getReportKeyWord().isAdditionalDetails() = " + getReportKeyWord().isAdditionalDetails());
-        System.out.println("query = " + query);
-        System.out.println("sql = " + sql);
-        System.err.println("patientList.size() = " + patientList.size());
-        commonController.printReportDetails(null, null, startTime, "Autocomplet Patient Search");
+//        System.out.println("getReportKeyWord().isAdditionalDetails() = " + getReportKeyWord().isAdditionalDetails());
+//        System.out.println("query = " + query);
+//        System.out.println("sql = " + sql);
+//        System.err.println("patientList.size() = " + patientList.size());
+//        commonController.printReportDetails(null, null, startTime, "Autocomplet Patient Search");
         return patientList;
     }
 

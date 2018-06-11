@@ -1718,7 +1718,7 @@ public class ChannelBillController implements Serializable {
             UtilityController.addErrorMessage("Please Select Session");
             return true;
         }
-        System.out.println("patientTabId = " + patientTabId);
+//        System.out.println("patientTabId = " + patientTabId);
         if (patientTabId.equals("tabNewPt")) {
             if (getNewPatient().getPerson().getName() == null || getNewPatient().getPerson().getName().trim().equals("")) {
                 errorText = "Can not bill without Patient.";

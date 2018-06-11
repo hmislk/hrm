@@ -474,18 +474,18 @@ public class CommonFunctions {
     
     public double roundNearestTen(double val) {
         double d = 0.0;
-        System.err.println("****Rounding****");
-        System.out.println("val = " + val);
+//        System.err.println("****Rounding****");
+//        System.out.println("val = " + val);
 //        System.out.println("val % 10 = " + val % 10);
         if ((val % 10) >= 5 || (val % 10) == 0) {
             d = Math.round(val * 0.1) * 10;
-            System.out.println("Math.round(fFeeS*.1)*10 = " + Math.round(val * 0.1) * 10);
+//            System.out.println("Math.round(fFeeS*.1)*10 = " + Math.round(val * 0.1) * 10);
         } else {
             d = (Math.round(val * 0.1) * 10 + 10);
-            System.out.println("Math.round(fFeeS*.1)*10 +10 = " + (Math.round(val * 0.1) * 10 + 10));
+//            System.out.println("Math.round(fFeeS*.1)*10 +10 = " + (Math.round(val * 0.1) * 10 + 10));
         }
 
-        System.err.println("****Rounding****");
+//        System.err.println("****Rounding****");
         return d;
     }
 
