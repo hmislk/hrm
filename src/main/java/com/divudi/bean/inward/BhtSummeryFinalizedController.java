@@ -34,6 +34,7 @@ import com.divudi.facade.PatientItemFacade;
 import com.divudi.facade.PatientRoomFacade;
 import com.divudi.facade.SpecialityFacade;
 import com.divudi.facade.StaffFacade;
+import com.divudi.facade.util.JsfUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -452,24 +453,33 @@ public class BhtSummeryFinalizedController implements Serializable {
 
     public void createBhtInwardChargeTypeTable() {
         Date startTime = new Date();
-
+        if (inwardChargeType == null) {
+            JsfUtil.addErrorMessage("Please Select a Inward Charge Type");
+            return;
+        }
         billItemsInward = new ArrayList<>();
+        totalGross = 0.0;
+        totalDiscount = 0.0;
+        totalNet = 0.0;
         for (PatientEncounter pe : patientEncounters()) {
             bill = pe.getFinalBill();
             for (BillItem bi : bill.getBillItems()) {
                 if (bi.getInwardChargeType() == inwardChargeType) {
+                    totalGross += bi.getGrossValue();
+                    totalDiscount += bi.getDiscount();
+                    totalNet += bi.getNetValue();
                     billItemsInward.add(bi);
                 }
             }
         }
-        totalGross = 0.0;
-        totalDiscount = 0.0;
-        totalNet = 0.0;
-        for (BillItem bi : billItemsInward) {
-            totalGross += bi.getGrossValue();
-            totalDiscount += bi.getDiscount();
-            totalNet += bi.getNetValue();
-        }
+//        totalGross = 0.0;
+//        totalDiscount = 0.0;
+//        totalNet = 0.0;
+//        for (BillItem bi : billItemsInward) {
+//            totalGross += bi.getGrossValue();
+//            totalDiscount += bi.getDiscount();
+//            totalNet += bi.getNetValue();
+//        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "BHT inward charged category report(/faces/inward/inward_report_bht_inward_charge_category.xhtml)");
 
@@ -487,7 +497,7 @@ public class BhtSummeryFinalizedController implements Serializable {
         totalDoc = 0.0;
         totalHos = 0.0;
         totalRoom = 0.0;
-        for (PatientEncounter pe : patientEncounters(admissionType,paymentMethod)) {
+        for (PatientEncounter pe : patientEncounters(admissionType, paymentMethod)) {
             bhtWithVat bwv = new bhtWithVat();
             double vat = 0.0;
             double med = 0.0;
@@ -560,7 +570,7 @@ public class BhtSummeryFinalizedController implements Serializable {
         return patientEncounterFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
     }
 
-    public List<PatientEncounter> patientEncounters(AdmissionType admissionType,PaymentMethod paymentMethod) {
+    public List<PatientEncounter> patientEncounters(AdmissionType admissionType, PaymentMethod paymentMethod) {
         String sql;
         Map m = new HashMap();
 
@@ -573,7 +583,7 @@ public class BhtSummeryFinalizedController implements Serializable {
             sql += " and c.admissionType=:at ";
             m.put("at", admissionType);
         }
-        
+
         if (paymentMethod != null) {
             sql = sql + " and c.paymentMethod=:pm ";
             m.put("pm", paymentMethod);

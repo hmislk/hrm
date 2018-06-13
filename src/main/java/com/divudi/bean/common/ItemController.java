@@ -369,13 +369,15 @@ public class ItemController implements Serializable {
 
             sql = "select c from Item c where c.retired=false "
                     + " and (type(c)= :amp) and "
-                    + " ( c.departmentType is null or c.departmentType!=:dep ) "
+                    + " ( c.departmentType is null or (c.departmentType!=:dep and c.departmentType!=:inv) ) "
                     + " and (upper(c.name) like :str or upper(c.code) like :str or"
                     + " upper(c.barcode) like :str ) order by c.name";
             ////System.out.println(sql);
             tmpMap.put("dep", DepartmentType.Store);
+            tmpMap.put("inv", DepartmentType.Inventry);
             tmpMap.put("amp", Amp.class);
             tmpMap.put("str", "%" + query.toUpperCase() + "%");
+            System.out.println("tmpMap = " + tmpMap);
             suggestions = getFacade().findBySQL(sql, tmpMap, TemporalType.TIMESTAMP, 30);
         }
         return suggestions;
@@ -599,6 +601,28 @@ public class ItemController implements Serializable {
                 + " and upper(c.name) like :q order by c.name";
 
         hm.put("cls", Investigation.class);
+        hm.put("q", "%" + query.toUpperCase() + "%");
+        suggestions = getFacade().findBySQL(sql, hm, 20);
+
+        return suggestions;
+
+    }
+    
+    public List<Item> completeServiceAndTheaterServiceAndInwardService(String query) {
+        List<Item> suggestions;
+        String sql;
+        HashMap hm = new HashMap();
+
+        sql = "select c from Item c where "
+                + " c.retired=false"
+                + " and (c.inactive=false or c.inactive is null) "
+                + " and (type(c)=:cls or type(c)=:cls1 or type(c)=:cls2 or type(c)=:cls3)"
+                + " and upper(c.name) like :q order by c.name";
+
+        hm.put("cls", Service.class);
+        hm.put("cls1", Investigation.class);
+        hm.put("cls2", TheatreService.class);
+        hm.put("cls3", InwardService.class);
         hm.put("q", "%" + query.toUpperCase() + "%");
         suggestions = getFacade().findBySQL(sql, hm, 20);
 

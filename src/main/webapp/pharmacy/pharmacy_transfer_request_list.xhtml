@@ -72,12 +72,12 @@
                         </h:panelGroup>
                     </p:column>  
                     <p:column>
-                        <p:commandButton ajax="false" value="View Request" action="pharmacy_reprint_transfer_request">
+                        <p:commandButton ajax="false" value="View Request" action="#{searchController.viewTransferRequest(p)}">
                             <f:setPropertyActionListener value="#{p}" target="#{pharmacyBillSearch.bill}"/>
                         </p:commandButton>
                     </p:column>
                     <p:column>
-                        <p:commandButton ajax="false" value="Issue" action="pharmacy_transfer_issue"
+                        <p:commandButton ajax="false" value="Issue" action="#{searchController.viewTransferIssue(p)}"
                                          disabled="#{p.cancelled eq true}">
                             <f:setPropertyActionListener target="#{transferIssueController.requestedBill}" value="#{p}"/>
                         </p:commandButton>

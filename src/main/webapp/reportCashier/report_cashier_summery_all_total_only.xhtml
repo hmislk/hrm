@@ -22,8 +22,12 @@
                                          styleClass="noPrintButton" style="float: right;" actionListener="#{cashierReportController.calCashierDataTotalOnly()}" />  
                         <p:commandButton id="btnRefresh1" ajax="false" value="Channel" rendered="#{sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}"
                                          styleClass="noPrintButton" style="float: right;" actionListener="#{cashierReportController.calCashierDataTotalOnlyChannel()}" />  
+                        <p:commandButton id="btnRefresh4" ajax="false" value="Channel New" rendered="#{sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}"
+                                         styleClass="noPrintButton" style="float: right;color: red;" actionListener="#{cashierReportController.calCashierDataTotalOnlyChannelNew()}" />  
                         <p:commandButton id="btnRefresh2" ajax="false" value="Cashier" rendered="#{sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}"
                                          styleClass="noPrintButton" style="float: right;" actionListener="#{cashierReportController.calCashierDataTotalOnlyCashier()}" />  
+                        <p:commandButton id="btnRefresh3" ajax="false" value="Cashier New" rendered="#{sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}"
+                                         styleClass="noPrintButton" style="float: right;color: red;" actionListener="#{cashierReportController.calCashierDataTotalOnlyCashierNew()}" />  
                         <p:defaultCommand target="btnRefresh"/>
 
                         <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" style="float: right;" >

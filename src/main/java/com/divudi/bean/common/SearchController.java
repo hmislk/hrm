@@ -7,6 +7,7 @@ package com.divudi.bean.common;
 
 import com.divudi.bean.pharmacy.PharmacySaleBhtController;
 import com.divudi.data.ApplicationInstitution;
+import com.divudi.data.BillClassType;
 import com.divudi.data.BillNumberSuffix;
 import com.divudi.data.BillType;
 import com.divudi.data.DepartmentType;
@@ -7144,6 +7145,114 @@ public class SearchController implements Serializable {
         }
     }
 
+    //---Open Correct Bill
+    private String viewBill(Bill b, BillType billType, String page, String error, boolean refund) {
+        if (refund) {
+            if (b.getBillType() == billType && b.getBillClassType().equals(BillClassType.RefundBill)) {
+                return page;
+            } else {
+                JsfUtil.addErrorMessage(error);
+                bills = new ArrayList<>();
+                return "";
+            }
+        } else {
+            if (b.getBillType() == billType) {
+                return page;
+            } else {
+                JsfUtil.addErrorMessage(error);
+                bills = new ArrayList<>();
+                return "";
+            }
+        }
+    }
+
+    public String viewPharmacySale(Bill b) {
+        return viewBill(b, BillType.PharmacyPre,
+                "/pharmacy/pharmacy_reprint_bill_sale", "Please Search Again and View Bill",false);
+    }
+
+    public String viewGrnRecive(Bill b) {
+        return viewBill(b, BillType.PharmacyOrderApprove,
+                "/pharmacy/pharmacy_grn", "Please Search Again and View Bill",false);
+    }
+
+    public String viewGrnReciveWs(Bill b) {
+        return viewBill(b, BillType.PharmacyOrderApprove,
+                "/pharmacy/pharmacy_grn_wh", "Please Search Again and View Bill",false);
+    }
+
+    public String viewPoApprove(Bill b) {
+        return viewBill(b, BillType.PharmacyOrder,
+                "/pharmacy/pharmacy_purhcase_order_approving", "Please Search Again and View Bill",false);
+    }
+
+    public String viewPo(Bill b) {
+        return viewBill(b, BillType.PharmacyOrderApprove,
+                "/pharmacy/pharmacy_reprint_po", "Please Search Again and View Bill",false);
+    }
+
+    public String viewPoRequest(Bill b) {
+        return viewBill(b, BillType.PharmacyOrder,
+                "/pharmacy/pharmacy_reprint_order_request", "Please Search Again and View Bill",false);
+    }
+
+    public String viewGrnReciveForReturn(Bill b) {
+        return viewBill(b, BillType.PharmacyGrnBill,
+                "/pharmacy/pharmacy_reprint_grn", "Please Search Again and View Bill",false);
+    }
+
+    public String viewGrnReturn(Bill b) {
+        return viewBill(b, BillType.PharmacyGrnBill,
+                "/pharmacy/pharmacy_return_good", "Please Search Again and View Bill",false);
+    }
+
+    public String viewTransferRequest(Bill b) {
+        return viewBill(b, BillType.PharmacyTransferRequest,
+                "/pharmacy/pharmacy_reprint_transfer_request", "Please Search Again and View Bill",false);
+    }
+
+    public String viewTransferIssue(Bill b) {
+        return viewBill(b, BillType.PharmacyTransferRequest,
+                "/pharmacy/pharmacy_transfer_issue", "Please Search Again and View Bill",false);
+    }
+
+    public String viewTransferReceive(Bill b) {
+        return viewBill(b, BillType.PharmacyTransferIssue,
+                "/pharmacy/pharmacy_transfer_receive", "Please Search Again and View Bill",false);
+    }
+
+    public String viewTransferIssueRe(Bill b) {
+        return viewBill(b, BillType.PharmacyTransferIssue,
+                "/pharmacy/pharmacy_reprint_transfer_isssue", "Please Search Again and View Bill",false);
+    }
+
+    public String viewIssue(Bill b) {
+        return viewBill(b, BillType.PharmacyIssue,
+                "/pharmacy/pharmacy_reprint_bill_unit_issue", "Please Search Again and View Bill",false);
+    }
+
+    public String viewIssueReturn(Bill b) {
+        return viewBill(b, BillType.PharmacyIssue,
+                "/pharmacy/pharmacy_reprint_bill_unit_issue_return", "Please Search Again and View Bill",true);
+    }
+    public String viewBHTIssue(Bill b) {
+        return viewBill(b, BillType.PharmacyBhtPre,
+                "/inward/pharmacy_reprint_bill_sale_bht", "Please Search Again and View Bill",false);
+    }
+    public String viewBHTIssueReturn(Bill b) {
+        return viewBill(b, BillType.PharmacyBhtPre,
+                "/inward/pharmacy_reprint_bill_return_bht", "Please Search Again and View Bill",true);
+    }
+    public String viewPharmacyReturnItemAndPayment(Bill b) {
+        return viewBill(b, BillType.PharmacyPre,
+                "/pharmacy/pharmacy_bill_return_retail", "Please Search Again and View Bill",false);
+    }
+    public String viewPharmacyReturnItemOnly(Bill b) {
+        return viewBill(b, BillType.PharmacyPre,
+                "/pharmacy/pharmacy_bill_return_pre", "Please Search Again and View Bill",false);
+    }
+
+    //---Open Correct Bill
 //    public void createAllBillContacts() {
 //        Map temMap = new HashMap();
 //        bills=new ArrayList<>();

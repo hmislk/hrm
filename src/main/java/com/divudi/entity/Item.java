@@ -179,6 +179,8 @@ public class Item implements Serializable, Comparable<Item> {
     double channelAgentFee;
     @Transient
     double channelOnCallFee;
+    @Transient
+    double channelCreditCardCommission;
     
     @Transient
     String transName;
@@ -993,6 +995,25 @@ public class Item implements Serializable, Comparable<Item> {
 
     public void setChannelOnCallFee(double channelOnCallFee) {
         this.channelOnCallFee = channelOnCallFee;
+    }
+
+    public double getChannelCreditCardCommission() {
+        System.out.println("itemFeesAuto.size() = " + itemFeesAuto.size());
+        if (!itemFeesAuto.isEmpty()) {
+            channelCreditCardCommission=0.0;
+            for (ItemFee i : itemFeesAuto) {
+                System.out.println("i.getName() = " + i.getName());
+                if (i.getName().equals("Credit Card Commission")) {
+                    channelCreditCardCommission+=i.fee;
+                }
+            }
+        }
+        System.out.println("channelCreditCardCommission = " + channelCreditCardCommission);
+        return channelCreditCardCommission;
+    }
+
+    public void setChannelCreditCardCommission(double channelCreditCardCommission) {
+        this.channelCreditCardCommission = channelCreditCardCommission;
     }
 
     @Override

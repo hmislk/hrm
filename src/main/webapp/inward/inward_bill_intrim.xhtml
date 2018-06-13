@@ -48,6 +48,12 @@
                                     <h:outputLabel value="#{myItem.currentPatientRoom.roomFacilityCharge.name}"/>
                                 </p:column>
                                 <p:column>
+                                    <h:outputLabel value="Claimable"  rendered="#{myItem.claimable}"/>
+                                </p:column>
+                                <p:column>
+                                    <h:outputLabel value="#{myItem.paymentMethod}" />
+                                </p:column>
+                                <p:column>
                                     <h:outputLabel value="Discharged"  rendered="#{myItem.discharged}"/>
                                 </p:column>
                             </p:autoComplete>   

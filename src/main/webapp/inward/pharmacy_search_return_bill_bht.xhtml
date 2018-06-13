@@ -84,7 +84,7 @@
                             </p:column>        
                             <p:column>
                                 <p:commandButton ajax="false" disabled="#{bill.checkActiveReturnCashBill() or bill.cancelled}" 
-                                                 value="View Bill" action="pharmacy_reprint_bill_return_bht" onclick="onSubmitButton();" >
+                                                 value="View Bill" action="#{searchController.viewBHTIssueReturn(bill)}" onclick="onSubmitButton();" >
                                     <f:setPropertyActionListener value="#{bill}" target="#{pharmacyBillSearch.bill}"/>
                                 </p:commandButton>                                
                             </p:column>
