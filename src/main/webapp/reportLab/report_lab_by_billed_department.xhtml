@@ -36,8 +36,12 @@
                 </h:panelGrid>
 
                 <h:panelGrid columns="4">
-                    <p:commandButton ajax="false" value="Process" 
+                    <p:commandButton ajax="false" value="Count" 
                                      action="#{investigationMonthSummeryOwnControllerSession.createInvestigationMonthEndSummeryCountsFilteredByBilledDepartment()}"
+                                     styleClass="noPrintButton" style="float: right;" >
+                    </p:commandButton>
+                    <p:commandButton ajax="false" value="Total" 
+                                     action="#{investigationMonthSummeryOwnControllerSession.createInvestigationMonthEndSummeryTotalsFilteredByBilledDepartment()}"
                                      styleClass="noPrintButton" style="float: right;" >
                     </p:commandButton>
                     <p:commandButton id="print" value="Print" style="display: none">
@@ -77,11 +81,22 @@
                                 </h:outputLabel>
                             </f:facet>
                         </p:column>
-                        <p:column headerText="Count" style="text-align:right" 
+                        <p:column headerText="Count" style="text-align:right" rendered="#{investigationMonthSummeryOwnControllerSession.count}"
                                   sortBy="#{c.count}">
                             <h:outputLabel value="#{c.count}" />
                             <f:facet name="footer">
                                 <h:outputLabel value="#{investigationMonthSummeryOwnControllerSession.totalCount}">
+                                </h:outputLabel>
+                            </f:facet>
+                        </p:column>
+                        <p:column headerText="Total" style="text-align:right" rendered="#{!investigationMonthSummeryOwnControllerSession.count}"
+                                  sortBy="#{c.total}">
+                            <h:outputLabel value="#{c.total}" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                            <f:facet name="footer">
+                                <h:outputLabel value="#{investigationMonthSummeryOwnControllerSession.grantTotal}">
+                                <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </f:facet>
                         </p:column>

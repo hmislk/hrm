@@ -111,6 +111,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
     boolean stopProgress;
     private boolean paginator = true;
     private int rows = 20;
+    boolean count;
     double grantTotal;
     BillListTotal billlistTotal;
 
@@ -240,6 +241,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
     }
 
     public void createInvestigationMonthEndSummeryCountsFilteredByBilledDepartment() {
+        count=true;
         if (department == null) {
             JsfUtil.addErrorMessage("Select Department");
             return;
@@ -265,6 +267,39 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             InvestigationSummeryData temp = setIxSummeryCountBilledDep(w, department);
             if (temp.getCount() != 0) {
                 totalCount += temp.getCount();
+                items.add(temp);
+            }
+        }
+        progressStarted = false;
+    }
+    
+    public void createInvestigationMonthEndSummeryTotalsFilteredByBilledDepartment() {
+        count=false;
+        if (department == null) {
+            JsfUtil.addErrorMessage("Select Department");
+            return;
+        }
+        items = new ArrayList<>();
+        totalCount = null;
+        progressStarted = true;
+        progressValue = 0;
+        List<Item> ixs = billEjb.getItemsInBills(fromDate, toDate, new BillType[]{BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill}, true, null, false, department, true, null, true, null, false, new Class[]{Investigation.class});
+        if (ixs.isEmpty()) {
+            JsfUtil.addErrorMessage("No Bills For This Date Range");
+            return;
+        }
+        double singleItem = 100 / ixs.size();
+        for (Item w : ixs) {
+            if (totalCount == null) {
+                totalCount = 0l;
+            }
+            if (stopProgress == true) {
+                break;
+            }
+            progressValue += (int) singleItem;
+            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department);
+            if (temp.getTotal() != 0) {
+                grantTotal+=temp.getTotal();
                 items.add(temp);
             }
         }
@@ -1361,6 +1396,19 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
         is.setCount(net);
         return is;
     }
+    private InvestigationSummeryData setIxSummeryTotalBilledDep(Item w, Department d) {
+        InvestigationSummeryData is = new InvestigationSummeryData();
+        is.setInvestigation(w);
+        double billed = billEjb.getBillItemTotal(w, fromDate, toDate, new BillType[]{BillType.InwardBill, BillType.LabBill, BillType.OpdBill, BillType.CollectingCentreBill}, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null);
+        System.out.println("billed = " + billed);
+        double cancelled = billEjb.getBillItemTotal(w, fromDate, toDate, new BillType[]{BillType.InwardBill, BillType.LabBill, BillType.OpdBill, BillType.CollectingCentreBill}, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null);
+        System.out.println("cancelled = " + cancelled);
+        double refunded = billEjb.getBillItemTotal(w, fromDate, toDate, new BillType[]{BillType.InwardBill, BillType.LabBill, BillType.OpdBill, BillType.CollectingCentreBill}, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null);
+        System.out.println("refunded = " + refunded);
+        double net = billed +cancelled + refunded;
+        is.setTotal(net);
+        return is;
+    }
 
     private InvestigationSummeryData setIxSummeryCountReportedDep(Item w, Department d) {
         InvestigationSummeryData is = new InvestigationSummeryData();
@@ -1786,6 +1834,14 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
 
     public void setIncomeSummeryRows(List<IncomeSummeryRow> incomeSummeryRows) {
         this.incomeSummeryRows = incomeSummeryRows;
+    }
+
+    public boolean isCount() {
+        return count;
+    }
+
+    public void setCount(boolean count) {
+        this.count = count;
     }
 
     public class institutionInvestigationCountRow {

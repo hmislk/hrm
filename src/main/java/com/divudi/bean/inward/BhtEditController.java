@@ -122,10 +122,14 @@ public class BhtEditController implements Serializable {
                     }
                 }
             } else {
-                flag=true;
+
+                flag = true;
             }
         }
         if (bills.size() > 1) {
+            for (Bill b : bills) {
+                System.out.println("b.getInsId() = " + b.getInsId());
+            }
             flag = true;
         }
         System.out.println("flag = " + flag);

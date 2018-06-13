@@ -126,6 +126,63 @@ public class BillEjb implements Serializable {
         }
         return getBillItemFacade().countBySql(sql, temMap, TemporalType.TIMESTAMP);
     }
+    public double getBillItemTotal(Item item, Date fromDate,
+            Date toDate,
+            BillType[] billTypes,
+            Class[] classes,
+            boolean allBilledInstitutions,
+            Institution billedInstitution,
+            boolean allBilledDepartments,
+            Department billedDepartment,
+            boolean allItemInstitutions,
+            Institution itemInstitution,
+            boolean allItemDepartments,
+            Department itemDepartment
+    ) {
+        List<Class> arrayClasses = Arrays.asList(classes);
+        List<BillType> arrayBillTypes = Arrays.asList(billTypes);
+        String sql;
+        Map temMap = new HashMap();
+        //sql = "select bi FROM BillItem bi "/
+        sql = "select sum(bi.netValue) FROM BillItem bi "
+                + " where bi.bill.billType in :bts "
+                + " and bi.item =:itm"
+                + " and type(bi.bill) in :bcs "
+                + " and bi.bill.createdAt between :fromDate and :toDate ";
+
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+        temMap.put("itm", item);
+        temMap.put("bcs", arrayClasses);
+        temMap.put("bts", arrayBillTypes);
+
+        if (!allBilledInstitutions) {
+            sql += " and (bi.bill.institution=:bins or bi.bill.department.institution=:bins ) ";
+            temMap.put("bins", billedInstitution);
+        }
+
+        if (!allItemInstitutions) {
+            sql += " and (bi.item.institution=:iins or bi.item.department.institution=:iins ) ";
+            temMap.put("iins", itemInstitution);
+        }
+
+        if (!allBilledDepartments) {
+            sql += " and (bi.bill.department=:bdep ) ";
+            temMap.put("bdep", billedDepartment);
+        }
+
+        if (!allItemDepartments) {
+            sql += " and (bi.item.department=:idep ) ";
+            temMap.put("idep", itemDepartment);
+        }
+        /*List<BillItem> billitems=getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        double d=0.0;
+        for (BillItem bi : billitems) {
+            d+=bi.getNetValue();
+        }
+        System.out.println("d = " + d);*/
+        return getBillItemFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+    }
 
     public List<PatientInvestigation> getPatientInvestigations(Item item, Date fromDate,
             Date toDate,
