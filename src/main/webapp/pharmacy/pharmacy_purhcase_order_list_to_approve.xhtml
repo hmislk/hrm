@@ -52,7 +52,7 @@
                     rowsPerPageTemplate="5,10,15"
                     >
                     <p:column headerText="Requested at"  >
-                        <h:commandLink action="pharmacy_reprint_order_request" >
+                        <h:commandLink action="#{searchController.viewPoRequest(b)}" >
                             <h:outputLabel value="#{b.createdAt}" >
                                 <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
                             </h:outputLabel>
@@ -69,7 +69,7 @@
                     </p:column> 
 
                     <p:column headerText="Requested by" >
-                        <h:commandLink action="pharmacy_reprint_order_request" >
+                        <h:commandLink action="#{searchController.viewPoRequest(b)}" >
                             <h:outputLabel value="#{b.creater.webUserPerson.name}" >                                      
                             </h:outputLabel>
                             <f:setPropertyActionListener value="#{b}" target="#{billSearch.bill}"/>
@@ -84,14 +84,14 @@
                     </p:column>    
 
                     <p:column headerText="Distributor" >
-                        <h:commandLink action="pharmacy_reprint_order_request" >
+                        <h:commandLink action="#{searchController.viewPoRequest(b)}" >
                             #{b.toInstitution.name}
                             <f:setPropertyActionListener target="#{pharmacyBillSearch.bill}" value="#{b}"/>
                         </h:commandLink>
                     </p:column>
 
                     <p:column headerText="Requested Deprtment" >
-                        <h:commandLink action="pharmacy_reprint_order_request" >
+                        <h:commandLink action="#{searchController.viewPoRequest(b)}" >
                             #{b.department.name}
                             <f:setPropertyActionListener target="#{pharmacyBillSearch.bill}" value="#{b}"/>
                         </h:commandLink>
@@ -104,7 +104,7 @@
                     </p:column>
 
                     <p:column headerText="Approved Person"  >
-                        <h:commandLink action="pharmacy_reprint_order_request" 
+                        <h:commandLink action="#{searchController.viewPoRequest(b)}" 
                                        value="#{b.referenceBill.creater.webUserPerson.nameWithTitle}"  rendered="#{b.referenceBill.cancelled eq false}" >                        
                             <f:setPropertyActionListener target="#{pharmacyBillSearch.bill}" value="#{b}"/>
                         </h:commandLink>
@@ -122,13 +122,13 @@
 
                     <p:column headerText="Approve">
                         <p:commandButton ajax="false" value="Approve" 
-                                        action="pharmacy_purhcase_order_approving"
+                                         action="#{searchController.viewPoApprove(b)}"
                                          disabled="#{b.referenceBill.creater ne null and b.referenceBill.cancelled eq false or b.cancelled eq true}">
                             <f:setPropertyActionListener target="#{purchaseOrderController.requestedBill}" value="#{b}"/>
                         </p:commandButton>
                     </p:column>
                     <p:column headerText="View PO">
-                        <p:commandButton ajax="false" value="View PO" action="pharmacy_reprint_po" disabled="#{b.referenceBill.creater eq null or b.referenceBill.referenceBill eq null}">
+                        <p:commandButton ajax="false" value="View PO" action="#{searchController.viewPo(b.referenceBill)}" disabled="#{b.referenceBill.creater eq null or b.referenceBill.referenceBill eq null}">
                             <f:setPropertyActionListener target="#{pharmacyBillSearch.bill}" value="#{b.referenceBill}"/>
                         </p:commandButton>
                     </p:column>

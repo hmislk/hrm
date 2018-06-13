@@ -56,7 +56,7 @@
 
                             <p:column headerText="Bill No" >   
                                 <p:commandLink ajax="false" value="#{bill.deptId}"
-                                              action="pharmacy_reprint_bill_unit_issue_return">
+                                               action="#{searchController.viewIssueReturn(bill)}">
                                     <f:setPropertyActionListener value="#{bill}" target="#{pharmacyIssueController.bill}"/>   
                                 </p:commandLink>
                             </p:column>

@@ -11,6 +11,7 @@ import com.divudi.data.FeeChangeType;
 import com.divudi.data.FeeType;
 import com.divudi.data.PersonInstitutionType;
 import com.divudi.ejb.CommonFunctions;
+import com.divudi.ejb.FinalVariables;
 import com.divudi.ejb.StockHistoryRecorder;
 import com.divudi.entity.Department;
 import com.divudi.entity.FeeChange;
@@ -62,6 +63,9 @@ public class SheduleController implements Serializable {
     ServiceSessionFacade serviceSessionFacade;
     @EJB
     StockHistoryRecorder stockHistoryRecorder;
+    @EJB
+    FinalVariables finalVariables;
+
     @Inject
     private SessionController sessionController;
     @Inject
@@ -102,6 +106,32 @@ public class SheduleController implements Serializable {
                 + " order by f.id";
         m.put("ses", current);
         itemFees = itemFeeFacade.findBySQL(sql, m);
+    }
+
+    public List<ItemFee> fillFees(ServiceSession ss) {
+        String sql;
+        Map m = new HashMap();
+        sql = "Select f from ItemFee f "
+                + " where f.retired=false "
+                + " and (f.serviceSession=:ses "
+                + " or f.item=:ses )"
+                + " order by f.id";
+        m.put("ses", ss);
+        return itemFeeFacade.findBySQL(sql, m);
+    }
+
+    public ItemFee fillFees(ServiceSession ss, String feeName) {
+        String sql;
+        Map m = new HashMap();
+        sql = "Select f from ItemFee f "
+                + " where f.retired=false "
+                + " and (f.serviceSession=:ses "
+                + " or f.item=:ses ) "
+                + " and f.name=:name "
+                + " order by f.id";
+        m.put("name", feeName);
+        m.put("ses", ss);
+        return itemFeeFacade.findFirstBySQL(sql, m);
     }
 
     public ItemFee createStaffFee() {
@@ -161,12 +191,24 @@ public class SheduleController implements Serializable {
         return onc;
     }
 
+    public ItemFee createCreditCardCommissionFee() {
+        ItemFee onc = new ItemFee();
+        onc.setName("Credit Card Commission");
+        onc.setFeeType(FeeType.OwnInstitution);
+        onc.setFee(0.0);
+        onc.setFfee(0.0);
+        onc.setInstitution(getCurrent().getInstitution());
+        onc.setServiceSession(current);
+        return onc;
+    }
+
     private void createFees() {
         getItemFees().add(createStaffFee());
         getItemFees().add(createHospitalFee());
         getItemFees().add(createAgencyFee());
         getItemFees().add(createScanFee());
         getItemFees().add(createOnCallFee());
+        getItemFees().add(createCreditCardCommissionFee());
     }
 
     public void makeNull() {
@@ -327,18 +369,35 @@ public class SheduleController implements Serializable {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(i.getSessionDate());
                 Calendar calNow = Calendar.getInstance();
+                System.out.println("****cal.getTime() = " + cal.getTime());
+                System.out.println("****calNow.getTime() = " + calNow.getTime());
                 System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.YEAR));
                 System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.YEAR));
-                if (cal.get(Calendar.YEAR) <= calNow.get(Calendar.YEAR)) {
-                    System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.MONTH));
-                    System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.MONTH));
-                    if (cal.get(Calendar.MONTH) <= calNow.get(Calendar.MONTH)) {
-                        System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.DATE));
-                        System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.DATE));
-                        if (cal.get(Calendar.DATE) < calNow.get(Calendar.DATE)) {
-                            tmp.add(i);
-                        }
-                    }
+//                if (cal.get(Calendar.YEAR) <= calNow.get(Calendar.YEAR)) {
+//                    System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.MONTH));
+//                    System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.MONTH));
+//                    if (cal.get(Calendar.MONTH) <= calNow.get(Calendar.MONTH)) {
+//                        System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.DATE));
+//                        System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.DATE));
+//                        if (cal.get(Calendar.DATE) < calNow.get(Calendar.DATE)) {
+//                            System.err.println("***add***");
+//                        }
+//                    }
+//                }
+                if (cal.get(Calendar.YEAR) < calNow.get(Calendar.YEAR)) {
+                    tmp.add(i);
+                    continue;
+                }
+                if ((cal.get(Calendar.YEAR) == calNow.get(Calendar.YEAR))
+                        && (cal.get(Calendar.MONTH) < calNow.get(Calendar.MONTH))) {
+                    tmp.add(i);
+                    continue;
+                }
+                if ((cal.get(Calendar.YEAR) == calNow.get(Calendar.YEAR))
+                        && (cal.get(Calendar.MONTH) == calNow.get(Calendar.MONTH))
+                        && (cal.get(Calendar.DATE) < calNow.get(Calendar.DATE))) {
+                    tmp.add(i);
+                    continue;
                 }
 
             }
@@ -529,6 +588,9 @@ public class SheduleController implements Serializable {
             i.setServiceSession(serviceSession);
             i.setItem(serviceSession);
             i.setInstitution(serviceSession.getInstitution());
+            if (i.getName().equals("Credit Card Commission")) {
+                calculateCreditCardCommission(i, getItemFees());
+            }
             if (i.getId() == null) {
                 i.setCreatedAt(new Date());
                 i.setCreater(sessionController.getLoggedUser());
@@ -651,36 +713,56 @@ public class SheduleController implements Serializable {
     }
 
     public void createOnCallFeeOldSession() {
+        System.out.println("Time 1 = " + new Date());
         String sql;
         Map m = new HashMap();
         sql = "Select DISTINCT(f.serviceSession) from ItemFee f "
                 + " where f.retired=false "
-                + " and f.serviceSession is not null ";
+                + " and f.serviceSession is not null"
+                + " and f.serviceSession.retired=false"
+                + " and f.serviceSession.originatingSession is null ";
         List<ServiceSession> serviceSessionsAll = serviceSessionFacade.findBySQL(sql);
         System.out.println("serviceSessionsAll.size() = " + serviceSessionsAll.size());
-        for (ServiceSession s : serviceSessionsAll) {
+        System.out.println("Time 2 = " + new Date());
 
-        }
         List<ServiceSession> tmpList = new ArrayList<>();
         tmpList.addAll(serviceSessionsAll);
         tmpList.removeAll(fetchSessionByFee("On-Call Fee", FeeType.OwnInstitution));
+        System.out.println("Time 3 = " + new Date());
         createFeesForServiceSessionList(tmpList, "On-Call Fee", FeeType.OwnInstitution);
+        System.out.println("Time 4 = " + new Date());
 
         tmpList.addAll(serviceSessionsAll);
         tmpList.removeAll(fetchSessionByFee("Scan Fee", FeeType.Service));
+        System.out.println("Time 5 = " + new Date());
         createFeesForServiceSessionList(tmpList, "Scan Fee", FeeType.Service);
+        System.out.println("Time 6 = " + new Date());
 
         tmpList.addAll(serviceSessionsAll);
         tmpList.removeAll(fetchSessionByFee("Agency Fee", FeeType.OtherInstitution));
+        System.out.println("Time 7 = " + new Date());
         createFeesForServiceSessionList(tmpList, "Agency Fee", FeeType.OtherInstitution);
+        System.out.println("Time 8 = " + new Date());
 
         tmpList.addAll(serviceSessionsAll);
         tmpList.removeAll(fetchSessionByFee("Hospital Fee", FeeType.OwnInstitution));
+        System.out.println("Time 9 = " + new Date());
         createFeesForServiceSessionList(tmpList, "Hospital Fee", FeeType.OwnInstitution);
+        System.out.println("Time 10 = " + new Date());
 
         tmpList.addAll(serviceSessionsAll);
         tmpList.removeAll(fetchSessionByFee("Doctor Fee", FeeType.Staff));
+        System.out.println("Time 11 = " + new Date());
         createFeesForServiceSessionList(tmpList, "Doctor Fee", FeeType.Staff);
+        System.out.println("Time 12 = " + new Date());
+
+        tmpList.addAll(serviceSessionsAll);
+        tmpList.removeAll(fetchSessionByFee("Credit Card Commission", FeeType.OwnInstitution));
+        System.out.println("Time 13 = " + new Date());
+        createFeesForServiceSessionList(tmpList, "Credit Card Commission", FeeType.OwnInstitution);
+        System.out.println("Time 14 = " + new Date());
+        calculateAllSessionsForCreditCardCommission();
+        System.out.println("Time 15 = " + new Date());
 
 //        List<ServiceSession> serviceSessions = serviceSessionFacade.findBySQL(sql, m);
 //        System.out.println("serviceSessions.size() = " + serviceSessions.size());
@@ -696,6 +778,57 @@ public class SheduleController implements Serializable {
 //            onc.setItem(ss);
 //            itemFeeFacade.create(onc);
 //        }
+    }
+
+    public void calculateAllSessionsForCreditCardCommission() {
+        List<ServiceSession> list = fetchSessionByFee("Credit Card Commission", FeeType.OwnInstitution);
+        for (ServiceSession ss : list) {
+
+            double feeH = 0.0;
+            double fFeeH = 0.0;
+            double feeS = 0.0;
+            double fFeeS = 0.0;
+            for (ItemFee f : fillFees(ss)) {
+                if ((f.getName().equals("Hospital Fee") && f.getFeeType() == FeeType.OwnInstitution)
+                        || (f.getName().equals("Scan Fee") && f.getFeeType() == FeeType.Service)) {
+                    feeH += f.getFee();
+                    fFeeH += f.getFfee();
+                }
+                if (f.getFeeType() == FeeType.Staff) {
+                    feeS += f.getFee();
+                    fFeeS += f.getFfee();
+                }
+
+            }
+
+            ItemFee fee = fillFees(ss, "Credit Card Commission");
+            if (fee.getItem() == null) {
+                System.out.println("f.getItem() = " + fee.getItem());
+                fee.setItem(ss);
+            }
+
+            System.out.println("feeH = " + feeH);
+            System.out.println("fFeeH = " + fFeeH);
+            System.out.println("feeS = " + feeS);
+            System.out.println("fFeeS = " + fFeeS);
+            feeS = commonFunctions.roundNearestTen(feeS * finalVariables.getVATPercentageWithAmount());
+            fFeeS = commonFunctions.roundNearestTen(fFeeS * finalVariables.getVATPercentageWithAmount());
+            System.out.println("feeS = " + feeS);
+            System.out.println("fFeeS = " + fFeeS);
+
+//            roundNearestTen(feeS);
+//            roundNearestTen(fFeeS);
+
+            fee.setFee(commonFunctions.roundNearestTen((feeH + feeS) * (finalVariables.getCreditCardCommission() / 100)));
+//            System.out.println("(feeH + feeS) * (finalVariables.getCreditCardCommission() / 100) = " + (feeH + feeS) * (finalVariables.getCreditCardCommission() / 100));
+            System.out.println("i.getFee() = " + fee.getFee());
+            fee.setFfee(commonFunctions.roundNearestTen((fFeeH + fFeeS) * (finalVariables.getCreditCardCommission() / 100)));
+//            System.out.println("(fFeeH + fFeeS) * (finalVariables.getCreditCardCommission() / 100) = " + (fFeeH + fFeeS) * (finalVariables.getCreditCardCommission() / 100));
+            System.out.println("i.getFfee() = " + fee.getFfee());
+
+            itemFeeFacade.edit(fee);
+
+        }
     }
 
     public List<ServiceSession> fetchSessionByFee(String feeName, FeeType feeType) {
@@ -726,8 +859,9 @@ public class SheduleController implements Serializable {
         itemFee.setFeeType(ft);
         itemFee.setFee(0.0);
         itemFee.setFfee(0.0);
-        itemFee.setInstitution(getCurrent().getInstitution());
+        itemFee.setInstitution(sessionController.getInstitution());
         itemFee.setServiceSession(ss);
+        itemFee.setItem(ss);
         if (ft == FeeType.Staff) {
             try {
                 if (ss.getStaff() != null && ss.getStaff().getSpeciality() != null) {
@@ -908,6 +1042,42 @@ public class SheduleController implements Serializable {
             speciality = null;
             currentStaff = null;
         }
+    }
+
+    private ItemFee calculateCreditCardCommission(ItemFee i, List<ItemFee> itemFees) {
+
+        double feeH = 0.0;
+        double fFeeH = 0.0;
+        double feeS = 0.0;
+        double fFeeS = 0.0;
+
+        for (ItemFee itmf : itemFees) {
+            if ((itmf.getName().equals("Hospital Fee") && itmf.getFeeType() == FeeType.OwnInstitution)
+                    || (itmf.getName().equals("Scan Fee") && itmf.getFeeType() == FeeType.Service)) {
+                System.out.println("itmf.getName() = " + itmf.getName());
+                feeH += itmf.getFee();
+                fFeeH += itmf.getFfee();
+            }
+            if (itmf.getFeeType() == FeeType.Staff) {
+                feeS += itmf.getFee();
+                fFeeS += itmf.getFfee();
+            }
+        }
+
+        System.out.println("fFeeH = " + fFeeH);
+        System.out.println("feeH = " + feeH);
+        System.out.println("feeS = " + feeS);
+        System.out.println("fFeeS = " + fFeeS);
+        feeS = commonFunctions.roundNearestTen(feeS * finalVariables.getVATPercentageWithAmount());
+        fFeeS = commonFunctions.roundNearestTen(fFeeS * finalVariables.getVATPercentageWithAmount());
+        System.out.println("feeS = " + feeS);
+        System.out.println("fFeeS = " + fFeeS);
+        i.setFee(commonFunctions.roundNearestTen((feeH + feeS) * (finalVariables.getCreditCardCommission() / 100)));
+        System.out.println("i.getFee() = " + i.getFee());
+        i.setFfee(commonFunctions.roundNearestTen((fFeeH + fFeeS) * (finalVariables.getCreditCardCommission() / 100)));
+        System.out.println("i.getFfee() = " + i.getFfee());
+
+        return i;
     }
 
     public SessionController getSessionController() {

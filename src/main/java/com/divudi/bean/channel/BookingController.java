@@ -386,8 +386,7 @@ public class BookingController implements Serializable {
     }
 
     public List<Staff> getSelectedConsultants() {
-        System.err.println("Select Specility");
-        System.out.println("getSpeciality().getName() = " + getSpeciality().getName());
+//        System.err.println("Select Specility");
 //        System.out.println("selectText.length() = " + selectTextConsultant.length());
         String sql;
         Map m = new HashMap();
@@ -396,6 +395,7 @@ public class BookingController implements Serializable {
         if (selectTextConsultant == null || selectTextConsultant.trim().equals("")) {
             m.put("sp", getSpeciality());
             if (getSpeciality() != null) {
+                System.out.println("getSpeciality().getName() = " + getSpeciality().getName());
                 if (getSessionController().getInstitutionPreference().isShowOnlyMarkedDoctors()) {
 
                     sql = " select pi.staff from PersonInstitution pi where pi.retired=false "
@@ -640,23 +640,35 @@ public class BookingController implements Serializable {
             FeeType[] fts1 = {FeeType.Service, FeeType.OwnInstitution, FeeType.OtherInstitution};
             feeTypes = Arrays.asList(fts1);
             jpql += " and f.feeType in :fts1 "
-                    + " and f.name!=:name";
+                    + " and f.name!=:name "
+                    + " and f.name!=:name1 ";
             m.put("name", "On-Call Fee");
+            m.put("name1", "Credit Card Commission");
             m.put("fts1", feeTypes);
         } else {
             if (paymentMethod == PaymentMethod.OnCall) {
-                jpql += " and f.feeType in :fts2 ";
+                jpql += " and f.feeType in :fts2 "
+                        + " and f.name!=:name ";
+                m.put("name", "Credit Card Commission");
+                m.put("fts2", feeTypes);
+            } else if (paymentMethod == PaymentMethod.Card) {
+                jpql += " and f.feeType in :fts2 "
+                        + " and f.name!=:name ";
+                m.put("name", "On-Call Fee");
                 m.put("fts2", feeTypes);
             } else {
                 jpql += " and f.feeType in :fts3 "
-                        + " and f.name!=:name";
+                        + " and f.name!=:name "
+                        + " and f.name!=:name1 ";
                 m.put("name", "On-Call Fee");
+                m.put("name1", "Credit Card Commission");
                 m.put("fts3", feeTypes);
             }
         }
         m.put("ses", item);
         Double obj = getItemFeeFacade().findDoubleByJpql(jpql, m);
 
+        m = new HashMap();
         feeTypes = Arrays.asList(new FeeType[]{FeeType.Staff});
         jpql = "Select sum(f.fee)"
                 + " from ItemFee f "
@@ -700,7 +712,12 @@ public class BookingController implements Serializable {
                 d = obj + obj2;
             }
         } else {
-            d = obj + (obj2 * finalVariables.getVATPercentageWithAmount());
+//            System.out.println("obj = " + obj);
+//            System.out.println("obj2 = " + obj2);
+//            System.out.println("obj2 * finalVariables.getVATPercentageWithAmount() = " + obj2 * finalVariables.getVATPercentageWithAmount());
+//            System.out.println("roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()) = " + (roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount())));
+            d = obj + (commonFunctions.roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()));
+//            System.out.println("d = " + d);
         }
 
         return d;
@@ -797,23 +814,35 @@ public class BookingController implements Serializable {
             FeeType[] fts1 = {FeeType.Service, FeeType.OwnInstitution, FeeType.OtherInstitution};
             feeTypes = Arrays.asList(fts1);
             jpql += " and f.feeType in :fts1 "
-                    + " and f.name!=:name";
+                    + " and f.name!=:name "
+                    + " and f.name!=:name1 ";
             m.put("name", "On-Call Fee");
+            m.put("name1", "Credit Card Commission");
             m.put("fts1", feeTypes);
         } else {
             if (paymentMethod == PaymentMethod.OnCall) {
-                jpql += " and f.feeType in :fts2 ";
+                jpql += " and f.feeType in :fts2 "
+                        + " and f.name!=:name ";
+                m.put("name", "Credit Card Commission");
+                m.put("fts2", feeTypes);
+            } else if (paymentMethod == PaymentMethod.Card) {
+                jpql += " and f.feeType in :fts2 "
+                        + " and f.name!=:name ";
+                m.put("name", "On-Call Fee");
                 m.put("fts2", feeTypes);
             } else {
                 jpql += " and f.feeType in :fts3 "
-                        + " and f.name!=:name";
+                        + " and f.name!=:name "
+                        + " and f.name!=:name1 ";
                 m.put("name", "On-Call Fee");
+                m.put("name1", "Credit Card Commission");
                 m.put("fts3", feeTypes);
             }
         }
         m.put("ses", item);
         Double obj = getItemFeeFacade().findDoubleByJpql(jpql, m);
 
+        m = new HashMap();
         feeTypes = Arrays.asList(new FeeType[]{FeeType.Staff});
         jpql = "Select sum(f.ffee)"
                 + " from ItemFee f "
@@ -857,13 +886,18 @@ public class BookingController implements Serializable {
                 d = obj + obj2;
             }
         } else {
-            d = obj + (obj2 * finalVariables.getVATPercentageWithAmount());
+//            System.out.println("obj = " + obj);
+//            System.out.println("obj2 = " + obj2);
+//            System.out.println("obj2 * finalVariables.getVATPercentageWithAmount() = " + obj2 * finalVariables.getVATPercentageWithAmount());
+//            System.out.println("roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()) = " + (roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount())));
+            d = obj + (commonFunctions.roundNearestTen(obj2 * finalVariables.getVATPercentageWithAmount()));
+//            System.out.println("d = " + d);
         }
 
         return d;
     }
 
-    private List<ItemFee> fetchFee(Item item) {
+    public List<ItemFee> fetchFee(Item item) {
         String jpql;
         Map m = new HashMap();
         jpql = "Select f "
@@ -1015,23 +1049,23 @@ public class BookingController implements Serializable {
                     //all Bill
 //                    ss.setTotalFee(ss.getTotalFee() * finalVariables.getVATPercentageWithAmount());
 //                    ss.getOriginatingSession().setTotalFee(ss.getOriginatingSession().getTotalFfee() * finalVariables.getVATPercentageWithAmount());
-                    
+
                     //only Doc Fee
                     ss.setTotalFee(fetchLocalFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod));
                     ss.getOriginatingSession().setTotalFee(fetchLocalFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod));
                 }
             } else {
-                ss.setTotalFee(Math.round(fetchLocalFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod)));
-                ss.setTotalFfee(Math.round(fetchForiegnFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod)));
-                ss.getOriginatingSession().setTotalFee(Math.round(fetchLocalFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod)));
-                ss.getOriginatingSession().setTotalFfee(Math.round(fetchForiegnFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod)));
-                System.out.println("ss.getTotalFee() = " + ss.getTotalFee());
-                System.out.println("ss.getTotalFee() = " + ss.getTotalFfee());
+                ss.setTotalFee(fetchLocalFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod));
+                ss.setTotalFfee(fetchForiegnFeeOnlyStaffVat(ss.getOriginatingSession(), paymentMethod));
+                ss.getOriginatingSession().setTotalFee(ss.getTotalFee());
+                ss.getOriginatingSession().setTotalFfee(ss.getTotalFfee());
+//                System.out.println("ss.getTotalFee() = " + ss.getTotalFee());
+//                System.out.println("ss.getTotalFfee() = " + ss.getTotalFfee());
 //                System.out.println("Math.round(ss.getTotalFee()) = " + Math.round(ss.getTotalFee()));
             }
             ss.setItemFees(fetchFee(ss.getOriginatingSession()));
             //For Settle bill
-            ss.getOriginatingSession().setItemFees(fetchFee(ss.getOriginatingSession()));
+            ss.getOriginatingSession().setItemFees(ss.getItemFees());
             //For Settle bill
         }
     }
@@ -1128,7 +1162,7 @@ public class BookingController implements Serializable {
         if (staff != null) {
 //            System.err.println("Time stage 4.1 = " + new Date());
             serviceSessions = getChannelBean().generateDailyServiceSessionsFromWeekdaySessionsNewByServiceSessionIdNew(staff, sessionStartingDate);
-            System.err.println("Fetch Created Sessions " + serviceSessions.size());
+            System.err.println("Fetch Created Sessions = " + serviceSessions.size());
 //            System.err.println("Time stage 4.2 = " + new Date());
         }
         if (getSessionController().getLoggedUser().getWebUserPerson() != null) {
@@ -1313,7 +1347,7 @@ public class BookingController implements Serializable {
 
         String msg = "Dear Sir/Madam,\n"
                 + ss.getStaff().getPerson().getName() + " has arrived.\n"
-//                + "** Now you can channel your doctor online on www.ruhunuhospital.lk **";
+                //                + "** Now you can channel your doctor online on www.ruhunuhospital.lk **";
                 + "** Now you can channel your doctor online on https://goo.gl/aEbnDD **";
         System.out.println("ss.getStaff().getPerson().getName() = " + ss.getStaff().getPerson().getName().length());
         System.out.println("msg.length() = " + msg.length());
@@ -1611,7 +1645,7 @@ public class BookingController implements Serializable {
         System.out.println("++++channelBillController.getBillSession() = " + channelBillController.getBillSession());
         System.out.println("++++channelBillController.getBillSessionTmp() = " + channelBillController.getBillSessionTmp());
     }
-
+    
     public void setBillSessions(List<BillSession> billSessions) {
         this.billSessions = billSessions;
     }

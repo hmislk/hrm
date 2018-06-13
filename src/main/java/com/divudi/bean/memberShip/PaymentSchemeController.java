@@ -114,7 +114,8 @@ public class PaymentSchemeController implements Serializable {
 
         if (paymentMethod == PaymentMethod.Card) {
             if (paymentMethodData.getCreditCard().getInstitution() == null
-                    || paymentMethodData.getCreditCard().getNo() == null) {
+                    || paymentMethodData.getCreditCard().getNo() == null
+                    ||paymentMethodData.getCreditCard().getNo().equals("")) {
                 UtilityController.addErrorMessage("Please Fill Credit Card Number and Bank");
                 return true;
             }
