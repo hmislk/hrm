@@ -1696,6 +1696,7 @@ public class BillSearch implements Serializable {
     public void setBill(Bill bill) {
         this.bill = bill;
         paymentMethod = bill.getPaymentMethod();
+        printPreview=false;
         createBillItems();
 
         boolean flag = billController.checkBillValues(bill);
