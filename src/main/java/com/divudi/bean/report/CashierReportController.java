@@ -1006,7 +1006,7 @@ public class CashierReportController implements Serializable {
     }
     
     public void calCashierDataTotalOnlyChannelNew() {
-        header = "Cashier";
+        header = "Channel";
         Date startTime = new Date();
         finalCashTot = finalChequeTot = finalCardTot = finalCreditTot = finalSlipTot = 0;
         webUserBillsTotals = new ArrayList<>();
