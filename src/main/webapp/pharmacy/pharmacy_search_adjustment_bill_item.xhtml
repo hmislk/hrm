@@ -65,6 +65,13 @@
                                 </f:facet>
                                 <h:outputLabel value="#{pi.item.code}" style="width: 100px!important;" ></h:outputLabel>
                             </p:column>
+                            
+                            <p:column headerText="Creater">
+                                <f:facet name="header">
+                                    <h:outputLabel value="Creater"/>
+                                </f:facet>
+                                <h:outputLabel value="#{pi.creater.webUserPerson.name}" />
+                            </p:column>
 
                             <p:column headerText="Billed At"  >
                                 <h:outputLabel value="Billed at " />

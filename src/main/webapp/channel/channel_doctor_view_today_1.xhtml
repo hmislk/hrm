@@ -17,9 +17,20 @@
                 </f:facet>
                 <p:panel>
                     <p:poll interval="30"   
-                                listener="#{channelReportController.createDoctorArrival()}" update="@all" />
-                    <h:panelGrid columns="2" >
-                        
+                            listener="#{channelReportController.createDoctorArrival()}" update="@all" />
+                    <h:panelGrid columns="2" id="pan10" >
+                        <p:outputLabel value="From Date" />
+                        <p:calendar value="#{channelReportController.fromDate}" navigator="true" 
+                                    disabled="#{channelReportController.reportKeyWord.bool1 eq false}"
+                                    styleClass="dateTimePicker" pattern="yyyy MM dd hh:mm:ss a" />
+                        <p:outputLabel value="To Date" ></p:outputLabel>
+                        <p:calendar value="#{channelReportController.toDate}" navigator="true"
+                                    disabled="#{channelReportController.reportKeyWord.bool1 eq false}"
+                                    styleClass="dateTimePicker" pattern="yyyy MM dd hh:mm:ss a" />
+                        <p:outputLabel value="Search Other Date" />
+                        <p:selectBooleanCheckbox value="#{channelReportController.reportKeyWord.bool1}" >
+                            <f:ajax event="change" execute="@this" render="pan10" />
+                        </p:selectBooleanCheckbox>
                         <p:commandButton value="Process" action="#{channelReportController.createDoctorArrival()}" ajax="false" />
                         <p:commandButton value="Print" action="#" styleClass="noPrintButton">
                             <p:printer target="pan1" />
@@ -78,7 +89,7 @@
                             <f:convertDateTime pattern="hh:mm:ss a" />
                         </p:outputLabel>
                     </p:column>   
-                    
+
                 </p:dataTable>
             </p:panel>
         </h:form>

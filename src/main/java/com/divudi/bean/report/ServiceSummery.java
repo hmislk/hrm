@@ -13,6 +13,7 @@ import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.BillItemWithFee;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.table.String1Value5;
 import com.divudi.ejb.CommonFunctions;
 import com.divudi.entity.Bill;
@@ -60,6 +61,17 @@ import javax.persistence.TemporalType;
 @SessionScoped
 public class ServiceSummery implements Serializable {
 
+    @EJB
+    private BillItemFacade billItemFacade;
+    @EJB
+    private BillFeeFacade billFeeFacade;
+    @EJB
+    ItemFeeFacade itemFeeFacade;
+    @EJB
+    FeeFacade feeFacade;
+    @EJB
+    StaffFacade staffFacade;
+
     @Inject
     private SessionController sessionController;
     @Inject
@@ -104,22 +116,11 @@ public class ServiceSummery implements Serializable {
     boolean onlyInwardBills;
     boolean credit = false;
 
+    ReportKeyWord reportKeyWord;
+
     List<String1Value5> string1Value5;
-
-    @EJB
-    private BillItemFacade billItemFacade;
-    @EJB
-    private BillFeeFacade billFeeFacade;
-    @EJB
-    ItemFeeFacade itemFeeFacade;
-    @EJB
-    FeeFacade feeFacade;
-
     List<BillItem> billItems;
-
     List<Staff> staffs;
-    @EJB
-    StaffFacade staffFacade;
 
     public double getCount() {
         return count;
@@ -852,6 +853,50 @@ public class ServiceSummery implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Summery by investigation OPD/Summery by investigation(/faces/reportInstitution/report_investigation_service_summery.xhtml)");
     }
 
+    public void createInvestigationSummeryInward() {
+        Date startTime = new Date();
+        BillType bt;
+        serviceSummery = new ArrayList<>();
+        if (getReportKeyWord().getString1().equals("0")) {
+            bt = BillType.OpdBill;
+        } else {
+            bt = BillType.InwardBill;
+        }
+        if (getReportKeyWord().getString().equals("0")) {
+            for (BillItem i : getBillItem(bt, service, getReportKeyWord().isBool1())) {
+                BillItemWithFee bi = new BillItemWithFee();
+                bi.setBillItem(i);
+                bi.setProFee(calFee(i, FeeType.Staff));
+                bi.setHospitalFee(calFee(i, FeeType.OwnInstitution) + calFee(i, FeeType.CollectingCentre));
+                bi.setVatFee(calFeeVat(i));
+                serviceSummery.add(bi);
+            }
+
+            calCountTotalItem(bt, getReportKeyWord().isBool1());
+            proFeeTotal = calServiceTot(bt, FeeType.Staff, getReportKeyWord().isBool1());
+            hosFeeTotal = calServiceTot(bt, FeeType.OwnInstitution, getReportKeyWord().isBool1())
+                    + calServiceTot(bt, FeeType.CollectingCentre, getReportKeyWord().isBool1());
+            outSideFeeTotoal = calServiceTot(bt, FeeType.OtherInstitution, getReportKeyWord().isBool1());
+            vatFeeTotal = calServiceTotVat(bt, getReportKeyWord().isBool1());
+        } else {
+            for (BillItem i : calBillItems(bt, getReportKeyWord().isBool1())) {
+                BillItemWithFee bi = new BillItemWithFee();
+                bi.setBillItem(i);
+                bi.setProFee(calFee(i, FeeType.Staff));
+                bi.setHospitalFee(calFee(i, FeeType.OwnInstitution) + calFee(i, FeeType.CollectingCentre));
+                bi.setStaffsNames(fetchStaffs(i, FeeType.Staff));
+                bi.setVatFee(calFeeVat(i));
+                serviceSummery.add(bi);
+            }
+
+            calCountTotalCategory(bt, getReportKeyWord().isBool1());
+            calServiceTot1(bt, getReportKeyWord().isBool1());
+
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Summery by investigation OPD/Summery by investigation(/faces/reportInstitution/report_investigation_service_summery.xhtml)");
+    }
+
     List<Bill> bills;
     @EJB
     BillFacade billFacade;
@@ -1376,31 +1421,31 @@ public class ServiceSummery implements Serializable {
         if (getToDate() == null || getFromDate() == null) {
             return;
         }
-        Map temMap = new HashMap();
-        String jpql = "select bf "
-                + " from BillFee bf join bf.billItem bi join bi.item i join i.category c where "
-                + " type(c)=:cat "
-                + " and bi.bill.billType= :bTp  "
-                + " and bi.bill.createdAt between :fromDate and :toDate "
-                + " order by bf.department.name ";
-
-        temMap.put("toDate", toDate);
-        temMap.put("fromDate", fromDate);
-        temMap.put("bTp", BillType.OpdBill);
-        temMap.put("cat", InvestigationCategory.class);
-
-        List<BillFee> bfs = getBillFeeFacade().findBySQL(jpql, temMap, TemporalType.TIMESTAMP);
-        System.out.println("bfs = " + bfs.size());
-        for (BillFee bf : bfs) {
-            System.err.println("*****");
-            System.out.println("bf.getDepartment() = " + bf.getDepartment().getName());
-            System.out.println("Bill.getDepartment() = " + bf.getBill().getToDepartment().getName());
-            if (!bf.getDepartment().equals(bf.getBill().getToDepartment())) {
-                System.out.println("bf.getBill().getDeptId() = " + bf.getBill().getDeptId());
-                System.out.println("bf.getBillItem().getItem().getName() = " + bf.getBillItem().getItem().getName());
-            }
-            System.err.println("*****");
-        }
+//        Map temMap = new HashMap();
+//        String jpql = "select bf "
+//                + " from BillFee bf join bf.billItem bi join bi.item i join i.category c where "
+//                + " type(c)=:cat "
+//                + " and bi.bill.billType= :bTp  "
+//                + " and bi.bill.createdAt between :fromDate and :toDate "
+//                + " order by bf.department.name ";
+//
+//        temMap.put("toDate", toDate);
+//        temMap.put("fromDate", fromDate);
+//        temMap.put("bTp", BillType.OpdBill);
+//        temMap.put("cat", InvestigationCategory.class);
+//
+//        List<BillFee> bfs = getBillFeeFacade().findBySQL(jpql, temMap, TemporalType.TIMESTAMP);
+//        System.out.println("bfs = " + bfs.size());
+//        for (BillFee bf : bfs) {
+//            System.err.println("*****");
+//            System.out.println("bf.getDepartment() = " + bf.getDepartment().getName());
+//            System.out.println("Bill.getDepartment() = " + bf.getBill().getToDepartment().getName());
+//            if (!bf.getDepartment().equals(bf.getBill().getToDepartment())) {
+//                System.out.println("bf.getBill().getDeptId() = " + bf.getBill().getDeptId());
+//                System.out.println("bf.getBillItem().getItem().getName() = " + bf.getBillItem().getItem().getName());
+//            }
+//            System.err.println("*****");
+//        }
 
         billItemWithFees = new ArrayList<>();
 
@@ -1826,6 +1871,17 @@ public class ServiceSummery implements Serializable {
 
     }
 
+    public void listnerChangeRadioBillType() {
+        if (getReportKeyWord().getString1().equals("0")) {
+            getReportKeyWord().setBool1(false);
+        }
+    }
+
+    public void listnerChangeRadioItemCategory() {
+        service = null;
+        category = null;
+    }
+
     public SessionController getSessionController() {
         return sessionController;
     }
@@ -2174,6 +2230,17 @@ public class ServiceSummery implements Serializable {
 
     public void setCredit(boolean credit) {
         this.credit = credit;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
 }
