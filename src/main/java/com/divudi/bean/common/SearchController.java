@@ -3685,7 +3685,7 @@ public class SearchController implements Serializable {
         String sql = "Select b FROM BillItem b "
                 + " where b.retired=false "
                 + " and b.bill.billType=:bType "
-                + " and b.referenceBill.billType=:refType "
+                + " and b.referenceBill.billType in :refType "
                 + " and b.createdAt between :fromDate and :toDate ";
 
         if (getSearchKeyword().getPatientName() != null && !getSearchKeyword().getPatientName().trim().equals("")) {
@@ -3737,7 +3737,8 @@ public class SearchController implements Serializable {
         temMap.put("toDate", getToDate());
         temMap.put("fromDate", getFromDate());
         temMap.put("bType", BillType.PaymentBill);
-        temMap.put("refType", BillType.OpdBill);
+//        temMap.put("refType", BillType.OpdBill);
+        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill,BillType.CollectingCentreBill}));
 
         billItems = getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
 
@@ -3751,7 +3752,7 @@ public class SearchController implements Serializable {
         String sql = "Select b FROM BillItem b "
                 + " where b.retired=false "
                 + " and b.bill.billType=:bType "
-                + " and b.referenceBill.billType=:refType "
+                + " and b.referenceBill.billType in :refType "
                 + " and b.createdAt between :fromDate and :toDate ";
 
         if (getSearchKeyword().getPatientName() != null && !getSearchKeyword().getPatientName().trim().equals("")) {
@@ -3803,7 +3804,8 @@ public class SearchController implements Serializable {
         temMap.put("toDate", getToDate());
         temMap.put("fromDate", getFromDate());
         temMap.put("bType", BillType.PaymentBill);
-        temMap.put("refType", BillType.OpdBill);
+//        temMap.put("refType", BillType.OpdBill);
+        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill,BillType.CollectingCentreBill}));
 
         billItems = getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
 

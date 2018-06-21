@@ -4838,8 +4838,8 @@ public class ChannelReportController implements Serializable {
                 + " and ar.retired=false "
                 + " order by ar.serviceSession.startingTime ";
 
-        m.put("fd", commonFunctions.getStartOfDay());
-        m.put("td", commonFunctions.getEndOfDay());
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
 
         arrivalRecords = arrivalRecordFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
 

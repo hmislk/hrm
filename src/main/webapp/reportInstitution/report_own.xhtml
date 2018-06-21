@@ -80,6 +80,9 @@
                                     <p:commandButton styleClass="linkButton" ajax="false" value="QB day income report " action="/qbReports/report_qb_day_income_with_out_professional" actionListener="#{quickBookReportController.listnerReportNameChange}"/>                             
                                     <p:commandButton styleClass="linkButton" ajax="false" value="Item To Export report " action="/qbReports/report_qb_item_list" actionListener="#{quickBookReportController.listnerReportNameChange}"/>                             
                                 </p:panel>
+                                <p:panel header="14) Summary By Investigation All" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                    <p:commandButton styleClass="linkButton" ajax="false" value="Summary By Investigation or Category" action="/reportInstitution/report_investigation_service_summery_Inward"/>                             
+                                </p:panel>
 
                             </h:panelGrid>
                             <h:panelGrid columns="1" >

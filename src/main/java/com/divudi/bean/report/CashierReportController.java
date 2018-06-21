@@ -1004,7 +1004,7 @@ public class CashierReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "All cashier summery(/reportCashier/report_cashier_summery_all_total_only.xhtml)");
 
     }
-    
+
     public void calCashierDataTotalOnlyChannelNew() {
         header = "Channel";
         Date startTime = new Date();
@@ -1017,6 +1017,16 @@ public class CashierReportController implements Serializable {
             List<BillsTotals> billls = new ArrayList<>();
 
             BillsTotals billsTotals = createRow(Arrays.asList(getEnumController().getCashFlowBillTypesChannel()), webUser);
+
+            //channel agent bill cash cancel refund
+            BillsTotals newC = createRow(BillType.ChannelAgent, "Cancelled", new CancelledBill(), webUser);
+            BillsTotals newR = createRow(BillType.ChannelAgent, "Refunded", new RefundBill(), webUser);
+
+            billsTotals.setCard(billsTotals.getCard() + newC.getCard() + newR.getCard());
+            billsTotals.setCash(billsTotals.getCash() + newC.getCash() + newR.getCash());
+            billsTotals.setCheque(billsTotals.getCheque() + newC.getCheque() + newR.getCheque());
+            billsTotals.setCredit(billsTotals.getCredit() + newC.getCredit() + newR.getCredit());
+            billsTotals.setSlip(billsTotals.getSlip() + newC.getSlip() + newR.getSlip());
 
             BillsTotals newSum = new BillsTotals();
             newSum.setName("Total ");
