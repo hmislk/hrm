@@ -104,6 +104,8 @@ public class ChannelBillController implements Serializable {
     boolean activeCreditLimitPannel = false;
     String comment;
     String commentR;
+    double cashAmount;
+    double cardAmount;
     ///////////////////////////////////
     private List<BillFee> billFee;
     private List<BillFee> refundBillFee;
@@ -851,6 +853,61 @@ public class ChannelBillController implements Serializable {
 //            System.out.println("billSession.getBill().getPaidBill().getCreditCardCommission() = " + billSession.getBill().getPaidBill().getCreditCardCommission());
         }
         calRefundTotal();
+
+        if ((getBillSession().getBill().getPaymentMethod() == PaymentMethod.Staff
+                || getBillSession().getBill().getPaymentMethod() == PaymentMethod.OnCall)
+                && getSessionController().getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
+            boolean isForiegn = false;
+            List<ItemFee> fees = bookingController.fetchFee(getBillSession().getServiceSession().getOriginatingSession());
+            for (ItemFee f : fees) {
+                if (f.getFeeType() == FeeType.Staff) {
+//                    System.out.println("**s**f.getFfee() = " + f.getFfee());
+//                    System.out.println("**s**b.getStaffFee() = " + b.getStaffFee());
+                    if (f.getFfee() == getBillSession().getBill().getStaffFee()) {
+                        isForiegn = true;
+                    }
+                }
+            }
+            double hosFee = 0.0;
+            double staffFee = 0.0;
+            for (ItemFee f : fees) {
+                if ((f.getName().equals("Hospital Fee") && f.getFeeType() == FeeType.OwnInstitution)
+                        || (f.getName().equals("Scan Fee") && f.getFeeType() == FeeType.Service)) {
+                    if (isForiegn) {
+                        hosFee += f.getFfee();
+                    } else {
+                        hosFee += f.getFee();
+                    }
+                }
+                if (f.getFeeType() == FeeType.OwnInstitution && f.getName().equals("On-Call Fee")
+                        && getBillSession().getBill().getBillType() == BillType.ChannelOnCall) {
+                    if (isForiegn) {
+                        hosFee += f.getFfee();
+                    } else {
+                        hosFee += f.getFee();
+                    }
+                }
+                if (f.getFeeType() == FeeType.Staff) {
+                    if (isForiegn) {
+                        staffFee += f.getFfee();
+                    } else {
+                        staffFee += f.getFee();
+                    }
+                }
+            }
+//            System.out.println("hosFee = " + hosFee);
+//            System.out.println("staffFee = " + staffFee);
+            staffFee = commonFunctions.roundNearestTen(staffFee * finalVariables.getVATPercentageWithAmount());
+//            System.out.println("staffFee = " + staffFee);
+            double comisson = commonFunctions.roundNearestTen((hosFee + staffFee) * (finalVariables.getCreditCardCommission() / 100));
+//            System.out.println("comisson = " + comisson);
+//            System.out.println("getBillSession().getBill().getVatPlusNetTotal() = " + getBillSession().getBill().getVatPlusNetTotal());
+//            System.out.println("getBillSession().getBill().getNetTotal() = " + getBillSession().getBill().getNetTotal());
+            cashAmount=getBillSession().getBill().getVatPlusNetTotal();
+//            System.out.println("cashAmount = " + cashAmount);
+            cardAmount=getBillSession().getBill().getVatPlusNetTotal()+comisson;
+//            System.out.println("cardAmount = " + cardAmount);
+        }
     }
 
     public BookingController getBookingController() {
@@ -3175,6 +3232,22 @@ public class ChannelBillController implements Serializable {
 
     public void setPaymentSchemeController(PaymentSchemeController paymentSchemeController) {
         this.paymentSchemeController = paymentSchemeController;
+    }
+
+    public double getCashAmount() {
+        return cashAmount;
+    }
+
+    public void setCashAmount(double cashAmount) {
+        this.cashAmount = cashAmount;
+    }
+
+    public double getCardAmount() {
+        return cardAmount;
+    }
+
+    public void setCardAmount(double cardAmount) {
+        this.cardAmount = cardAmount;
     }
 
 }
