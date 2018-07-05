@@ -1222,7 +1222,8 @@ public class Api {
             return 0;
         }
 
-        return obj * 0.15;
+        return obj*0;
+//        return obj * 0.15; 2018-07-05
     }
 
     String fetchErrors(String name, String phone, String doc, long ses, long agent, String agent_ref, String st_foriegn) {
@@ -1496,8 +1497,10 @@ public class Api {
             if (f.getFeeType() == FeeType.Staff) {
                 bf.setStaff(f.getStaff());
                 bf.setFeeGrossValue(bf.getFeeValue());
-                bf.setFeeVat(bf.getFeeValue() * 0.15);
-                bf.setFeeVatPlusValue(bf.getFeeValue() * 1.15);
+                bf.setFeeVat(bf.getFeeValue()*0);
+                bf.setFeeVatPlusValue(bf.getFeeValue());
+//                bf.setFeeVat(bf.getFeeValue() * 0.15);
+//                bf.setFeeVatPlusValue(bf.getFeeValue() * 1.15);
                 bf.setFeeDiscount(0.0);
             } else {
                 bf.setFeeGrossValue(bf.getFeeValue());

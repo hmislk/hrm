@@ -20,7 +20,7 @@
 
                     <p:outputLabel value="Dealer"></p:outputLabel> 
                     <p:autoComplete value="#{pharmacySaleReport.searchKeyword.ins}" 
-                                    completeMethod="#{institutionController.completeCompany}" 
+                                    completeMethod="#{storeDealorController.completeDealor}" 
                                     var="de" itemLabel="#{de.name}" itemValue="#{de}" converter="institutionConverter">
                     </p:autoComplete>
 
@@ -37,9 +37,9 @@
                         </p:autoComplete>
                                
                     <p:panelGrid columns="3">
-                        <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createPharmacyGRNBillItemTable()}"/>
-                        <p:commandButton actionListener="#{pharmacySaleReport.createPharmacyGRNBillItemTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                            <pe:exporter type="xlsx" target="sum1" fileName="report_pharmacy_grn_bill_item_report"  />
+                        <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createStoreGRNBillItemTable()}"/>
+                        <p:commandButton actionListener="#{pharmacySaleReport.createStoreGRNBillItemTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                            <pe:exporter type="xlsx" target="sum1" fileName="report_store_grn_bill_item_report"  />
                         </p:commandButton>
                         <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
                             <p:printer target="panelPrint" />
@@ -59,7 +59,7 @@
                         <h:outputLabel value="#{pharmacySaleReport.toDate}"  >
                             <f:convertDateTime pattern="dd MMMM yyyy" />
                         </h:outputLabel><br/>                   
-                        <h:outputLabel value="Pharmacy GRN Bill Item Table"/>
+                        <h:outputLabel value="Store GRN Bill Item Table"/>
                     </f:facet>
                     <p:column headerText="PO Number">
                         <f:facet name="header" >
@@ -139,8 +139,11 @@
                     <p:column headerText="Quantity" style="text-align: right;">
                         <f:facet name="header" >
                             <p:outputLabel value="Quantity" />
-                        </f:facet>
-                        <h:outputLabel value="#{i.pharmaceuticalBillItem.qty}">
+                        </f:facet> 
+                        <h:outputLabel value="#{0-i.pharmaceuticalBillItem.qty}" rendered="#{i.bill.billType eq 'StoreGrnReturn'}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                        <h:outputLabel value="#{i.pharmaceuticalBillItem.qty}" rendered="#{i.bill.billType ne 'StoreGrnReturn'}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column> 

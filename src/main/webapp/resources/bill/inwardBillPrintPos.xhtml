@@ -289,10 +289,11 @@
                     </tr>
                     <tr>
                         <td>
-                            <h:outputLabel value="Billed By : " />
+                            <h:outputLabel value="Sample Collected By : " rendered="#{cc.attrs.bill.toDepartment.departmentType eq 'Lab'}"/>
+                            <h:outputLabel value="Billed By : " rendered="#{cc.attrs.bill.toDepartment.departmentType ne 'Lab'}"/>
                         </td>
                         <td>
-                            <h:outputLabel value="#{cc.attrs.bill.creater.staff.code}" >
+                            <h:outputLabel value="#{cc.attrs.bill.creater.code}" >
                             </h:outputLabel>
                         </td>
                     </tr>
