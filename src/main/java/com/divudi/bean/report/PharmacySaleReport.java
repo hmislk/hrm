@@ -359,15 +359,24 @@ public class PharmacySaleReport implements Serializable {
 //        return saleValue;
 //
 //    }
-    public void createGRNBillItemTable() {
+    public void createPharmacyGRNBillItemTable() {
+        fetchGRNBillItemTable(BillType.PharmacyGrnBill,BillType.PharmacyGrnReturn);
+    }
+    
+    public void createStoreGRNBillItemTable() {
+        fetchGRNBillItemTable(BillType.StoreGrnBill,BillType.StoreGrnReturn);
+    }
+   
+    private void fetchGRNBillItemTable(BillType billType,BillType returnBillType) {
         Date startTime = new Date();
 
 //select bi from BillItem bi where  bi.retired=false  and bi.bill.billType=:bt  and bi.bill.createdAt bettween :fd and :td  and bi.bill.depId like :di  and bi.bill.referenceBill.deptId like :po;
         String sql;
         Map m = new HashMap();
         sql = "select bi from BillItem bi "
-                + " where bi.bill.billType=:bt "
-                + " and bi.bill.retired=false "
+                + " where bi.bill.retired=false "
+                + " and (bi.bill.billType=:bt "
+                + " or bi.bill.billType=:bt1) "
                 + " and bi.bill.createdAt between :fd and :td ";
 
         if (searchKeyword.getBillNo() != null && !searchKeyword.getBillNo().toUpperCase().trim().equals("")) {
@@ -391,7 +400,8 @@ public class PharmacySaleReport implements Serializable {
             m.put("dep", department);
         }
 
-        m.put("bt", BillType.PharmacyGrnBill);
+        m.put("bt", billType);
+        m.put("bt1", returnBillType);
         m.put("fd", getFromDate());
         m.put("td", getToDate());
 

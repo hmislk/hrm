@@ -21,9 +21,9 @@
                         </f:facet>
                         <h:panelGrid columns="2" >
                             <h:outputLabel value="From : " />
-                            <p:calendar value="#{hrReportController.fromDate}" pattern="dd MMMM yyyy hh:mm:ss a" />
+                            <p:calendar value="#{hrReportController.fromDate}" navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
                             <h:outputLabel value="To : " />
-                            <p:calendar value="#{hrReportController.toDate}" pattern="dd MMMM yyyy hh:mm:ss a" />
+                            <p:calendar value="#{hrReportController.toDate}" navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
                             <h:outputLabel value="Institution : "/>
                             <hr:institution value="#{hrReportController.reportKeyWord.institution}"/>
                             <h:outputLabel value="Department : "/>
@@ -125,6 +125,18 @@
                                         <p:outputLabel value="Late Days" />
                                     </f:facet>
                                     <p:outputLabel value="#{ss.latedays}" style="font-size: 12px;"/>
+                                </p:column>
+                                <p:column headerText="With in 10 Mins" style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="With in 10 Mins" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.latedays10Mins}" style="font-size: 12px;"/>
+                                </p:column>
+                                <p:column headerText="After 10 Mins" style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="After 10 Mins" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.latedays90Mins}" style="font-size: 12px;"/>
                                 </p:column>
                                 <p:column headerText="Off Days" style="text-align: right;">
                                     <f:facet name="header" >

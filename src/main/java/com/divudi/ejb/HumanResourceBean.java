@@ -624,8 +624,8 @@ public class HumanResourceBean {
                 + " where l.retired=false "
                 + " and l.staff=:stf "
                 + " and l.leaveType in :ltp "
-                + " and l.fromDate=:frm  "
-                + " and l.toDate=:to ";
+                + " and l.fromDate>=:frm  "
+                + " and l.toDate<=:to ";
         HashMap hm = new HashMap();
         hm.put("stf", staff);
         hm.put("ltp", leaveType.getLeaveTypes());

@@ -286,6 +286,7 @@
                             <h:panelGroup rendered="#{sessionController.institutionPreference.printLabelForOPdBill eq false and sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}">
                                 <ui:repeat value="#{billBhtController.bills}" var="bill">
                                     <bi:inwardBillPrintPos bill="#{bill}" duplicate="false"/>
+                                    
                                 </ui:repeat>
                             </h:panelGroup>
 

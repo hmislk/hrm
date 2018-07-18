@@ -996,7 +996,7 @@
                         </p:panel>
 
                         <p:tab title="Cancel" id="cancel" rendered="#{webUserController.hasPrivilege('ChannelBookingCancel') || sessionController.institutionPreference.applicationInstitution ne 'Ruhuna'}">                                                         
-                            #{channelBillController.billSession.bill.billType}
+                            #{channelBillController.billSession.bill.billType}<br></br>
 
                             <h:panelGroup rendered="#{channelBillController.billSession.billItem.bill.paymentMethod eq 'Agent'}" >
                                 <p:outputLabel value="Re-payment Method"/>
@@ -1022,13 +1022,16 @@
                                 <ch:bill_fees bill="#{channelBillController.billSession.billItem.bill}" rendered="#{channelBillController.billSession.billItem.bill.paidBill eq null}" />
                                 <ch:bill_fees bill="#{channelBillController.billSession.billItem.bill.paidBill}" rendered="#{channelBillController.billSession.billItem.bill.paidBill ne null}"/>
                             </h:panelGroup>
-                            <h:inputTextarea value="#{channelBillController.comment}"/>
+                            <h:inputTextarea value="#{channelBillController.comment}" >
+                                <f:ajax event="keyup" execute="@this" render="com" listener="#{channelBillController.listnerComment}" />
+                            </h:inputTextarea> 
+                            <p:outputLabel id="com" value="#{channelBillController.comment}" />
                             <p:commandButton ajax="false" value="Cancel Agent Bill" 
                                              rendered="#{channelBillController.billSession.bill.billType eq 'ChannelAgent'}"
                                              action="#{channelBillController.cancelAgentPaidBill}"
                                              disabled="#{channelBillController.billSession.bill.refunded==true
                                                          or channelBillController.billSession.bill.cancelled==true}"/>
-                            <p:commandButton ajax="false" value="Cancel" 
+                            <p:commandButton ajax="false" value="Cancel" id="can"
                                              rendered="#{channelBillController.billSession.bill.billType.parent eq 'ChannelCashFlow' and channelBillController.billSession.bill.billType ne 'ChannelAgent'}"
                                              action="#{channelBillController.cancelCashFlowBill}"
                                              disabled="#{channelBillController.billSession.bill.refunded==true
@@ -1054,7 +1057,7 @@
                             #{channelBillController.billSession.billItem.bill.paidBill.paymentMethod}
                             <h:panelGroup>
                                 <h:panelGrid columns="2" rendered="#{channelBillController.billSession.billItem.bill.paymentMethod eq 'Agent'}" >
-                                    
+
                                     <p:outputLabel value="Re-payment Method"/>
                                     <p:selectOneMenu  id="cmbRefundPs" value="#{channelBillController.refundPaymentMethod}" >  
                                         <f:selectItem itemLabel="Select Cancel Payment Method" ></f:selectItem>
@@ -1162,6 +1165,17 @@
 
                         <p:tab title="Settle" id="settle" rendered="#{webUserController.hasPrivilege('ChannelBookingSettle') || sessionController.institutionPreference.applicationInstitution ne 'Ruhuna'}">
                             <p:panel  id="set">
+                                <h:panelGrid columns="2" rendered="#{channelBillController.billSession.bill.paymentMethod eq 'Staff' 
+                                                                     or channelBillController.billSession.bill.paymentMethod eq 'OnCall'}" >
+                                    <h:outputLabel value="Cash Amount :" style="font-size: 20px;color: green;" />
+                                    <h:outputLabel value="#{channelBillController.cashAmount}" style="font-size: 20px;color: green;" >
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputLabel>
+                                    <h:outputLabel value="Card Amount :" style="font-size: 20px" />
+                                    <h:outputLabel value="#{channelBillController.cardAmount}" style="font-size: 20px" >
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </h:outputLabel>
+                                </h:panelGrid>
                                 <ch:bill_fees bill="#{channelBillController.billSession.billItem.bill}" />
 
 

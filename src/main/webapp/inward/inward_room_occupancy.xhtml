@@ -59,6 +59,9 @@
                 <p:column headerText="Payment Method">
                     #{pr.patientEncounter.paymentMethod}
                 </p:column>
+                <p:column headerText="Refering Doctor" >
+                    #{pr.patientEncounter.referringDoctor.person.name}
+                </p:column>
                 <p:column headerText="Room No">
                     <h:outputLabel value="#{pr.roomFacilityCharge.room.name}"/>
                 </p:column>
