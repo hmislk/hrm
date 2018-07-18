@@ -12,6 +12,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.ItemController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.data.BillType;
+import com.divudi.data.DepartmentType;
 import com.divudi.data.InstitutionType;
 import com.divudi.data.dataStructure.DepartmentSale;
 import com.divudi.data.dataStructure.DepartmentStock;
@@ -140,7 +141,11 @@ public class PharmacyController implements Serializable {
                 + " (upper(i.itemBatch.item.name) like :n  or "
                 + " upper(i.itemBatch.item.code) like :n  or  "
                 + " upper(i.itemBatch.item.barcode) like :n ) "
+                + " and (i.itemBatch.item.departmentType is null or "
+                + " (i.itemBatch.item.departmentType!=:dep and i.itemBatch.item.departmentType!=:inv) ) "
                 + " order by i.stock desc";
+        m.put("dep", DepartmentType.Store);
+        m.put("inv", DepartmentType.Inventry);
         items = getStockFacade().findBySQL(sql, m, 30);
 
         return items;

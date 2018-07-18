@@ -122,7 +122,7 @@ public class InwardSearch implements Serializable {
     /////////////////////
 
     PaymentMethod paymentMethod;
-    
+
     ReportKeyWord reportKeyWord;
 
     private YearMonthDay yearMonthDay;
@@ -790,7 +790,7 @@ public class InwardSearch implements Serializable {
             return false;
         } else {
             System.out.println("b = " + b);
-            if (b!=null) {
+            if (b != null) {
                 System.out.println("b.getInsId() = " + b.getInsId());
             }
             return true;
@@ -872,8 +872,15 @@ public class InwardSearch implements Serializable {
         cb.setCreater(getSessionController().getLoggedUser());
         cb.setComments(comment);
         cb.setPaymentMethod(paymentMethod);
-        //TODO: Find null Point Exception
 
+        //--TO update surgery bill--
+        if (getBill().getForwardReferenceBill() != null) {
+            cb.setForwardReferenceBill(getBill().getForwardReferenceBill());
+            System.out.println("getBill().getForwardReferenceBill().getInsId() = " + getBill().getForwardReferenceBill().getInsId());
+        }
+        //--TO update surgery bill--
+
+        //TODO: Find null Point Exception
         cb.setDepartment(getSessionController().getDepartment());
         cb.setInstitution(getSessionController().getInstitution());
 
@@ -952,6 +959,9 @@ public class InwardSearch implements Serializable {
 
             WebUser wb = getCashTransactionBean().saveBillCashInTransaction(cb, getSessionController().getLoggedUser());
             getSessionController().setLoggedUser(wb);
+            if (getBill().getForwardReferenceBill() != null) {
+                getBillBean().updateBatchBill(getBill().getForwardReferenceBill());
+            }
             printPreview = true;
 
         } else {
@@ -1249,7 +1259,7 @@ public class InwardSearch implements Serializable {
         paymentMethod = bill.getPaymentMethod();
 
     }
-    
+
     private void createWithHoldingTaxCancelBill(Bill b) {
         CancelledBill cb = new CancelledBill();
         if (b.getForwardReferenceBill() != null) {
@@ -1270,17 +1280,17 @@ public class InwardSearch implements Serializable {
         cb.setInstitution(getSessionController().getInstitution());
         cb.setComments(comment);
         getBillFacade().create(cb);
-        
+
         b.getForwardReferenceBill().setCancelled(true);
         b.getForwardReferenceBill().setCancelledBill(cb);
         getBillFacade().edit(b.getForwardReferenceBill());
-        
+
         b.getCancelledBill().setForwardReferenceBill(cb);
         getBillFacade().edit(b.getCancelledBill());
-        
+
         cb.setBackwardReferenceBill(b.getCancelledBill());
         getBillFacade().edit(cb);
-        
+
     }
 
     public void setBillActionListener(String id) {
@@ -1515,8 +1525,8 @@ public class InwardSearch implements Serializable {
     }
 
     public ReportKeyWord getReportKeyWord() {
-        if (reportKeyWord==null) {
-            reportKeyWord=new ReportKeyWord();
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
         }
         return reportKeyWord;
     }

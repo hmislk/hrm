@@ -429,7 +429,7 @@ public class InwardTimedItemController implements Serializable {
         }
     }
 
-    private boolean saveTimeServiceBill() {
+        private boolean saveTimeServiceBill() {
         BillItem bItem;
         double netValue = 0;
         if (getBill().getId() == null) {
