@@ -1811,7 +1811,7 @@ public class Api {
         String sql;
         sql = "Select s From ServiceSessionLeave s Where "
                 + " s.sessionDate=:dt "
-                + " order by s.sessionDate";
+                + " order by s.originatingSession.startingTime ";
         m.put("dt", new Date());
 
         List<ServiceSessionLeave> serviceSessionLeaves = serviceSessionLeaveFacade.findBySQL(sql, m, TemporalType.DATE);
