@@ -2016,7 +2016,8 @@ public class CommonReport1 implements Serializable {
 //        }
 
         if (radio.equals("1")) {
-            billTypes = Arrays.asList(new BillType[]{BillType.OpdBill, BillType.ChannelCash, BillType.ChannelPaid, BillType.PharmacySale});
+            billTypes = Arrays.asList(new BillType[]{BillType.OpdBill, BillType.ChannelCash, BillType.ChannelPaid,
+                BillType.PharmacySale, BillType.CollectingCentreBill});
         }
         if (radio.equals("2")) {
             billTypes = Arrays.asList(new BillType[]{BillType.OpdBill});
@@ -2026,6 +2027,9 @@ public class CommonReport1 implements Serializable {
         }
         if (radio.equals("4")) {
             billTypes = Arrays.asList(new BillType[]{BillType.PharmacySale});
+        }
+        if (radio.equals("5")) {
+            billTypes = Arrays.asList(new BillType[]{BillType.CollectingCentreBill});
         }
 
         String sql = "select f from Bill f"
@@ -2095,7 +2099,8 @@ public class CommonReport1 implements Serializable {
 //        }
 
         if (radio.equals("1")) {
-            billTypes = Arrays.asList(new BillType[]{BillType.OpdBill, BillType.ChannelCash, BillType.ChannelPaid, BillType.PharmacySale});
+            billTypes = Arrays.asList(new BillType[]{BillType.OpdBill, BillType.ChannelCash, BillType.ChannelPaid, 
+                BillType.PharmacySale,BillType.CollectingCentreBill});
         }
         if (radio.equals("2")) {
             billTypes = Arrays.asList(new BillType[]{BillType.OpdBill});
@@ -2105,6 +2110,9 @@ public class CommonReport1 implements Serializable {
         }
         if (radio.equals("4")) {
             billTypes = Arrays.asList(new BillType[]{BillType.PharmacySale});
+        }
+        if (radio.equals("5")) {
+            billTypes = Arrays.asList(new BillType[]{BillType.CollectingCentreBill});
         }
 
         String sql = "select sum(b.total),sum(b.discount),sum(b.staffFee),sum(b.vat),sum(b.netTotal) from Bill b "

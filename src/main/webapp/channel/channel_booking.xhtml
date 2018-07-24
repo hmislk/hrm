@@ -996,7 +996,7 @@
                         </p:panel>
 
                         <p:tab title="Cancel" id="cancel" rendered="#{webUserController.hasPrivilege('ChannelBookingCancel') || sessionController.institutionPreference.applicationInstitution ne 'Ruhuna'}">                                                         
-                            #{channelBillController.billSession.bill.billType}
+                            #{channelBillController.billSession.bill.billType}<br></br>
 
                             <h:panelGroup rendered="#{channelBillController.billSession.billItem.bill.paymentMethod eq 'Agent'}" >
                                 <p:outputLabel value="Re-payment Method"/>
@@ -1022,13 +1022,16 @@
                                 <ch:bill_fees bill="#{channelBillController.billSession.billItem.bill}" rendered="#{channelBillController.billSession.billItem.bill.paidBill eq null}" />
                                 <ch:bill_fees bill="#{channelBillController.billSession.billItem.bill.paidBill}" rendered="#{channelBillController.billSession.billItem.bill.paidBill ne null}"/>
                             </h:panelGroup>
-                            <h:inputTextarea value="#{channelBillController.comment}"/>
+                            <h:inputTextarea value="#{channelBillController.comment}" >
+                                <f:ajax event="keyup" execute="@this" render="com" listener="#{channelBillController.listnerComment}" />
+                            </h:inputTextarea> 
+                            <p:outputLabel id="com" value="#{channelBillController.comment}" />
                             <p:commandButton ajax="false" value="Cancel Agent Bill" 
                                              rendered="#{channelBillController.billSession.bill.billType eq 'ChannelAgent'}"
                                              action="#{channelBillController.cancelAgentPaidBill}"
                                              disabled="#{channelBillController.billSession.bill.refunded==true
                                                          or channelBillController.billSession.bill.cancelled==true}"/>
-                            <p:commandButton ajax="false" value="Cancel" 
+                            <p:commandButton ajax="false" value="Cancel" id="can"
                                              rendered="#{channelBillController.billSession.bill.billType.parent eq 'ChannelCashFlow' and channelBillController.billSession.bill.billType ne 'ChannelAgent'}"
                                              action="#{channelBillController.cancelCashFlowBill}"
                                              disabled="#{channelBillController.billSession.bill.refunded==true

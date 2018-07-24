@@ -1713,8 +1713,36 @@ public class PharmacyBillSearch implements Serializable {
             UtilityController.addErrorMessage("Checked Bill. Can not cancel");
             return;
         }
+        Bill forRefBill = null;
+        System.out.println("getBill().getInsId() = " + getBill().getInsId());
+        System.out.println("getBill().getForwardReferenceBill() " + getBill().getForwardReferenceBill());
+        if (getBill().getForwardReferenceBill() != null) {
+            System.out.println("getBill().getForwardReferenceBill().getInsId() = " + getBill().getForwardReferenceBill().getInsId());
+            forRefBill = getBillFacade().find(getBill().getForwardReferenceBill().getId());
+            System.out.println("forRefBill.getInsId() = " + forRefBill.getInsId());
+        }
 
         CancelBillWithStockBht(BillNumberSuffix.PHISSCAN);
+
+        if (forRefBill != null) {
+            if (getBill().getForwardReferenceBill() != null) {
+                System.out.println("getBill().getForwardReferenceBill().getInsId() = " + getBill().getForwardReferenceBill().getInsId());
+            }
+            if (getBill().getCancelledBill().getForwardReferenceBill() != null) {
+                System.out.println("getBill().getCancelledBill().getForwardReferenceBill().getInsId() = " + getBill().getCancelledBill().getForwardReferenceBill().getInsId());
+            }
+            System.out.println("forRefBill.getInsId() = " + forRefBill.getInsId());
+            if (!getBill().getForwardReferenceBill().equals(forRefBill)) {
+                getBill().setForwardReferenceBill(forRefBill);
+                getBillFacade().edit(getBill());
+                getBill().getCancelledBill().setForwardReferenceBill(forRefBill);
+                getBillFacade().edit(getBill().getCancelledBill());
+            }
+            System.out.println("getBill().getForwardReferenceBill().getInsId() = " + getBill().getForwardReferenceBill().getInsId());
+            System.out.println("getBill().getCancelledBill().getForwardReferenceBill().getInsId() = " + getBill().getCancelledBill().getForwardReferenceBill().getInsId());
+            getBillBean().updateBatchBill(forRefBill);
+        }
+
     }
 
     public void storeRetailCancelBillWithStockBht() {

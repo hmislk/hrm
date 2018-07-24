@@ -16,22 +16,26 @@
                 <h:panelGrid columns="2" >
 
                     <h:outputLabel value="From Date"/>
-
-                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.fromDate}" navigator="true" pattern="dd MMMM yyyy hh:mm:ss a"  >
-                    </p:calendar>
+                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.fromDate}" 
+                                navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
 
                     <h:outputLabel value="To Date"/>
-
-                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.toDate}" navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" >
-                    </p:calendar>
-
-                    
+                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.toDate}" 
+                                navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
 
                     <h:outputLabel value="Billed Departmant"/>
+                    <p:autoComplete styleClass="noPrintButton mediuminput" 
+                                    value="#{investigationMonthSummeryOwnControllerSession.department}"  
+                                    style="text-align: left; "  completeMethod="#{departmentController.completeDept}" 
+                                    var="dep" itemValue="#{dep}" itemLabel="#{dep.name}" forceSelection="true" rendered="true" />
 
-                    <p:autoComplete styleClass="noPrintButton mediuminput"  value="#{investigationMonthSummeryOwnControllerSession.department}"  
-                                    style="text-align: left; "  completeMethod="#{departmentController.completeDept}" var="dep" itemValue="#{dep}" itemLabel="#{dep.name}" forceSelection="true" rendered="true"  >
-                    </p:autoComplete>
+                    <h:outputLabel  value="Search By" />
+                    <p:selectOneRadio value="#{investigationMonthSummeryOwnControllerSession.summeryType}" >
+                        <f:selectItem itemLabel="All" itemValue="1" />
+                        <f:selectItem itemLabel="Only OPD" itemValue="2" />
+                        <f:selectItem itemLabel="Only Inward" itemValue="3" />
+                        <f:selectItem itemLabel="Only Collecting Center" itemValue="4" />
+                    </p:selectOneRadio>
 
                 </h:panelGrid>
 
@@ -96,7 +100,7 @@
                             </h:outputLabel>
                             <f:facet name="footer">
                                 <h:outputLabel value="#{investigationMonthSummeryOwnControllerSession.grantTotal}">
-                                <f:convertNumber pattern="#,##0.00" />
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </f:facet>
                         </p:column>

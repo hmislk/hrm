@@ -151,7 +151,9 @@
                                 <h:panelGrid columns="2">
                                     <h:outputLabel value="After "/>
                                     <h:outputLabel value="#{pb.pharmaceuticalBillItem.stockHistory.stockQty+(pb.pharmaceuticalBillItem.qtyInUnit+pb.pharmaceuticalBillItem.freeQtyInUnit)}"
-                                                   />
+                                                   rendered="#{pb.bill.billType ne 'StoreGrnReturn'}"/>
+                                    <h:outputLabel value="#{pb.pharmaceuticalBillItem.stockHistory.stockQty-(pb.pharmaceuticalBillItem.qtyInUnit+pb.pharmaceuticalBillItem.freeQtyInUnit)}"
+                                                   rendered="#{pb.bill.billType eq 'StoreGrnReturn'}"/>
 
                                 </h:panelGrid>
                             </p:column>
