@@ -289,6 +289,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             return;
         }
         double singleItem = 100 / ixs.size();
+        grantTotal=0.0;
         for (Item w : ixs) {
             if (totalCount == null) {
                 totalCount = 0l;
