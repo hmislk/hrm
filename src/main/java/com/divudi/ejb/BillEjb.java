@@ -126,6 +126,7 @@ public class BillEjb implements Serializable {
         }
         return getBillItemFacade().countBySql(sql, temMap, TemporalType.TIMESTAMP);
     }
+
     public double getBillItemTotal(Item item, Date fromDate,
             Date toDate,
             BillType[] billTypes,
@@ -176,11 +177,11 @@ public class BillEjb implements Serializable {
             temMap.put("idep", itemDepartment);
         }
         /*List<BillItem> billitems=getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
-        double d=0.0;
-        for (BillItem bi : billitems) {
-            d+=bi.getNetValue();
-        }
-        System.out.println("d = " + d);*/
+         double d=0.0;
+         for (BillItem bi : billitems) {
+         d+=bi.getNetValue();
+         }
+         System.out.println("d = " + d);*/
         return getBillItemFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
     }
 
