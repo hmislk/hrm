@@ -66,7 +66,7 @@ public class ApiChannelReport {
     public String getDuplicateChannels() {
         System.err.println("~~~~~~Channel Report API~~~~~~ Get Duplicats(/duplicates)");
         JSONArray array = new JSONArray();
-        JSONObject jSONObjectOut = new JSONObject();
+//        JSONObject jSONObjectOut = new JSONObject();
         try {
             List<AgentHistory> agentHistorys = fetchAgentHistory(null, null, null);
             if (!agentHistorys.isEmpty()) {
@@ -81,6 +81,7 @@ public class ApiChannelReport {
                         JSONObject object = new JSONObject();
                         object.put("history_id", lastHistory.getId());
                         object.put("history_bill_id", lastHistory.getBill().getInsId());
+                        object.put("history_doc_name", lastHistory.getBill().getStaff().getPerson().getName());
                         object.put("history_ref_no", lastHistory.getReferenceNo());
                         object.put("history_created_at", getCommonController().getDateTimeFormat12(lastHistory.getBill().getCreatedAt()));
                         object.put("history_session_date", getCommonController().getDateFormat(lastHistory.getBill().getSingleBillSession().getSessionDate()));
@@ -94,6 +95,7 @@ public class ApiChannelReport {
                         object = new JSONObject();
                         object.put("history_id", a.getId());
                         object.put("history_bill_id", a.getBill().getInsId());
+                        object.put("history_doc_name", a.getBill().getStaff().getPerson().getName());
                         object.put("history_ref_no", a.getReferenceNo());
                         object.put("history_created_at", getCommonController().getDateTimeFormat12(a.getBill().getCreatedAt()));
                         object.put("history_session_date", getCommonController().getDateFormat(a.getBill().getSingleBillSession().getSessionDate()));
@@ -106,20 +108,20 @@ public class ApiChannelReport {
                     }
                     lastHistory=a;
                 }
-                jSONObjectOut.put("history", array);
-                jSONObjectOut.put("error", "0");
-                jSONObjectOut.put("error_description", "");
+//                jSONObjectOut.put("history", array);
+//                jSONObjectOut.put("error", "0");
+//                jSONObjectOut.put("error_description", "");
             } else {
-                jSONObjectOut.put("history", "");
-                jSONObjectOut.put("error", "1");
-                jSONObjectOut.put("error_description", "No Data.");
+//                jSONObjectOut.put("history", "");
+//                jSONObjectOut.put("error", "1");
+//                jSONObjectOut.put("error_description", "No Data.");
             }
         } catch (Exception e) {
-            jSONObjectOut.put("history", "");
-            jSONObjectOut.put("error", "1");
-            jSONObjectOut.put("error_description", "Invalid Argument.");
+//            jSONObjectOut.put("history", "");
+//            jSONObjectOut.put("error", "1");
+//            jSONObjectOut.put("error_description", "Invalid Argument.");
         }
-        String json = jSONObjectOut.toString();
+        String json = array.toString();
         System.err.println("~~~~~~Channel Report API~~~~~~ Get Duplicats(/duplicats) = " + json);
         return json;
     }
@@ -130,7 +132,7 @@ public class ApiChannelReport {
     public String getDuplicatChannels(@PathParam("from_date") String from_date, @PathParam("to_date") String to_date) {
         System.err.println("~~~~~~Channel Report API~~~~~~ Get Duplicats(/duplicates)");
         JSONArray array = new JSONArray();
-        JSONObject jSONObjectOut = new JSONObject();
+//        JSONObject jSONObjectOut = new JSONObject();
         try {
             Date fromDate = getCommonController().getConvertDateTimeFormat24(from_date);
             Date toDate = getCommonController().getConvertDateTimeFormat24(to_date);
@@ -142,11 +144,13 @@ public class ApiChannelReport {
                         lastHistory = a;
                         continue;
                     }
-
+                    //System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
+                    //System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
                     if (lastHistory.getReferenceNo() != null && lastHistory.getReferenceNo().equals(a.getReferenceNo())) {
                         JSONObject object = new JSONObject();
                         object.put("history_id", lastHistory.getId());
                         object.put("history_bill_id", lastHistory.getBill().getInsId());
+                        object.put("history_doc_name", lastHistory.getBill().getStaff().getPerson().getName());
                         object.put("history_ref_no", lastHistory.getReferenceNo());
                         object.put("history_created_at", getCommonController().getDateTimeFormat12(lastHistory.getBill().getCreatedAt()));
                         object.put("history_session_date", getCommonController().getDateFormat(lastHistory.getBill().getSingleBillSession().getSessionDate()));
@@ -160,6 +164,7 @@ public class ApiChannelReport {
                         object = new JSONObject();
                         object.put("history_id", a.getId());
                         object.put("history_bill_id", a.getBill().getInsId());
+                        object.put("history_doc_name", a.getBill().getStaff().getPerson().getName());
                         object.put("history_ref_no", a.getReferenceNo());
                         object.put("history_created_at", getCommonController().getDateTimeFormat12(a.getBill().getCreatedAt()));
                         object.put("history_session_date", getCommonController().getDateFormat(a.getBill().getSingleBillSession().getSessionDate()));
@@ -169,23 +174,25 @@ public class ApiChannelReport {
                         object.put("history_before_value", a.getBeforeBallance());
                         object.put("history_transaction_value", a.getTransactionValue());
                         array.put(object);
+                        //System.out.println("******lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
+                        //System.out.println("******a.getReferenceNo() = " + a.getReferenceNo());
                     }
                     lastHistory=a;
                 }
-                jSONObjectOut.put("history", array);
-                jSONObjectOut.put("error", "0");
-                jSONObjectOut.put("error_description", "");
+//                jSONObjectOut.put("history", array);
+//                jSONObjectOut.put("error", "0");
+//                jSONObjectOut.put("error_description", "");
             } else {
-                jSONObjectOut.put("history", "");
-                jSONObjectOut.put("error", "1");
-                jSONObjectOut.put("error_description", "No Data.");
+//                jSONObjectOut.put("history", "");
+//                jSONObjectOut.put("error", "1");
+//                jSONObjectOut.put("error_description", "No Data.");
             }
         } catch (Exception e) {
-            jSONObjectOut.put("history", "");
-            jSONObjectOut.put("error", "1");
-            jSONObjectOut.put("error_description", "Invalid Argument.");
+//            jSONObjectOut.put("history", "");
+//            jSONObjectOut.put("error", "1");
+//            jSONObjectOut.put("error_description", "Invalid Argument.");
         }
-        String json = jSONObjectOut.toString();
+        String json = array.toString();
         System.err.println("~~~~~~Channel Report API~~~~~~ Get Duplicats(/duplicates) = " + json);
         return json;
     }
