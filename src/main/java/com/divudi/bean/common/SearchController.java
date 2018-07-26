@@ -270,6 +270,11 @@ public class SearchController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
+        
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and b.collectingCentre=:col ";
+            temMap.put("col", getReportKeyWord().getInstitution());
+        }
 
         sql += " order by pi.id desc  ";
 //    
@@ -4097,6 +4102,11 @@ public class SearchController implements Serializable {
             sql += " and b.fromDepartment=:depFrom ";
             temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
         }
+        
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and b.collectingCentre=:col ";
+            temMap.put("col", getReportKeyWord().getInstitution());
+        }
 
         sql += " order by pi.id desc  ";
 //    
@@ -4296,6 +4306,11 @@ public class SearchController implements Serializable {
         if (getReportKeyWord().getDepartmentFrom() != null) {
             sql += " and b.fromDepartment=:depFrom ";
             temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
+        }
+        
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and b.collectingCentre=:col ";
+            temMap.put("col", getReportKeyWord().getInstitution());
         }
 
         sql += " order by pi.id desc  ";

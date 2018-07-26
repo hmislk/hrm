@@ -46,6 +46,7 @@ public enum ReportItemType {
     Person,
     Institution,
     Department,
+    DepartmentCollectedUser,
     DateTime,
     
     

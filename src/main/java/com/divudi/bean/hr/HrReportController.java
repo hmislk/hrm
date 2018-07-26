@@ -891,6 +891,18 @@ public class HrReportController implements Serializable {
         System.out.println("i = " + i);
         fetchCheckStaffRetierd(i);
     }
+    
+    public void createEndOfProbationStaffs() {
+        int i = 0;
+        if (getReportKeyWord().getString().equals("0")) {
+            i = 3;
+        }
+        if (getReportKeyWord().getString().equals("1")) {
+            i = -3;
+        }
+        System.out.println("i = " + i);
+        fetchCheckStaffEndOfProbation(i);
+    }
 
     public void listnerCheckStaffRetierd() {
         int months = 3;
@@ -940,6 +952,57 @@ public class HrReportController implements Serializable {
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("staffs.size() = " + staffs.size());
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
+        return staffs;
+    }
+
+    public List<Staff> fetchCheckStaffEndOfProbation(int months) {
+
+        Calendar f = Calendar.getInstance();
+        Calendar t = Calendar.getInstance();
+        if (months == 3) {
+            f.setTime(new Date());
+            f.add(Calendar.YEAR,-1);
+            f.set(Calendar.HOUR, 0);
+            f.set(Calendar.MINUTE, 0);
+            f.set(Calendar.SECOND, 0);
+            System.out.println("f.getTime() = " + f.getTime());
+            t.setTime(new Date());
+            t.add(Calendar.YEAR,-1);
+            t.add(Calendar.MONTH, months);
+            t.set(Calendar.HOUR, 23);
+            t.set(Calendar.MINUTE, 59);
+            t.set(Calendar.SECOND, 59);
+            System.out.println("t.getTime() = " + t.getTime());
+        } else {
+            f.setTime(new Date());
+            f.add(Calendar.YEAR,-1);
+            f.add(Calendar.MONTH, months);
+            f.set(Calendar.HOUR, 0);
+            f.set(Calendar.MINUTE, 0);
+            f.set(Calendar.SECOND, 0);
+            System.out.println("f.getTime() = " + f.getTime());
+            t.setTime(new Date());
+            t.add(Calendar.YEAR,-1);
+            t.set(Calendar.HOUR, 23);
+            t.set(Calendar.MINUTE, 59);
+            t.set(Calendar.SECOND, 59);
+            System.out.println("t.getTime() = " + t.getTime());
+        }
+
+        String sql;
+        HashMap m = new HashMap();
+
+        sql = "select ss from Staff ss "
+                + " where ss.retired=false "
+                + " and ss.dateJoined between :fd and :td "
+                + " order by ss.codeInterger ";
+        m.put("fd", f.getTime());
+        m.put("td", t.getTime());
+        System.out.println("m = " + m);
+        System.out.println("sql = " + sql);
+        staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("staffs.size() = " + staffs.size());
+        
         return staffs;
     }
 
@@ -2823,7 +2886,7 @@ public class HrReportController implements Serializable {
             sql += " and ss.roster=:rs ";
             hm.put("rs", getReportKeyWord().getRoster());
         }
-        
+
         return staffFacade.findLongByJpql(sql, hm, TemporalType.DATE);
     }
 

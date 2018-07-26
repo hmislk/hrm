@@ -5673,6 +5673,25 @@ public class ChannelReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
     }
 
+    public void createAgentHistoryDuplicates() {
+        Date startTime = new Date();
+        agentHistorys = new ArrayList<>();
+        if (institution == null) {
+            JsfUtil.addErrorMessage("Please Select Agency.");
+            return;
+        }
+        HistoryType[] ht = {HistoryType.ChannelBooking, HistoryType.ChannelDeposit, HistoryType.ChannelDepositCancel, HistoryType.ChannelDebitNote,
+            HistoryType.ChannelDebitNoteCancel, HistoryType.ChannelCreditNote, HistoryType.ChannelCreditNoteCancel};
+        List<HistoryType> historyTypes = Arrays.asList(ht);
+
+        List<AgentHistory> aHistorys = createAgentHistory(getFromDate(), getToDate(), institution, historyTypes);
+        System.out.println("aHistorys.size() = " + aHistorys.size());
+        agentHistorys = checkChannelDuplicateOnly(aHistorys);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
+    }
+
     public void createCollectingCenterHistorySubTable() {
         Date startTime = new Date();
 
@@ -6203,6 +6222,34 @@ public class ChannelReportController implements Serializable {
             }
 
         }
+    }
+
+    public List<AgentHistory> checkChannelDuplicateOnly(List<AgentHistory> agentHistorys) {
+        boolean start = true;
+        AgentHistory lastHistory = null;
+        double d = 0.0;
+        List<AgentHistory> ahs = new ArrayList<>();
+        for (AgentHistory a : agentHistorys) {
+            if (start || lastHistory == null) {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+                start = false;
+                continue;
+            }
+            System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
+            System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
+            if (lastHistory.getReferenceNo()!=null&& lastHistory.getReferenceNo().equals(a.getReferenceNo())) {
+                ahs.add(lastHistory);
+                ahs.add(a);
+                a.setDuplicateChannel(true);
+                lastHistory = a;
+            } else {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+            }
+
+        }
+        return ahs;
     }
 
     List<DocPage> listOfList = new ArrayList<>();
