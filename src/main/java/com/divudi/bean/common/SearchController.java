@@ -6429,6 +6429,7 @@ public class SearchController implements Serializable {
         sql = "select b from RefundBill b where "
                 + " b.billType = :billType "
                 + " and b.billedBill is null "
+                + " and b.refundedBill is null "
                 + " and b.createdAt between :fromDate and :toDate "
                 + " and b.retired=false  ";
 
