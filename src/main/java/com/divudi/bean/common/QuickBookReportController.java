@@ -798,9 +798,9 @@ public class QuickBookReportController implements Serializable {
                 qbfs.add(qbf);
             }
             if (b.getPaymentMethod() == PaymentMethod.Cash) {
-                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             } else {
-                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             }
             quickBookFormats.add(qbf);
 
@@ -854,9 +854,9 @@ public class QuickBookReportController implements Serializable {
                 qbfs.add(qbf);
             }
             if (b.getPaymentMethod() == PaymentMethod.Cash) {
-                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             } else {
-                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             }
             quickBookFormats.add(qbf);
 
@@ -911,9 +911,9 @@ public class QuickBookReportController implements Serializable {
                 qbfs.add(qbf);
             }
             if (b.getPaymentMethod() == PaymentMethod.Cash) {
-                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             } else {
-                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getToInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill Refund", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), b.getToInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             }
             quickBookFormats.add(qbf);
 
@@ -970,9 +970,9 @@ public class QuickBookReportController implements Serializable {
                 qbfs.add(qbf);
             }
             if (b.getPaymentMethod() == PaymentMethod.Cash) {
-                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), "Cash GRN - Stores", "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             } else {
-                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getPrintingName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getDeptId(), b.getDeptId(), b.getDepartment().getName(), b.getInvoiceNumber(), "", "", "", "", "");
             }
             quickBookFormats.add(qbf);
 

@@ -876,14 +876,17 @@ public class CollectingCentreBillController implements Serializable {
     private Bill saveBill(Department bt, Bill temp) {
         temp.setBillType(BillType.CollectingCentreBill);
 
-        temp.setInstitution(collectingCentre);
-        temp.setDepartment(departmentController.getDefaultDepatrment(collectingCentre));
+        temp.setInstitution(getSessionController().getInstitution());
+        temp.setDepartment(getSessionController().getDepartment());
+//        temp.setInstitution(collectingCentre);
+//        temp.setDepartment(departmentController.getDefaultDepatrment(collectingCentre));
 
         temp.setToDepartment(bt);
         temp.setToInstitution(bt.getInstitution());
 
-        temp.setFromDepartment(temp.getDepartment());
-        temp.setFromInstitution(temp.getInstitution());
+        temp.setCollectingCentre(collectingCentre);
+        temp.setFromDepartment(departmentController.getDefaultDepatrment(collectingCentre));
+        temp.setFromInstitution(collectingCentre);
 
         temp.setReferredBy(referredBy);
         temp.setReferralNumber(referralId);

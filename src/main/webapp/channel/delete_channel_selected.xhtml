@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+                <h:form >
+                    
+                    <p:panel header="Manage Selected Channels" >
+                        <p:panelGrid columns="2" >
+                            <p:outputLabel value="From" ></p:outputLabel>
+                            <p:calendar value="#{bookingController.fromDate}"  pattern="dd MMMM yyyy" ></p:calendar>
+                            <p:outputLabel value="To" ></p:outputLabel>
+                            <p:calendar value="#{bookingController.toDate}"  pattern="dd MMMM yyyy" ></p:calendar>
+                            <p:outputLabel value="Manage Percentage" ></p:outputLabel>
+                            <p:inputText value="#{bookingController.absentPercentage}" ></p:inputText>
+                            <p:outputLabel value="Manage Consultant" ></p:outputLabel>
+                            <p:autoComplete value="#{bookingController.staff}" completeMethod="#{staffController.completeStaff}"
+                                            var="c" itemLabel="#{c.person.name}" itemValue="#{c}"></p:autoComplete>
+                            <p:commandButton value="Manage Selected" ajax="false" action="#{bookingController.deleteSelected() }" ></p:commandButton>
+                        </p:panelGrid>
+                        <p:poll interval="10" update="msg" ></p:poll>
+                        <h2><p:outputLabel id="msg" value="Records Managed : #{bookingController.di}" ></p:outputLabel></h2>
+                    </p:panel>
+                </h:form>
+            </ui:define>
+
+           
+        </ui:composition>
+
+    </body>
+</html>

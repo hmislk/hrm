@@ -23,6 +23,9 @@
                                         <h:outputLabel value="#{i.itemBatch.item.name}" style="#{commonController.currentDateTime > i.itemBatch.dateOfExpire ?'color: red; ': 
                                                                             commonController.dateAfterThreeMonthsCurrentDateTime > i.itemBatch.dateOfExpire ?'color: red; background-color: yellow;':''}" ></h:outputLabel>
                                     </p:column>
+                                    <p:column headerText="Code">
+                                        <h:outputLabel value="#{i.itemBatch.item.code}" />
+                                    </p:column>
                                     <p:column headerText="Retail Sale Rate">
                                         <h:outputLabel value="#{i.itemBatch.retailsaleRate}" >
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>

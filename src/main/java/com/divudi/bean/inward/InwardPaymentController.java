@@ -89,7 +89,7 @@ public class InwardPaymentController implements Serializable {
             return 0;
         }
 
-       return b.getNetTotal()-(b.getPaidAmount()+getCurrent().getPatientEncounter().getCreditPaidAmount());
+       return b.getNetTotal()-(b.getPaidAmount()-getCurrent().getPatientEncounter().getCreditPaidAmount());
         
 //        double billValue = Math.abs(b.getNetTotal());
 //        double paidByPatient = Math.abs(b.getPaidAmount());

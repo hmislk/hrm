@@ -25,7 +25,7 @@
                             <p:panel >
                                 <f:facet name="header" >
                                     <p:outputLabel value="Collecting Centers" />
-                                    <p:commandButton id="btnAdd" value="Add New" style="float: right;"  update="gpDetail"
+                                    <p:commandButton id="btnAdd" value="Add New" style="float: right;"  ajax="false"
                                                      action="#{collectingCentreController.prepareAdd()}" styleClass="buttons" />
 
                                 </f:facet>
@@ -51,7 +51,7 @@
                                 <f:facet name="header" >
                                     <p:outputLabel value="Details" />
                                     <p:commandButton id="btnSave" value="Save" action="#{collectingCentreController.saveSelected()}" 
-                                                     styleClass="buttons" style="float: right;" update="gpVeda" />
+                                                     styleClass="buttons" style="float: right;" ajax="false" />
                                     <p:defaultCommand target="btnSave"/>
                                 </f:facet>
                                 <h:panelGrid id="gpDetailText" columns="2">

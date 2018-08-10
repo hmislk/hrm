@@ -1188,6 +1188,10 @@ public class SalaryCycleController implements Serializable {
                 if (p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() == PaysheetComponentType.PerformanceAllowance) {
                     s.setPerVal(p.getStaffPaysheetComponent().getStaffPaySheetComponentValue());
                 }
+                if (p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() == PaysheetComponentType.FixedAllowance
+                        && p.getStaffPaysheetComponent().getPaysheetComponent().getName().equals("Traveling Allowence")) {
+                    s.setTraVal(p.getStaffPaysheetComponent().getStaffPaySheetComponentValue());
+                }
                 if (p.getStaffPaysheetComponentPercentage() != null) {
                     if (p.getStaffPaysheetComponentPercentage().getPaysheetComponent().getComponentType() == PaysheetComponentType.PerformanceAllowancePercentage) {
                         s.setPerPercentage(p.getStaffPaysheetComponentPercentage().getStaffPaySheetComponentValue());

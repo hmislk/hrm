@@ -62,7 +62,9 @@
                                 <h:panelGrid id="gpDetailText">
                                     <p:panel>
                                         <p:panelGrid columns="2">
-                                            <p:outputLabel  value="Display Name" ></p:outputLabel>
+                                            <p:outputLabel value="Id" ></p:outputLabel>
+                                            <p:outputLabel value="#{storeAmpController.current.id}"  />
+                                            <p:outputLabel value="Display Name" ></p:outputLabel>
                                             <p:inputText autocomplete="off" id="txtName"  value="#{storeAmpController.current.name}"  />
                                             <p:outputLabel  value="Item Code" ></p:outputLabel>
                                             <p:inputText autocomplete="off" id="code"  value="#{storeAmpController.current.code}" disabled="true" ></p:inputText>

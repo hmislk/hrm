@@ -37,9 +37,9 @@
                         </p:autoComplete>
                                
                     <p:panelGrid columns="3">
-                        <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createGRNBillItemTable()}"/>
-                        <p:commandButton actionListener="#{pharmacySaleReport.createGRNBillItemTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                            <pe:exporter type="xlsx" target="sum1" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
+                        <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createPharmacyGRNBillItemTable()}"/>
+                        <p:commandButton actionListener="#{pharmacySaleReport.createPharmacyGRNBillItemTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                            <pe:exporter type="xlsx" target="sum1" fileName="report_pharmacy_grn_bill_item_report"  />
                         </p:commandButton>
                         <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
                             <p:printer target="panelPrint" />
@@ -136,9 +136,9 @@
                         </h:outputLabel>
                     </p:column>
 
-                    <p:column headerText="Order Quantity" style="text-align: right;">
+                    <p:column headerText="Quantity" style="text-align: right;">
                         <f:facet name="header" >
-                            <p:outputLabel value="Order Quantity" />
+                            <p:outputLabel value="Quantity" />
                         </f:facet>
                         <h:outputLabel value="#{i.pharmaceuticalBillItem.qty}">
                             <f:convertNumber pattern="#,##0.00" />

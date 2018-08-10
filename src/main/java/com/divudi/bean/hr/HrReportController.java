@@ -874,23 +874,36 @@ public class HrReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
     }
 
-    public void createRetiedStaffs(){
-        int i=0;
+    public void createRetiedStaffs() {
+        int i = 0;
         if (getReportKeyWord().getString().equals("0")) {
-            i=3;
-        } 
+            i = 3;
+        }
         if (getReportKeyWord().getString().equals("1")) {
-            i=6;
-        } 
+            i = 6;
+        }
         if (getReportKeyWord().getString().equals("2")) {
-            i=9;
-        } 
+            i = 9;
+        }
         if (getReportKeyWord().getString().equals("3")) {
-            i=12;
-        } 
+            i = 12;
+        }
         System.out.println("i = " + i);
         fetchCheckStaffRetierd(i);
     }
+    
+    public void createEndOfProbationStaffs() {
+        int i = 0;
+        if (getReportKeyWord().getString().equals("0")) {
+            i = 3;
+        }
+        if (getReportKeyWord().getString().equals("1")) {
+            i = -3;
+        }
+        System.out.println("i = " + i);
+        fetchCheckStaffEndOfProbation(i);
+    }
+
     public void listnerCheckStaffRetierd() {
         int months = 3;
         List<Staff> staffs = fetchCheckStaffRetierd(months);
@@ -939,6 +952,57 @@ public class HrReportController implements Serializable {
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("staffs.size() = " + staffs.size());
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
+        return staffs;
+    }
+
+    public List<Staff> fetchCheckStaffEndOfProbation(int months) {
+
+        Calendar f = Calendar.getInstance();
+        Calendar t = Calendar.getInstance();
+        if (months == 3) {
+            f.setTime(new Date());
+            f.add(Calendar.YEAR,-1);
+            f.set(Calendar.HOUR, 0);
+            f.set(Calendar.MINUTE, 0);
+            f.set(Calendar.SECOND, 0);
+            System.out.println("f.getTime() = " + f.getTime());
+            t.setTime(new Date());
+            t.add(Calendar.YEAR,-1);
+            t.add(Calendar.MONTH, months);
+            t.set(Calendar.HOUR, 23);
+            t.set(Calendar.MINUTE, 59);
+            t.set(Calendar.SECOND, 59);
+            System.out.println("t.getTime() = " + t.getTime());
+        } else {
+            f.setTime(new Date());
+            f.add(Calendar.YEAR,-1);
+            f.add(Calendar.MONTH, months);
+            f.set(Calendar.HOUR, 0);
+            f.set(Calendar.MINUTE, 0);
+            f.set(Calendar.SECOND, 0);
+            System.out.println("f.getTime() = " + f.getTime());
+            t.setTime(new Date());
+            t.add(Calendar.YEAR,-1);
+            t.set(Calendar.HOUR, 23);
+            t.set(Calendar.MINUTE, 59);
+            t.set(Calendar.SECOND, 59);
+            System.out.println("t.getTime() = " + t.getTime());
+        }
+
+        String sql;
+        HashMap m = new HashMap();
+
+        sql = "select ss from Staff ss "
+                + " where ss.retired=false "
+                + " and ss.dateJoined between :fd and :td "
+                + " order by ss.codeInterger ";
+        m.put("fd", f.getTime());
+        m.put("td", t.getTime());
+        System.out.println("m = " + m);
+        System.out.println("sql = " + sql);
+        staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("staffs.size() = " + staffs.size());
+        
         return staffs;
     }
 
@@ -2767,6 +2831,65 @@ public class HrReportController implements Serializable {
         return staffFacade.findLongByJpql(sql, hm, TemporalType.DATE);
     }
 
+    private long fetchLateDays(Staff staff, boolean tenMins) {
+        String sql = "";
+
+        HashMap hm = new HashMap();
+        sql = "select count(distinct(FUNC('Date',ss.shiftDate))) "
+                + " from StaffShift ss "
+                + " where ss.retired=false "
+                + " and ss.staff=:stf "
+                + " and ss.dayType!=:dt "
+                + " and (ss.leaveType is null or (ss.leaveType is not null and ss.autoLeave=true)) ";
+//                + " and (ss.lateInVarified)>0 ";
+        //                + " and ((ss.startRecord.recordTimeStamp is not null "
+        //                + " and ss.endRecord.recordTimeStamp is not null) "
+        //                + " or (ss.leaveType is not null) ) "
+        if (tenMins) {
+            sql += " and ((ss.lateInVarified>0 and ss.lateInVarified<=600) or (ss.earlyOutVarified>0 and ss.earlyOutVarified<=600)) ";
+        } else {
+            sql += " and (ss.lateInVarified>600 or ss.earlyOutVarified>600) ";
+//            sql += " and ((ss.lateInVarified>600 and ss.lateInVarified<=5400) or (ss.earlyOutVarified>600 and ss.earlyOutVarified<=5400)) ";
+        }
+        sql += " and ss.shiftDate between :frm  and :to ";
+        hm.put("frm", fromDate);
+        hm.put("to", toDate);
+        hm.put("stf", staff);
+        hm.put("dt", DayType.Extra);
+
+        if (getReportKeyWord().getStaff() != null) {
+            sql += " and ss.staff=:stf ";
+            hm.put("stf", getReportKeyWord().getStaff());
+        }
+
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and ss.staff.workingDepartment=:dep ";
+            hm.put("dep", getReportKeyWord().getDepartment());
+        }
+
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and ss.staff.workingDepartment.institution=:ins ";
+            hm.put("ins", getReportKeyWord().getInstitution());
+        }
+
+        if (getReportKeyWord().getStaffCategory() != null) {
+            sql += " and ss.staff.staffCategory=:stfCat";
+            hm.put("stfCat", getReportKeyWord().getStaffCategory());
+        }
+
+        if (getReportKeyWord().getDesignation() != null) {
+            sql += " and ss.staff.designation=:des";
+            hm.put("des", getReportKeyWord().getDesignation());
+        }
+
+        if (getReportKeyWord().getRoster() != null) {
+            sql += " and ss.roster=:rs ";
+            hm.put("rs", getReportKeyWord().getRoster());
+        }
+
+        return staffFacade.findLongByJpql(sql, hm, TemporalType.DATE);
+    }
+
     private long fetchLateDays(Staff staff, Date fd, Date td) {
         String sql = "";
 
@@ -3112,6 +3235,8 @@ public class HrReportController implements Serializable {
             monthEnd.setLeave_dutyLeave(humanResourceBean.calStaffLeave(stf, LeaveType.DutyLeave, getFromDate(), getToDate()));
             monthEnd.setExtraDutyDays(fetchExtraDutyDays(stf));
             monthEnd.setLatedays(fetchLateDays(stf));
+            monthEnd.setLatedays10Mins(fetchLateDays(stf, true));
+            monthEnd.setLatedays90Mins(fetchLateDays(stf, false));
             monthEnd.setLateNoPays(humanResourceBean.calStaffLeaveSystem(stf, LeaveType.No_Pay, getFromDate(), getToDate()));
             monthEnd.setDayoff(fetchWorkedDays(stf, DayType.DayOff));
             monthEnd.setSleepingDays(fetchWorkedDays(stf, DayType.SleepingDay));

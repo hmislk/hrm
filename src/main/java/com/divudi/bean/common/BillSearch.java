@@ -676,6 +676,13 @@ public class BillSearch implements Serializable {
             p.setPaidValue(getOpdPreSettleController().calBillPaidValue(rb));
             paymentFacade.edit(p);
 
+            //--TO update surgery bill--
+            if (getBill().getForwardReferenceBill() != null) {
+                rb.setForwardReferenceBill(getBill().getForwardReferenceBill());
+                System.out.println("getBill().getForwardReferenceBill().getInsId() = " + getBill().getForwardReferenceBill().getInsId());
+            }
+            //--TO update surgery bill--
+
             calculateRefundBillFees(rb);
 
             getBill().setRefunded(true);
@@ -712,6 +719,11 @@ public class BillSearch implements Serializable {
             bill = billFacade.find(rb.getId());
             createCollectingCenterfees(bill);
             printPreview = true;
+            //--TO update surgery bill--
+            if (getBill().getForwardReferenceBill() != null) {
+                getBillBean().updateBatchBill(getBill().getForwardReferenceBill());
+            }
+            //--TO update surgery bill--
             //UtilityController.addSuccessMessage("Refunded");
 
         } else {
@@ -1696,6 +1708,7 @@ public class BillSearch implements Serializable {
     public void setBill(Bill bill) {
         this.bill = bill;
         paymentMethod = bill.getPaymentMethod();
+        printPreview = false;
         createBillItems();
 
         boolean flag = billController.checkBillValues(bill);
@@ -2396,17 +2409,17 @@ public class BillSearch implements Serializable {
         cb.setInstitution(getSessionController().getInstitution());
         cb.setComments(comment);
         getBillFacade().create(cb);
-        
+
         b.getForwardReferenceBill().setCancelled(true);
         b.getForwardReferenceBill().setCancelledBill(cb);
         getBillFacade().edit(b.getForwardReferenceBill());
-        
+
         b.getCancelledBill().setForwardReferenceBill(cb);
         getBillFacade().edit(b.getCancelledBill());
-        
+
         cb.setBackwardReferenceBill(b.getCancelledBill());
         getBillFacade().edit(cb);
-        
+
     }
 
     public class BillTypeIncomeRecord {

@@ -269,7 +269,7 @@ public class InwardRefundController implements Serializable {
             return;
         }
 
-        paidAmount = b.getNetTotal() - (b.getPaidAmount() + getCurrent().getPatientEncounter().getCreditPaidAmount());
+        paidAmount = b.getNetTotal() - (b.getPaidAmount() - getCurrent().getPatientEncounter().getCreditPaidAmount());
         netTotal = b.getNetTotal();
 
 //        double paidByPatient = Math.abs(b.getPaidAmount());

@@ -4,6 +4,7 @@
  */
 package com.divudi.bean.pharmacy;
 
+import com.divudi.bean.common.BillBeanController;
 import com.divudi.bean.common.PriceMatrixController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
@@ -58,6 +59,8 @@ public class BhtIssueReturnController implements Serializable {
     private SessionController sessionController;
     @Inject
     private BillNumberGenerator billNumberBean;
+    @Inject
+    BillBeanController billBean;
     @EJB
     private BillFacade billFacade;
     @EJB
@@ -259,6 +262,8 @@ public class BhtIssueReturnController implements Serializable {
 
         getBill().getReturnBhtIssueBills().add(getReturnBill());
         getBillFacade().edit(getBill());
+        
+        getBillBean().updateBatchBill(getBill().getForwardReferenceBill());
 
         /// setOnlyReturnValue();
         printPreview = true;
@@ -439,6 +444,14 @@ public class BhtIssueReturnController implements Serializable {
 
     public void setBillFeeFacade(BillFeeFacade billFeeFacade) {
         this.billFeeFacade = billFeeFacade;
+    }
+
+    public BillBeanController getBillBean() {
+        return billBean;
+    }
+
+    public void setBillBean(BillBeanController billBean) {
+        this.billBean = billBean;
     }
 
 }

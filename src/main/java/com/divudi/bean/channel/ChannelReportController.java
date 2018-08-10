@@ -146,6 +146,7 @@ public class ChannelReportController implements Serializable {
     List<StaffBookingWithCount> staffBookingWithCounts;
     List<AreaWithCount> areaWithCount;
     List<StaffWithAreaRow> staffWithAreaRows;
+    List<DateSummery> dateSummeries;
     /////
     @EJB
     private BillSessionFacade billSessionFacade;
@@ -3716,21 +3717,96 @@ public class ChannelReportController implements Serializable {
         return bcsrs;
     }
 
-    public void test() {
+    public void createChannelDailySummery() {
+        dateSummeries = new ArrayList<>();
         List<BillType> bts;
         if (agncyOnCall) {
-            bts = Arrays.asList(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid});
+            bts = Arrays.asList(new BillType[]{BillType.ChannelCash, BillType.ChannelOnCall, BillType.ChannelStaff});
+//            bts = Arrays.asList(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid});
         } else {
-            bts = Arrays.asList(new BillType[]{BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelPaid});
+            bts = Arrays.asList(new BillType[]{BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelOnCall, BillType.ChannelStaff});
+//            bts = Arrays.asList(new BillType[]{BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelPaid});
         }
-        List<Object[]> objects = channelBillTotalByDate(false, new BilledBill(), bts, fromDate, toDate);
+        Date d = fromDate;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String s;
+        do {
+            DateSummery summery = new DateSummery();
+            s = dateFormat.format(d);
+            System.out.println("d = " + d);
+            System.out.println("s = " + s);
+            summery.setDate(d);
+            summery.setDateString(s);
+            dateSummeries.add(summery);
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(d);
+            c.add(Calendar.DATE, 1);
+            d = c.getTime();
+        } while (d.before(toDate));
+
+        List<Object[]> objects = channelBillTotalByDate(sessoinDate, new BilledBill(), bts, fromDate, toDate);
         for (Object[] ob : objects) {
             Date date = (Date) ob[0];
             System.out.println("date = " + date);
+            s = dateFormat.format(date);
+            System.out.println("s = " + s);
             double d1 = (double) ob[1];
             System.out.println("d1 = " + d1);
             double d2 = (double) ob[2];
             System.out.println("d2 = " + d2);
+            for (DateSummery ss : dateSummeries) {
+                if (s.equals(ss.getDateString())) {
+                    ss.setNetTotal(d1);
+                    ss.setVat(d2);
+                    break;
+                }
+            }
+        }
+
+        objects = channelBillTotalByDate(sessoinDate, new CancelledBill(), bts, fromDate, toDate);
+        for (Object[] ob : objects) {
+            Date date = (Date) ob[0];
+            System.out.println("date = " + date);
+            s = dateFormat.format(date);
+            System.out.println("s = " + s);
+            double d1 = (double) ob[1];
+            System.out.println("d1 = " + d1);
+            double d2 = (double) ob[2];
+            System.out.println("d2 = " + d2);
+            for (DateSummery ss : dateSummeries) {
+                if (s.equals(ss.getDateString())) {
+                    ss.setNetTotal(ss.getNetTotal() - d1);
+                    ss.setVat(ss.getVat() - d2);
+                    break;
+                }
+            }
+        }
+
+        objects = channelBillTotalByDate(sessoinDate, new RefundBill(), bts, fromDate, toDate);
+        for (Object[] ob : objects) {
+            Date date = (Date) ob[0];
+            System.out.println("date = " + date);
+            s = dateFormat.format(date);
+            System.out.println("s = " + s);
+            double d1 = (double) ob[1];
+            System.out.println("d1 = " + d1);
+            double d2 = (double) ob[2];
+            System.out.println("d2 = " + d2);
+            for (DateSummery ss : dateSummeries) {
+                if (s.equals(ss.getDateString())) {
+                    ss.setNetTotal(ss.getNetTotal() - d1);
+                    ss.setVat(ss.getVat() - d2);
+                    break;
+                }
+            }
+        }
+        for (DateSummery ss : dateSummeries) {
+//            System.out.println("ss.getDateString() = " + ss.getDateString());
+//            System.out.println("ss.getNetTotal() = " + ss.getNetTotal());
+//            System.out.println("ss.getVat() = " + ss.getVat());
+            grantNetTotal += ss.getNetTotal();
+            grantTotalBilled += ss.getVat();
         }
     }
 
@@ -3741,16 +3817,24 @@ public class ChannelReportController implements Serializable {
         String sql = " select ";
 
         if (createdDate) {
-            sql += " FUNC('Date',b.createdAt), ";
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " FUNC('Date',b.createdAt), ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " FUNC('Date',b.cancelledBill.createdAt), ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " FUNC('Date',b.refundedBill.createdAt), ";
+            }
         } else {
             if (bill.getClass().equals(BilledBill.class)) {
                 sql += " FUNC('Date',b.singleBillSession.sessionDate), ";
             }
             if (bill.getClass().equals(CancelledBill.class)) {
-                sql += " FUNC('Date',b.createdAt), ";
+                sql += " FUNC('Date',b.cancelledBill.createdAt), ";
             }
             if (bill.getClass().equals(RefundBill.class)) {
-                sql += " FUNC('Date',b.createdAt), ";
+                sql += " FUNC('Date',b.refundedBill.createdAt), ";
             }
         }
 
@@ -3759,20 +3843,24 @@ public class ChannelReportController implements Serializable {
                 + " where b.retired=false ";
 
         if (createdDate) {
-            sql += " and b.createdAt between :fDate and :tDate "
-                    + " and b.paidBill is not null ";
-        } else {
             if (bill.getClass().equals(BilledBill.class)) {
-                sql += " and b.singleBillSession.sessionDate between :fDate and :tDate "
-                        + " and b.paidBill is not null ";
+                sql += " and b.createdAt between :fDate and :tDate ";
             }
             if (bill.getClass().equals(CancelledBill.class)) {
-                sql += " and b.createdAt between :fDate and :tDate "
-                        + " and b.billedBill.paidBill is not null ";
+                sql += " and b.cancelledBill.createdAt between :fDate and :tDate ";
             }
             if (bill.getClass().equals(RefundBill.class)) {
-                sql += " and b.createdAt between :fDate and :tDate "
-                        + " and b.billedBill.paidBill is not null ";
+                sql += " and b.refundedBill.createdAt between :fDate and :tDate ";
+            }
+        } else {
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fDate and :tDate ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " and b.cancelledBill.createdAt between :fDate and :tDate ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " and b.refundedBill.createdAt between :fDate and :tDate ";
             }
         }
 
@@ -3781,29 +3869,52 @@ public class ChannelReportController implements Serializable {
             m.put("bt", billTypes);
         }
 
-        if (bill != null) {
-            sql += " and type(b)=:class";
-            m.put("class", bill.getClass());
+//        if (bill != null) {
+//        sql += " and type(b)=:class";
+//            m.put("class", bill.getClass());
+//        }
+        sql += " and type(b)=:class "
+                + " and b.paidBill is not null "
+                + " and b.paidAmount!=0 ";
+
+        if (bill.getClass().equals(CancelledBill.class)) {
+            sql += " and b.cancelled=true";
+            System.err.println("cancel");
+        }
+        if (bill.getClass().equals(RefundBill.class)) {
+            sql += " and b.refunded=true";
+            System.err.println("Refund");
         }
 
         if (createdDate) {
-            sql += " group by FUNC('Date',b.createdAt) "
-                    + " order by b.createdAt ";
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " group by FUNC('Date',b.createdAt) "
+                        + " order by b.createdAt ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " group by FUNC('Date',b.cancelledBill.createdAt) "
+                        + " order by b.cancelledBill.createdAt ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " group by FUNC('Date',b.refundedBill.createdAt) "
+                        + " order by b.refundedBill.createdAt ";
+            }
         } else {
             if (bill.getClass().equals(BilledBill.class)) {
                 sql += " group by FUNC('Date',b.singleBillSession.sessionDate) "
                         + " order by b.singleBillSession.sessionDate ";
             }
             if (bill.getClass().equals(CancelledBill.class)) {
-                sql += " group by FUNC('Date',b.createdAt) "
-                        + " order by b.createdAt ";
+                sql += " group by FUNC('Date',b.cancelledBill.createdAt) "
+                        + " order by b.cancelledBill.createdAt ";
             }
             if (bill.getClass().equals(RefundBill.class)) {
-                sql += " group by FUNC('Date',b.createdAt) "
-                        + " order by b.createdAt ";
+                sql += " group by FUNC('Date',b.refundedBill.createdAt) "
+                        + " order by b.refundedBill.createdAt ";
             }
         }
 
+        m.put("class", BilledBill.class);
         m.put("fDate", fd);
         m.put("tDate", td);
 
@@ -4838,8 +4949,8 @@ public class ChannelReportController implements Serializable {
                 + " and ar.retired=false "
                 + " order by ar.serviceSession.startingTime ";
 
-        m.put("fd", commonFunctions.getStartOfDay());
-        m.put("td", commonFunctions.getEndOfDay());
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
 
         arrivalRecords = arrivalRecordFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
 
@@ -5512,6 +5623,19 @@ public class ChannelReportController implements Serializable {
 
     }
 
+    public void createCollectingCentreHistoryTableAdvanced() {
+        Date startTime = new Date();
+        agentHistorys = new ArrayList<>();
+        HistoryType[] hts = {HistoryType.CollectingCentreBalanceUpdateBill, HistoryType.CollectingCentreDeposit, HistoryType.CollectingCentreDepositCancel, HistoryType.CollectingCentreBilling};
+        List<HistoryType> historyTypes = Arrays.asList(hts);
+
+        agentHistorys = createAgentHistoryErrorCheck(fromDate, toDate, institution, historyTypes);
+        checkCumilativeTotal(agentHistorys);
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Credit Company/OPD(/faces/store/store_report_transfer_receive_bill_item.xhtml)");
+
+    }
+
     public void createAgentHistorySubTable() {
         Date startTime = new Date();
         if (institution == null) {
@@ -5531,10 +5655,12 @@ public class ChannelReportController implements Serializable {
             System.out.println("td = " + td);
             System.out.println("fd = " + fd);
             System.out.println("nowDate = " + nowDate);
-            AgentHistoryWithDate ahwd = new AgentHistoryWithDate();
-            if (createAgentHistory(fd, td, institution, historyTypes).size() > 0) {
+            List<AgentHistory> agentHistorys = createAgentHistory(fd, td, institution, historyTypes);
+            if (agentHistorys.size() > 0) {
+                AgentHistoryWithDate ahwd = new AgentHistoryWithDate();
                 ahwd.setDate(nowDate);
-                ahwd.setAhs(createAgentHistory(fd, td, institution, historyTypes));
+                checkChannelDuplicate(agentHistorys);
+                ahwd.setAhs(agentHistorys);
                 agentHistoryWithDate.add(ahwd);
             }
 
@@ -5543,6 +5669,25 @@ public class ChannelReportController implements Serializable {
             cal.add(Calendar.DATE, 1);
             nowDate = cal.getTime();
         }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
+    }
+
+    public void createAgentHistoryDuplicates() {
+        Date startTime = new Date();
+        agentHistorys = new ArrayList<>();
+        if (institution == null) {
+            JsfUtil.addErrorMessage("Please Select Agency.");
+            return;
+        }
+        HistoryType[] ht = {HistoryType.ChannelBooking, HistoryType.ChannelDeposit, HistoryType.ChannelDepositCancel, HistoryType.ChannelDebitNote,
+            HistoryType.ChannelDebitNoteCancel, HistoryType.ChannelCreditNote, HistoryType.ChannelCreditNoteCancel};
+        List<HistoryType> historyTypes = Arrays.asList(ht);
+
+        List<AgentHistory> aHistorys = createAgentHistory(getFromDate(), getToDate(), institution, historyTypes);
+        System.out.println("aHistorys.size() = " + aHistorys.size());
+        agentHistorys = checkChannelDuplicateOnly(aHistorys);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
     }
@@ -5615,11 +5760,13 @@ public class ChannelReportController implements Serializable {
 
         sql += " order by ah.createdAt ";
 
+        List<AgentHistory> agentHistorys = getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
-        System.out.println("getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP).size() = " + getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP).size());
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
 
-        return getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        return agentHistorys;
 
     }
 
@@ -5649,11 +5796,13 @@ public class ChannelReportController implements Serializable {
 
         sql += " order by ah.bill.fromInstitution.name ,ah.createdAt ";
 
+        List<AgentHistory> agentHistorys = getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
-        System.out.println("getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP).size() = " + getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP).size());
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
 
-        return getAgentHistoryFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        return agentHistorys;
 
     }
 
@@ -6047,7 +6196,71 @@ public class ChannelReportController implements Serializable {
         }
     }
 
+    public void checkChannelDuplicate(List<AgentHistory> agentHistorys) {
+        boolean start = true;
+        String lastRefNo = null;
+        double d = 0.0;
+        for (AgentHistory a : agentHistorys) {
+            if (start) {
+
+            }
+            System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
+            System.out.println("lastRefNo = " + lastRefNo);
+            if (start || lastRefNo == null) {
+                a.setDuplicateChannel(false);
+                lastRefNo = a.getReferenceNo();
+                start = false;
+                continue;
+            }
+            if (lastRefNo.equals(a.getReferenceNo())) {
+                System.err.println("a.getReferenceNo() =" + a.getReferenceNo());
+                a.setDuplicateChannel(true);
+                lastRefNo = a.getReferenceNo();
+            } else {
+                a.setDuplicateChannel(false);
+                lastRefNo = a.getReferenceNo();
+            }
+
+        }
+    }
+
+    public List<AgentHistory> checkChannelDuplicateOnly(List<AgentHistory> agentHistorys) {
+        boolean start = true;
+        AgentHistory lastHistory = null;
+        double d = 0.0;
+        List<AgentHistory> ahs = new ArrayList<>();
+        for (AgentHistory a : agentHistorys) {
+            if (start || lastHistory == null) {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+                start = false;
+                continue;
+            }
+            System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
+            System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
+            if (lastHistory.getReferenceNo()!=null&& lastHistory.getReferenceNo().equals(a.getReferenceNo())) {
+                ahs.add(lastHistory);
+                ahs.add(a);
+                a.setDuplicateChannel(true);
+                lastHistory = a;
+            } else {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+            }
+
+        }
+        return ahs;
+    }
+
     List<DocPage> listOfList = new ArrayList<>();
+
+    public List<DateSummery> getDateSummeries() {
+        return dateSummeries;
+    }
+
+    public void setDateSummeries(List<DateSummery> dateSummeries) {
+        this.dateSummeries = dateSummeries;
+    }
 
     public class DocPage {
 
@@ -7474,6 +7687,46 @@ public class ChannelReportController implements Serializable {
 
         public void setSubTotal(double subTotal) {
             this.subTotal = subTotal;
+        }
+    }
+
+    public class DateSummery {
+
+        Date date;
+        String dateString;
+        double vat;
+        double netTotal;
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public String getDateString() {
+            return dateString;
+        }
+
+        public void setDateString(String dateString) {
+            this.dateString = dateString;
+        }
+
+        public double getVat() {
+            return vat;
+        }
+
+        public void setVat(double vat) {
+            this.vat = vat;
+        }
+
+        public double getNetTotal() {
+            return netTotal;
+        }
+
+        public void setNetTotal(double netTotal) {
+            this.netTotal = netTotal;
         }
     }
 

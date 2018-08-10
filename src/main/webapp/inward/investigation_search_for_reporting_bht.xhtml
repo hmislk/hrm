@@ -19,6 +19,8 @@
                             <h:outputLabel value="To Date"/>
                             <p:calendar id="toDate" value="#{inwardReportController.toDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >                                                                              
                             </p:calendar>                                
+                            <h:outputLabel value="By Discharge Date"/>
+                            <p:selectBooleanCheckbox value="#{inwardReportController.withFooter}" />
                             <h:outputLabel value="BHT No"/>
                             <p:autoComplete converter="admis" widgetVar="aPt" id="acPt" forceSelection="true" 
                                             value="#{inwardReportController.patientEncounter}"
@@ -87,6 +89,26 @@
                                         </h:outputLabel>
                                     </h:panelGroup>
                                 </p:tooltip>
+                            </p:column>
+                            <p:column  headerText="Bill Date" styleClass="alignTop" >
+                                <h:outputLabel  
+                                               value="#{pi.billItem.bill.createdAt}" 
+                                               styleClass="#{pi.billItem.bill.cancelled or pi.billItem.refunded ? 'redtext':''}">
+                                    <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column  headerText="Discharge Date" styleClass="alignTop" >
+                                <h:outputLabel 
+                                               value="#{pi.billItem.bill.patientEncounter.dateOfDischarge}" 
+                                               styleClass="#{pi.billItem.bill.cancelled or pi.billItem.refunded ? 'redtext':''}">
+                                    <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column  headerText="Category" styleClass="alignTop" >
+                                <h:outputLabel 
+                                    value="#{pi.billItem.item.category.name}" 
+                                               styleClass="#{pi.billItem.bill.cancelled or pi.billItem.refunded ? 'redtext':''}">
+                                </h:outputLabel>
                             </p:column>
 
                             <p:column  headerText="Dep ID" styleClass="alignTop" >
