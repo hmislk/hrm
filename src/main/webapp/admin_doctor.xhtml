@@ -48,6 +48,13 @@
                         <p:panel>
                             <h:panelGrid id="gpDetail" columns="1">
                                 <h:panelGrid id="gpDetailText" columns="2">
+                                    <h:outputText  value="Title" />
+                                    <p:selectOneMenu  id="cmbTitle"  
+                                                      value="#{doctorController.current.person.title}"  >
+                                        <f:selectItem itemLabel="Select Title" />
+                                        <f:selectItems value="#{enumController.titleDoctor}" var="i" 
+                                                       itemLabel="#{i.label}" itemValue="#{i}"/>
+                                    </p:selectOneMenu>
                                     <h:outputText  value="Name" />
                                     <p:inputText autocomplete="off" value="#{doctorController.current.person.name}"  />
                                     <h:outputText  value="Phone" />

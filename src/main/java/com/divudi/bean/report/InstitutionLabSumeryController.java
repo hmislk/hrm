@@ -12,6 +12,7 @@ import com.divudi.data.PaymentMethod;
 import com.divudi.data.table.String1Value1;
 import com.divudi.ejb.CommonFunctions;
 import com.divudi.entity.Bill;
+import com.divudi.entity.BillItem;
 import com.divudi.entity.BilledBill;
 import com.divudi.entity.CancelledBill;
 import com.divudi.entity.Department;
@@ -19,6 +20,7 @@ import com.divudi.entity.Institution;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.lab.PatientInvestigation;
 import com.divudi.facade.BillFacade;
+import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.PatientInvestigationFacade;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,18 +44,18 @@ public class InstitutionLabSumeryController implements Serializable {
 
     @Inject
     private SessionController sessionController;
-    
+
     @Inject
-     private CommonController commonController;       
-    
+    private CommonController commonController;
+
     String txtSearch;
-    
+
     Date fromDate;
     Date toDate;
-    
+
     @EJB
     CommonFunctions commonFunctions;
-    
+
     List<Bill> labBills;
     List<Bill> billedBills;
     List<Bill> billBills;
@@ -91,12 +93,10 @@ public class InstitutionLabSumeryController implements Serializable {
 
     List<PatientInvestigation> searchedPatientInvestigations;
 
-    
-    
-    public void createDailyFeeTypeSummery(){
-        
+    public void createDailyFeeTypeSummery() {
+
     }
-    
+
     public List<PatientInvestigation> getSearchedPatientInvestigations() {
         return searchedPatientInvestigations;
     }
@@ -276,8 +276,8 @@ public class InstitutionLabSumeryController implements Serializable {
         tm.put("pm3", PaymentMethod.Cheque);
         tm.put("pm4", PaymentMethod.Slip);
         tm.put("billedIns", getSessionController().getInstitution());
-        if (department!=null) {
-            sql+=" and f.toDepartment=:dep";
+        if (department != null) {
+            sql += " and f.toDepartment=:dep";
             tm.put("dep", department);
         }
         return getBillFacade().findDoubleByJpql(sql, tm, TemporalType.TIMESTAMP);
@@ -305,8 +305,8 @@ public class InstitutionLabSumeryController implements Serializable {
         tm.put("pm3", PaymentMethod.Cheque);
         tm.put("pm4", PaymentMethod.Slip);
         tm.put("billedIns", getSessionController().getInstitution());
-        if (department!=null) {
-            sql+=" and f.toDepartment=:dep";
+        if (department != null) {
+            sql += " and f.toDepartment=:dep";
             tm.put("dep", department);
         }
         return getBillFacade().findDoubleByJpql(sql, tm, TemporalType.TIMESTAMP);
@@ -333,8 +333,8 @@ public class InstitutionLabSumeryController implements Serializable {
         tm.put("pm3", PaymentMethod.Cheque);
         tm.put("pm4", PaymentMethod.Slip);
         tm.put("billedIns", getSessionController().getInstitution());
-        if (department!=null) {
-            sql+=" and f.toDepartment=:dep";
+        if (department != null) {
+            sql += " and f.toDepartment=:dep";
             tm.put("dep", department);
         }
         return getBillFacade().findDoubleByJpql(sql, tm, TemporalType.TIMESTAMP);
@@ -582,7 +582,7 @@ public class InstitutionLabSumeryController implements Serializable {
 
     public void createTableCashCreditBills() {
         Date startTime = new Date();
-        
+
         if (paymentMethod == null) {
             UtilityController.addErrorMessage("Payment Methord...!");
             return;
@@ -602,7 +602,6 @@ public class InstitutionLabSumeryController implements Serializable {
         //System.out.println("canBills = " + canBills);
         //System.out.println("refBills = " + refBills);
 
-        
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Staff credit/OPD cash credit bill report(/faces/reportInstitution/report_opd_cash_credit_by_institution.xhtml)");
     }
 
@@ -889,9 +888,8 @@ public class InstitutionLabSumeryController implements Serializable {
         tm.put("toIns", getInstitution());
 
         labBilleds = getBillFacade().findBySQL(sql, tm, TemporalType.TIMESTAMP);
-        
-        
-commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Income Report/With credit/By institution bill count(/faces/reportIncome/report_income_with_credit_by_institution_for_build_bills.xhtml)");
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Income Report/With credit/By institution bill count(/faces/reportIncome/report_income_with_credit_by_institution_for_build_bills.xhtml)");
     }
 
 //    public double calPaidTotal(List<Bill> bills) {
@@ -976,7 +974,6 @@ commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Income
                 + " and f.institution=:ins "
                 + " and f.toInstitution=:toIns "
                 + " and f.createdAt  between :fromDate and :toDate";
-                
 
         tm = new HashMap();
         tm.put("fromDate", fromDate);
@@ -988,11 +985,11 @@ commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Income
         tm.put("pm4", PaymentMethod.Slip);
         tm.put("ins", getSessionController().getInstitution());
         tm.put("toIns", getInstitution());
-        if (department!=null) {
-            sql+=" and f.toDepartment=:dep";
+        if (department != null) {
+            sql += " and f.toDepartment=:dep";
             tm.put("dep", department);
         }
-        sql+=" order by type(f), f.insId ";
+        sql += " order by type(f), f.insId ";
         List<Bill> list = getBillFacade().findBySQL(sql, tm, TemporalType.TIMESTAMP);
 
         return list;
@@ -1011,7 +1008,7 @@ commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Income
         }
 
         setString1Value1Table();
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Handover Report(/reportIncome/report_income_without_credit_by_institution.xhtml)");
 
     }

@@ -32,37 +32,37 @@ public enum Title {
     public String getLabel() {
         switch (this) {
             case Baby_Of:
-                return "Baby of ";
+                return "BABY OF ";
             case DrMiss:
-                return "Dr. (Miss) ";
+                return "DR. (MISS) ";
             case DrMrs:
-                return "Dr. (Mrs) ";
+                return "DR. (MRS) ";
             case DrMs:
-                return "Dr. (Ms) ";
+                return "DR. (MS) ";
             case Hon:
-                return "Hon. ";
+                return "HON. ";
             case Dr:
-                return "Dr. ";
+                return "DR. ";
             case Mr:
-                return "Mr. ";
+                return "MR. ";
             case Miss:
-                return "Miss. ";
+                return "MISS. ";
             case Mrs:
-                return "Mrs. ";
+                return "MRS. ";
             case Ms:
-                return "Ms. ";
+                return "MS. ";
             case Prof:
-                return "Prof. ";
+                return "PROF. ";
             case ProfMrs:
-                return "Prof. (Mrs) ";
+                return "PROF. (MRS) ";
             case Rev:
-                return "Rev. ";
+                return "REV. ";
             case RtHon:
-                return "Rt. Hon. ";
+                return "RT. HON. ";
             case RtRev:
-                return "Rt. Rev. ";
+                return "RT. REV. ";
             case Other:
-                return "Other";
+                return "OTHER";
             default:
                 return this.toString();
 
