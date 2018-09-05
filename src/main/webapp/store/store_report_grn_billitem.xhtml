@@ -109,6 +109,28 @@
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
+                    <p:column headerText="Item code">
+                        <f:facet name="header" >
+                            <p:outputLabel value="Item code" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.item.code}">
+                        </h:outputLabel>
+                    </p:column>
+                    <p:column headerText="Item Type">
+                        <f:facet name="header" >
+                            <p:outputLabel value="Item type" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.item.departmentType.label}">
+                        </h:outputLabel>
+                    </p:column>
+                    <p:column headerText="Category Name">
+                        <f:facet name="header" >
+                            <p:outputLabel value="Category Name" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.item.category.name}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
                     <p:column headerText="Free Quantity" style="text-align: right;">
                         <f:facet name="header" >
                             <p:outputLabel value="Free Quantity" />

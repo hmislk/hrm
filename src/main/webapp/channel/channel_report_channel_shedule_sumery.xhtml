@@ -24,7 +24,7 @@
 
 
                         <h:outputLabel  value="Doctor" ></h:outputLabel>
-                        <p:autoComplete   forceSelection="true" value="#{channelReportTempController.reportKeyWord.staff}" id="scStaff"
+                        <p:autoComplete   forceSelection="true" value="#{channelReportTempController.reportKeyWord.staff}" id="scStaff" 
                                           completeMethod="#{sheduleController.completeStaff}" var="mys" itemLabel="#{mys.person.nameWithTitle}" itemValue="#{mys}"
                                           converter="stfcon"   >   
                         </p:autoComplete>  
@@ -34,7 +34,7 @@
                                 <p:printer target="reportPrint"  />
                             </p:commandButton>
                             <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton">
-                                <pe:exporter type="xlsx" target="tbl" fileName="Session_Detail_Report"  />
+                                <pe:exporter type="xlsx" target="tbl" fileName="Session_Detail_Report"  subTable="true" />
                             </p:commandButton>
                         </h:panelGroup>
                     </h:panelGrid>
