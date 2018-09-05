@@ -185,7 +185,7 @@
                                         <h:outputText rendered="#{myCli.ixItemType ne 'Label' and myCli.reportItemType eq 'ReferringInstitution' and myCli.retired eq false }"  value="#{patientReportController.currentPatientReport.patientInvestigation.billItem.bill.referredByInstitution.name}" style="color: #{myCli.cssColor}" escape="false" ></h:outputText>
 
                                         <h:panelGroup rendered="#{patientReportController.currentPatientReport.approveUser.staff.baImage ne null}">
-                                            <p:graphicImage rendered="#{myCli.reportItemType eq 'AutherizedSignature' and myCli.retired eq false }"    value="#{staffImageController.signatureById}" style="width: #{myCli.cssWidth}; max-height: 50px!important;"  >
+                                            <p:graphicImage rendered="#{myCli.reportItemType eq 'AutherizedSignature' and myCli.retired eq false }"    value="#{staffImageController.signatureById}" style="width: #{myCli.cssWidth}; max-height: 100px!important;"  >
                                                 <f:param name="id" value="#{patientReportController.currentPatientReport.approveUser.staff.id}" />
                                             </p:graphicImage>
 
