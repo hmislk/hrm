@@ -15,6 +15,8 @@ import com.divudi.entity.Department;
 import com.divudi.entity.Item;
 import com.divudi.entity.ItemFee;
 import com.divudi.entity.Service;
+import com.divudi.entity.inward.TimedItem;
+import com.divudi.entity.inward.TimedItemFee;
 import com.divudi.facade.CategoryFacade;
 import com.divudi.facade.DepartmentFacade;
 import com.divudi.facade.ItemFeeFacade;
@@ -22,6 +24,8 @@ import com.divudi.facade.ServiceCategoryFacade;
 import com.divudi.facade.ServiceFacade;
 import com.divudi.facade.ServiceSubCategoryFacade;
 import com.divudi.facade.SpecialityFacade;
+import com.divudi.facade.TimedItemFacade;
+import com.divudi.facade.TimedItemFeeFacade;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,7 +270,7 @@ public class ServiceController implements Serializable {
 
         items = null;
         filterItem = null;
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Check Entered Data/Service/Service list search(/faces/dataAdmin/opd_service_department_list.xhtml)");
     }
 
@@ -569,6 +573,44 @@ public class ServiceController implements Serializable {
         return items;
     }
 
+    @EJB
+    TimedItemFacade timedItemFacade;
+    @EJB
+    TimedItemFeeFacade timedItemFeeFacade;
+
+    private List<ServiceFee> timeItemsWithFees;
+
+    public void createTimeItemFees() {
+        timeItemsWithFees = new ArrayList<>();
+
+        String sql = "select c from TimedItem c where c.retired=false order by c.name ";
+        List<TimedItem> timedItems = timedItemFacade.findBySQL(sql);
+        System.out.println("timedItems.size() = " + timedItems.size());
+
+        for (TimedItem ti : timedItems) {
+            System.out.println("ti.getName() = " + ti.getName());
+
+            ServiceFee si = new ServiceFee();
+            si.setItem(ti);
+
+            HashMap m = new HashMap();
+            m.put("it", ti);
+            List<TimedItemFee> timedItemFees = timedItemFeeFacade.findBySQL("select c from TimedItemFee c where c.retired = false and c.item=:it", m);
+            si.setTimedItemFees(timedItemFees);
+            System.out.println("si.getTimedItemFees().size() = " + si.getTimedItemFees().size());
+
+            if (billedAs) {
+                if (!si.getTimedItemFees().isEmpty()) {
+                    timeItemsWithFees.add(si);
+                }
+            } else {
+                timeItemsWithFees.add(si);
+            }
+        }
+        System.out.println("timeItemsWithFees.size() = " + timeItemsWithFees.size());
+
+    }
+
     public List<ItemFee> getFees(Item i) {
         String sql = "Select f From ItemFee f where f.retired=false and f.item.id=" + i.getId();
 
@@ -649,6 +691,17 @@ public class ServiceController implements Serializable {
 
     public void setFilterItem(List<Service> filterItem) {
         this.filterItem = filterItem;
+    }
+
+    public List<ServiceFee> getTimeItemsWithFees() {
+        if (timeItemsWithFees == null) {
+            timeItemsWithFees = new ArrayList<>();
+        }
+        return timeItemsWithFees;
+    }
+
+    public void setTimeItemsWithFees(List<ServiceFee> timeItemsWithFees) {
+        this.timeItemsWithFees = timeItemsWithFees;
     }
 
     /**
@@ -747,6 +800,5 @@ public class ServiceController implements Serializable {
     public void setCommonController(CommonController commonController) {
         this.commonController = commonController;
     }
-    
-    
+
 }
