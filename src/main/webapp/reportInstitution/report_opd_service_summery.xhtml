@@ -124,6 +124,12 @@
                     <p:outputLabel value="#{d.billItem.bill.creditCompany.name}" />
                 </p:column>
 
+                <p:column headerText="Ref. Doc">
+                    <f:facet name="header">
+                        <p:outputLabel value="Ref. Doc"/>
+                    </f:facet>
+                    <p:outputLabel value="#{d.billItem.bill.referredBy.person.name}" />
+                </p:column>
                 <p:column headerText="Name">
                     <f:facet name="header">
                         <p:outputLabel value="Name"/>

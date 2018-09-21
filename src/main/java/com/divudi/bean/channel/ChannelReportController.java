@@ -49,6 +49,7 @@ import com.divudi.facade.BillFeeFacade;
 import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.BillSessionFacade;
 import com.divudi.facade.DepartmentFacade;
+import com.divudi.facade.InstitutionFacade;
 import com.divudi.facade.ServiceSessionFacade;
 import com.divudi.facade.StaffFacade;
 import com.divudi.facade.WebUserFacade;
@@ -158,6 +159,8 @@ public class ChannelReportController implements Serializable {
     private BillFacade billFacade;
     @EJB
     AgentHistoryFacade agentHistoryFacade;
+    @EJB
+    InstitutionFacade institutionFacade;
     ///////////
     @EJB
     private ChannelBean channelBean;
@@ -5692,6 +5695,28 @@ public class ChannelReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
     }
 
+    public List<AgentHistory> createAgentHistoryDuplicates(Date fd, Date td) {
+        Date startTime = new Date();
+        agentHistorys = new ArrayList<>();
+        long agent = 20385287l;
+        Institution ins = institutionFacade.find(agent);
+        if (ins == null) {
+            System.out.println("ins.getName() = " + ins.getName());
+            return new ArrayList<>();
+        }
+        HistoryType[] ht = {HistoryType.ChannelBooking, HistoryType.ChannelDeposit, HistoryType.ChannelDepositCancel, HistoryType.ChannelDebitNote,
+            HistoryType.ChannelDebitNoteCancel, HistoryType.ChannelCreditNote, HistoryType.ChannelCreditNoteCancel};
+        List<HistoryType> historyTypes = Arrays.asList(ht);
+
+        List<AgentHistory> aHistorys = createAgentHistory(fd, fd, ins, historyTypes);
+        System.out.println("aHistorys.size() = " + aHistorys.size());
+        agentHistorys = checkChannelDuplicateOnly(aHistorys);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+
+        return agentHistorys;
+
+    }
+
     public void createCollectingCenterHistorySubTable() {
         Date startTime = new Date();
 
@@ -6238,7 +6263,8 @@ public class ChannelReportController implements Serializable {
             }
             System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
             System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
-            if (lastHistory.getReferenceNo()!=null&& lastHistory.getReferenceNo().equals(a.getReferenceNo())) {
+            if (lastHistory.getReferenceNo() != null && lastHistory.getReferenceNo().equals(a.getReferenceNo())
+                    && !a.getBill().isCancelled()) {
                 ahs.add(lastHistory);
                 ahs.add(a);
                 a.setDuplicateChannel(true);
