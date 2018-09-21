@@ -360,14 +360,14 @@ public class PharmacySaleReport implements Serializable {
 //
 //    }
     public void createPharmacyGRNBillItemTable() {
-        fetchGRNBillItemTable(BillType.PharmacyGrnBill,BillType.PharmacyGrnReturn);
+        fetchGRNBillItemTable(BillType.PharmacyGrnBill, BillType.PharmacyGrnReturn);
     }
-    
+
     public void createStoreGRNBillItemTable() {
-        fetchGRNBillItemTable(BillType.StoreGrnBill,BillType.StoreGrnReturn);
+        fetchGRNBillItemTable(BillType.StoreGrnBill, BillType.StoreGrnReturn);
     }
-   
-    private void fetchGRNBillItemTable(BillType billType,BillType returnBillType) {
+
+    private void fetchGRNBillItemTable(BillType billType, BillType returnBillType) {
         Date startTime = new Date();
 
 //select bi from BillItem bi where  bi.retired=false  and bi.bill.billType=:bt  and bi.bill.createdAt bettween :fd and :td  and bi.bill.depId like :di  and bi.bill.referenceBill.deptId like :po;
@@ -3185,13 +3185,17 @@ public class PharmacySaleReport implements Serializable {
         m.put("fd", fromDate);
         m.put("td", toDate);
         m.put("bts", Arrays.asList(new BillType[]{BillType.PharmacyTransferIssue, BillType.PharmacyTransferReceive}));
+        m.put("bt", BillType.PharmacyBhtPre);
+        m.put("bc2", RefundBill.class);
+        
 
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
                 + " pbi.billItem, "
                 + " stk "
                 + " from PharmaceuticalBillItem pbi,Stock stk "
-                + " where (type(pbi.billItem.bill)=:bc or (type(pbi.billItem.bill)!=:bc and pbi.billItem.bill.billType in :bts)) "
+                + " where (type(pbi.billItem.bill)=:bc or (type(pbi.billItem.bill)!=:bc and pbi.billItem.bill.billType in :bts)"
+                + " or ((type(pbi.billItem.bill)=:bc or type(pbi.billItem.bill)=:bc2) and pbi.billItem.bill.billType=:bt)) "
                 + " and stk.itemBatch=pbi.itemBatch "
                 + " and pbi.billItem.bill.createdAt between :fd and :td ";
 
@@ -3238,16 +3242,16 @@ public class PharmacySaleReport implements Serializable {
                     netValue = billItem.getNetValue();
                     qty = billItem.getPharmaceuticalBillItem().getQty();
                 }
-                System.out.println("****itemBatch.getItem().getName() = " + itemBatch.getItem().getName());
-                System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
-                System.out.println("billType = " + billType);
-                System.out.println("itemBatch = " + itemBatch);
-                System.out.println("billItem.getDiscount() = " + billItem.getDiscount());
-                System.out.println("billItem.getDiscountRate() = " + billItem.getDiscountRate());
-                System.out.println("billItem.getMarginRate() = " + billItem.getMarginRate());
-                System.out.println("billItem.getMarginValue() = " + billItem.getMarginValue());
-                System.out.println("netValue = " + netValue);
-                System.out.println("***qty = " + qty);
+//                System.out.println("****itemBatch.getItem().getName() = " + itemBatch.getItem().getName());
+//                System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
+//                System.out.println("billType = " + billType);
+//                System.out.println("itemBatch = " + itemBatch);
+//                System.out.println("billItem.getDiscount() = " + billItem.getDiscount());
+//                System.out.println("billItem.getDiscountRate() = " + billItem.getDiscountRate());
+//                System.out.println("billItem.getMarginRate() = " + billItem.getMarginRate());
+//                System.out.println("billItem.getMarginValue() = " + billItem.getMarginValue());
+//                System.out.println("netValue = " + netValue);
+//                System.out.println("***qty = " + qty);
 
                 if (pi == null || !itemBatch.equals(pi)) {
                     r = new CategoryMovementReportRow();
@@ -3279,11 +3283,18 @@ public class PharmacySaleReport implements Serializable {
                         totalOpdSale += netValue;
                         break;
                     case PharmacyBhtPre:
-//                        //System.out.println("bht sale ");
+                        System.out.println("bht sale ");
+                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
+                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
+                        System.out.println("qty = " + qty);
 //                        //System.out.println("r.getInwardIssue() = " + r.getInwardIssue());
                         r.setInwardIssue(r.getInwardIssue() + netValue);
                         r.setInwardIssueQty(r.getInwardIssueQty() + qty);
-                        r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * qty));
+                        if (billItem.getBill().getBillClassType().equals(BillClassType.PreBill)) {
+                            r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * qty));
+                        }else if(billItem.getBill().getBillClassType().equals(BillClassType.RefundBill)){
+                            r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * (-qty)));
+                        }
                         r.setInwardMargin(billItem.getMarginValue());
                         totalInwardIssue += netValue;
 //                        //System.out.println("r.getInwardIssue() = " + r.getInwardIssue());
