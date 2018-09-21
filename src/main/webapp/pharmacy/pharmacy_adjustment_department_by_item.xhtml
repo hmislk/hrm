@@ -25,6 +25,10 @@
                         <h:panelGrid columns="1" >
                             <p:panel>
                                 <h:panelGrid columns="2">
+                                    <h:outputLabel value="Manual Adjustment" />
+                                    <p:selectBooleanCheckbox value="#{pharmacyAdjustmentController.manualAdjust}" >
+                                        <f:ajax event="change" execute="@this" render="det input" />
+                                    </p:selectBooleanCheckbox>
                                     <h:outputLabel value="Category" ></h:outputLabel>
 <!--                                    <p:autoComplete  value="#{pharmacyController.category}" 
                                                      forceSelection="true" converter="categoryConverter"
@@ -45,7 +49,7 @@
                                         <f:ajax event="change" render="acStock" execute="@this" />
                                     </p:selectOneMenu>
                                     <h:outputLabel value="Item" ></h:outputLabel>
-                                    <p:autoComplete forceSelection="true" id="acStock" value="#{pharmacyAdjustmentController.item}" 
+                                    <p:autoComplete accesskey="i" forceSelection="true" id="acStock" value="#{pharmacyAdjustmentController.item}" 
                                                     completeMethod="#{pharmacyController.completeAllStockItems}" var="i" 
                                                     itemLabel="#{i.name}" itemValue="#{i}" >
                                         <p:column headerText="Item">
@@ -63,15 +67,12 @@
                                     </p:inputText>
                                     <h:outputLabel value="Comment" />
                                     <p:inputTextarea value="#{pharmacyAdjustmentController.comment}" />
-                                    <h:outputLabel value="Manual Adjustment" />
-                                    <p:selectBooleanCheckbox value="#{pharmacyAdjustmentController.manualAdjust}" >
-                                        <f:ajax event="change" execute="@this" render="det input" />
-                                    </p:selectBooleanCheckbox>
+                                    <p:focus id="focusItem" for="acStock" ></p:focus>
                                 </h:panelGrid>
                                 <h:panelGrid columns="2">
                                     <p:commandButton id="btnAdjust" value="Make Adjustments" ajax="false" onclick="if (!confirm('Are you sure you want to Adjust this record?'))
                                                 return false;"
-                                                     action="#{pharmacyAdjustmentController.adjustDepartmentStockAll}" ></p:commandButton>
+                                                             action="#{pharmacyAdjustmentController.adjustDepartmentStockAll}" accesskey="" ></p:commandButton>
                                     <p:commandButton id="btnClear" value="Clear" ajax="false" 
                                                      action="#{pharmacyAdjustmentController.newBill()}" ></p:commandButton>
                                 </h:panelGrid>
@@ -161,7 +162,7 @@
                     </p:panel>
 
                     <p:panel rendered="#{pharmacyAdjustmentController.printPreview}">
-                        <p:commandButton ajax="false" action="#{pharmacyAdjustmentController.newBill()}" value="New Adjustment"/>
+                        <p:commandButton ajax="false" id="newBill" action="#{pharmacyAdjustmentController.newBill()}" value="New Adjustment"/>
                         <p:commandButton ajax="false" value="Print">
                             <p:printer target="print"/>
                         </p:commandButton>
@@ -170,6 +171,7 @@
                                 <ph:adjustmentBill  bill="#{b}" />
                             </ui:repeat>
                         </p:panel>
+                        <p:focus id="focusNew" for="newBill" ></p:focus>
                     </p:panel>
 
                 </h:form>

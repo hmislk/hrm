@@ -2160,12 +2160,14 @@ public class BillBeanController implements Serializable {
 
     public Bill fetchByForwardBill(Bill forwardBill, SurgeryBillType surgeryBillType) {
         String sql = "Select bf from Bill bf "
-                + " where bf.cancelled=false "
+                + " where bf.cancelled=false"
+                + " and type(bf)=:class "
                 + " and bf.retired=false"
                 + " and bf.surgeryBillType=:srgBtp "
                 + " and bf.forwardReferenceBill=:bill ";
         HashMap hm = new HashMap();
         hm.put("bill", forwardBill);
+        hm.put("class", BilledBill.class);
         hm.put("srgBtp", surgeryBillType);
         Bill bill = getBillFacade().findFirstBySQL(sql, hm);
 

@@ -275,6 +275,11 @@ public class SearchController implements Serializable {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
         }
+        
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
+        }
 
         sql += " order by pi.id desc  ";
 //    
@@ -4107,6 +4112,11 @@ public class SearchController implements Serializable {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
         }
+        
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
+        }
 
         sql += " order by pi.id desc  ";
 //    
@@ -4311,6 +4321,11 @@ public class SearchController implements Serializable {
         if (getReportKeyWord().getInstitution() != null) {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
+        }
+        
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
         }
 
         sql += " order by pi.id desc  ";

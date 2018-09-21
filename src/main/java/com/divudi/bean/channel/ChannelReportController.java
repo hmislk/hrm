@@ -4602,6 +4602,8 @@ public class ChannelReportController implements Serializable {
     public ReportKeyWord getReportKeyWord() {
         if (reportKeyWord == null) {
             reportKeyWord = new ReportKeyWord();
+            reportKeyWord.setFromDate(new Date());
+            reportKeyWord.setAdditionalDetails(false);
         }
         return reportKeyWord;
     }
@@ -4976,7 +4978,8 @@ public class ChannelReportController implements Serializable {
 
         sql += " order by bs.bill.staff.person.name ";
 
-        m.put("ssDate", Calendar.getInstance().getTime());
+        m.put("ssDate", getReportKeyWord().getFromDate());
+//        m.put("ssDate", Calendar.getInstance().getTime());
         List<Bill> bills = getBillFacade().findBySQL(sql, m, TemporalType.DATE);
         if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
 //            System.out.println("getReportKeyWord().getString() = " + getReportKeyWord().getString());
@@ -6276,6 +6279,14 @@ public class ChannelReportController implements Serializable {
 
         }
         return ahs;
+    }
+    
+    public void listnerDateBool(){
+        if (getReportKeyWord().isAdditionalDetails()) {
+            
+        } else {
+            getReportKeyWord().setFromDate(new Date());
+        }
     }
 
     List<DocPage> listOfList = new ArrayList<>();
