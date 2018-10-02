@@ -10,6 +10,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.util.JsfUtil;
 import com.divudi.data.BillType;
 import com.divudi.data.dataStructure.StockReportRecord;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.inward.SurgeryBillType;
 import com.divudi.data.table.String1Value3;
 import com.divudi.ejb.CommonFunctions;
@@ -93,6 +94,8 @@ public class ReportsTransfer implements Serializable {
     double totalBHTIssueQty;
     double totalIssueValue;
     double totalBHTIssueValue;
+    
+    ReportKeyWord reportKeyWord;
 
     /**
      * EJBs
@@ -370,6 +373,11 @@ public class ReportsTransfer implements Serializable {
                 sql += " and bi.bill.department=:tdept ";
                 m.put("tdept", toDepartment);
             }
+        }
+        
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and bi.item=:itm";
+            m.put("itm", getReportKeyWord().getItem());
         }
 
         sql += " order by bi.id";
@@ -748,6 +756,11 @@ public class ReportsTransfer implements Serializable {
         if (category != null) {
             sql += " and b.item.category=:cat";
             m.put("cat", category);
+
+        }
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and b.item=:itm";
+            m.put("itm", getReportKeyWord().getItem());
 
         }
 
@@ -1575,6 +1588,17 @@ public class ReportsTransfer implements Serializable {
 
     public void setItemBHTIssueCountTrancerReciveCounts(List<ItemBHTIssueCountTrancerReciveCount> itemBHTIssueCountTrancerReciveCounts) {
         this.itemBHTIssueCountTrancerReciveCounts = itemBHTIssueCountTrancerReciveCounts;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord==null) {
+            reportKeyWord=new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
     public class ItemBHTIssueCountTrancerReciveCount {

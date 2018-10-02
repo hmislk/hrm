@@ -661,7 +661,6 @@ public class CollectingCentreBillController implements Serializable {
 //            }
 //        }
 //        updateBallance(collectingCentre, 0 - Math.abs(feeTotalExceptCcfs), HistoryType.CollectingCentreBalanceUpdateBill, temBill, referralId);
-
         return true;
     }
 
@@ -962,7 +961,12 @@ public class CollectingCentreBillController implements Serializable {
 
     private boolean errorCheck() {
         if (collectingCentre == null) {
-            UtilityController.addErrorMessage("Please select a collecting centre");
+            UtilityController.addErrorMessage("Please select a collecting center");
+            return true;
+        }
+
+        if (collectingCentre.isInactive()) {
+            UtilityController.addErrorMessage("This collecting center is Inactve. Please contact collecting center Cordinator.");
             return true;
         }
 

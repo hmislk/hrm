@@ -12,11 +12,11 @@
             <ui:define name="content">
                 <h:form>
                     <p:panel rendered="#{webUserController.hasPrivilege('Developers') 
-                                            and (sessionController.loggedUser.id eq 3151
-                                            or  sessionController.loggedUser.id eq 1101795)
-                                            and sessionController.logged
-                                            and !sessionController.firstLogin 
-                                            and sessionController.department ne null}">
+                                         and (sessionController.loggedUser.id eq 3151
+                                         or  sessionController.loggedUser.id eq 1101795)
+                                         and sessionController.logged
+                                         and !sessionController.firstLogin 
+                                         and sessionController.department ne null}">
                         <p:commandButton value="Channel Booking" action="/channel/channel_booking" ajax="false" />
                     </p:panel>
                 </h:form>
@@ -252,7 +252,7 @@
 
                 <p:panel rendered="#{sessionController.department.departmentType eq 'Pharmacy'}">
                     <p:outputLabel value="This Phrmacy Has #{searchController.createInwardBHTForIssueBillCount()} BHT Request Today." style="color: red;text-align: center;"
-                                    />
+                                   />
                 </p:panel>
 
 

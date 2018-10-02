@@ -93,6 +93,7 @@
                                     <p:outputLabel value="Hos Fee" />
                                 </f:facet>
                                 <p:outputLabel value="#{b.netTotal-b.staffFee}" >
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </p:outputLabel>
                             </p:column>
                             <p:column style="text-align: right;" >
@@ -100,6 +101,7 @@
                                     <p:outputLabel value="Staff Fee" />
                                 </f:facet>
                                 <p:outputLabel value="#{b.staffFee}" >
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </p:outputLabel>
                             </p:column>
                             <p:column style="text-align: right;" >
@@ -107,6 +109,7 @@
                                     <p:outputLabel value="VAT(15%)" />
                                 </f:facet>
                                 <p:outputLabel value="#{b.vat}" >
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </p:outputLabel>
                             </p:column>
                             <p:column style="text-align: right;" >
@@ -114,6 +117,7 @@
                                     <p:outputLabel value="Total Fee" />
                                 </f:facet>
                                 <p:outputLabel value="#{b.netTotal}" >
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </p:outputLabel>
                             </p:column>
                             <p:column style="text-align: right;" >
@@ -121,6 +125,7 @@
                                     <p:outputLabel value="Total Wit VAT" />
                                 </f:facet>
                                 <p:outputLabel value="#{b.vatPlusNetTotal}" >
+                                    <f:convertNumber pattern="#,##0.00" />
                                 </p:outputLabel>
                             </p:column>
                             <p:column style="text-align: right;" rendered="#{webUserController.hasPrivilege('Developers')}" >
