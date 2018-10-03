@@ -548,9 +548,20 @@ public class PharmacySaleReport implements Serializable {
 
     public void createTableSaleBillItems() {
         billItems = createSaleBillItems(BillType.PharmacySale);
-        grantTotal = fetchSaleByBillTotal(billItems);
+        fetchSaleByBillTotals(billItems);
         wholeSaleBillItems = createSaleBillItems(BillType.PharmacyWholeSale);
         grantNetTotalWholeSale = fetchSaleByBillTotal(wholeSaleBillItems);
+    }
+
+    public void fetchSaleByBillTotals(List<BillItem> bis) {
+        grantNetTotal = 0.0;
+        grantTotal = 0.0;
+        grantDiscount = 0.0;
+        for (BillItem bi : bis) {
+            grantTotal += bi.getQty();
+            grantNetTotal += bi.getNetValue();
+            grantDiscount += bi.getDiscount();
+        }
     }
 
     public double fetchSaleByBillTotal(List<BillItem> bis) {
@@ -570,8 +581,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
         sql = "select i "
                 + " from BillItem i "
                 + "where i.bill.referenceBill.department=:d "
@@ -581,12 +595,14 @@ public class PharmacySaleReport implements Serializable {
                 + "and type(i.bill)!=:cl "
                 + "and i.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
-        if (item != null) {
+        if (item
+                != null) {
             sql += " and i.item=:itm";
             m.put("itm", item);
         }
@@ -601,8 +617,11 @@ public class PharmacySaleReport implements Serializable {
         Map m = new HashMap();
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", billType);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", billType);
         sql = "select i "
                 + " from BillItem i "
                 + " where i.bill.retired=false "
@@ -610,27 +629,32 @@ public class PharmacySaleReport implements Serializable {
                 + " and type(i.bill)!=:cl "
                 + " and i.bill.createdAt between :fd and :td ";
 
-        if (department != null) {
+        if (department
+                != null) {
             sql += " and i.bill.referenceBill.department=:d ";
             m.put("d", getDepartment());
         }
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
-        if (item != null) {
+        if (item
+                != null) {
             sql += " and i.item=:itm";
             m.put("itm", item);
         }
 
-        if (vmp != null) {
+        if (vmp
+                != null) {
             sql += " and i.item.vmp=:vmp";
             m.put("vmp", vmp);
         }
 
         sql += "  order by i.item.name,i.createdAt,i.bill.billClassType ";
+
         return billItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
 
     }
@@ -642,8 +666,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
         sql = "select FUNC('Date',i.createdAt),"
                 + " i.bill.paymentMethod,"
                 + " sum(i.netValue)"
@@ -655,14 +682,17 @@ public class PharmacySaleReport implements Serializable {
                 + "and type(i.bill)!=:cl "
                 + "and i.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " group by FUNC('Date',i.createdAt),i.bill.paymentMethod"
                 + " order by i.createdAt,i.bill.paymentMethod ";
-        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillFacade()
+                .findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -673,8 +703,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacyPre);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacyPre);
         sql = "select FUNC('Date',i.createdAt),"
                 + " i.bill.paymentMethod,"
                 + " sum(i.netValue)"
@@ -686,14 +719,17 @@ public class PharmacySaleReport implements Serializable {
                 + "and type(i.bill)=:cl "
                 + "and i.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " group by FUNC('Date',i.createdAt),i.bill.paymentMethod"
                 + " order by i.createdAt,i.bill.paymentMethod ";
-        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillFacade()
+                .findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -704,8 +740,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", billType);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", billType);
         sql = "select FUNC('Date',i.createdAt),"
                 + " i.bill.paymentMethod,"
                 + " sum(i.netValue)"
@@ -717,14 +756,17 @@ public class PharmacySaleReport implements Serializable {
                 + "and type(i.bill)!=:cl "
                 + "and i.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " group by FUNC('Date',i.createdAt),i.bill.paymentMethod"
                 + " order by i.createdAt,i.bill.paymentMethod ";
-        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillFacade()
+                .findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -735,8 +777,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
         sql = "select FUNC('Date',i.createdAt),"
                 + " i.paymentMethod,"
                 + " sum(i.netTotal)"
@@ -750,7 +795,9 @@ public class PharmacySaleReport implements Serializable {
 
         sql += " group by FUNC('Date',i.createdAt),i.paymentMethod"
                 + " order by i.createdAt,i.paymentMethod ";
-        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillFacade()
+                .findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1639,8 +1686,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
 
         sql = "select sum(i.netValue) from BillItem i "
                 + " where i.bill.referenceBill.department=:d "
@@ -1649,13 +1699,16 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.billType=:btp "
                 + " and type(i.bill)!=:cl ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " and i.bill.createdAt between :fd and :td ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1666,8 +1719,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
 
         sql = "select sum(i.netValue) from BillItem i "
                 + " where i.bill.referenceBill.department=:d "
@@ -1676,18 +1732,22 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.billType=:btp "
                 + " and type(i.bill)!=:cl ";
 
-        if (pm != null) {
+        if (pm
+                != null) {
             sql += " and i.bill.paymentMethod=:pm ";
             m.put("pm", pm);
         }
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " and i.bill.createdAt between :fd and :td ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1698,8 +1758,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
 
         sql = "select sum(i.netValue) from BillItem i "
                 + " where i.bill.referenceBill.department=:d "
@@ -1708,13 +1771,16 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.billType=:btp "
                 + " and type(i.bill)!=:cl ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
         sql += " and i.bill.createdAt between :fd and :td ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1725,9 +1791,13 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("tde", getToDepartment());
-        m.put("btp", BillType.PharmacyTransferIssue);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "tde", getToDepartment());
+        m.put(
+                "btp", BillType.PharmacyTransferIssue);
 
         sql = "select sum(i.netTotal)"
                 + " from Bill i where i.department=:d "
@@ -1736,7 +1806,9 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.billType=:btp"
                 + " and type(i)!=:cl "
                 + " and i.createdAt between :fd and :td ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1747,8 +1819,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
 
         sql = "select sum(i.netTotal)"
                 + "  from Bill i"
@@ -1758,20 +1833,24 @@ public class PharmacySaleReport implements Serializable {
                 + "and type(i)!=:cl"
                 + " and i.createdAt between :fd and :td ";
 
-        if (paymentMethod != null) {
+        if (paymentMethod
+                != null) {
 
             sql += " and i.paymentMethod=:pm ";
             m.put("pm", paymentMethod);
 
         }
 
-        if (paymentScheme != null) {
+        if (paymentScheme
+                != null) {
 
             sql += " and i.paymentScheme=:ps ";
             m.put("ps", paymentScheme);
 
         }
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -1782,8 +1861,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("d", getDepartment());
         m.put("fd", getFromDate());
         m.put("td", getToDate());
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacyPre);
+        m
+                .put("cl", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacyPre);
 
         sql = "select sum(i.netTotal)"
                 + " from Bill i "
@@ -1792,7 +1874,9 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.billType=:btp"
                 + " and type(i)!=:cl "
                 + " and i.createdAt between :fd and :td ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2225,8 +2309,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", paymentMethod);
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
-        m.put("class", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("class", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
         sql = "select sum(i.netValue) "
                 + " from BillItem i "
                 + " where type(i.bill)!=:class "
@@ -2237,12 +2324,14 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.billType=:btp "
                 + " and i.bill.createdAt between :fromDate and :toDate ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2254,8 +2343,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", paymentMethod);
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
-        m.put("class", PreBill.class);
-        m.put("btp", BillType.PharmacyPre);
+        m
+                .put("class", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacyPre);
         sql = "select sum(i.netValue) "
                 + " from BillItem i "
                 + " where type(i.bill)=:class "
@@ -2266,12 +2358,14 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.billType=:btp "
                 + " and i.bill.createdAt between :fromDate and :toDate ";
 
-        if (category != null) {
+        if (category
+                != null) {
             sql += " and i.item.category=:cat";
             m.put("cat", category);
         }
 
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2283,8 +2377,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", paymentMethod);
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
-        m.put("class", PreBill.class);
-        m.put("btp", BillType.PharmacySale);
+        m
+                .put("class", PreBill.class
+                );
+        m.put(
+                "btp", BillType.PharmacySale);
         sql = "select sum(i.netTotal) "
                 + " from Bill i "
                 + " where type(i)!=:class "
@@ -2294,7 +2391,8 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
 
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2306,8 +2404,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", paymentMethod);
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
-        m.put("class", PreBill.class);
-        m.put("btp", billType);
+        m
+                .put("class", PreBill.class
+                );
+        m.put(
+                "btp", billType);
         sql = "select sum(i.netTotal) "
                 + " from Bill i "
                 + " where type(i)!=:class "
@@ -2317,7 +2418,8 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
 
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2446,14 +2548,18 @@ public class PharmacySaleReport implements Serializable {
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
         m.put("btp", BillType.PharmacySale);
-        m.put("class", PreBill.class);
+        m
+                .put("class", PreBill.class
+                );
         sql = "select sum(i.discount) from Bill i "
                 + " where type(i)!=:class "
                 + " and i.referenceBill.department=:d "
                 + " and i.retired=false  "
                 + " and i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2465,7 +2571,9 @@ public class PharmacySaleReport implements Serializable {
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
         m.put("btp", BillType.PharmacySale);
-        m.put("class", PreBill.class);
+        m
+                .put("class", PreBill.class
+                );
         sql = "select sum(i.discount) from Bill i "
                 + " where type(i)!=:class "
                 + " and i.referenceBill.department=:d "
@@ -2473,12 +2581,14 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
 
-        if (pm != null) {
+        if (pm
+                != null) {
             sql += " and i.paymentMethod=:pm ";
             m.put("pm", pm);
         }
 
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2490,14 +2600,18 @@ public class PharmacySaleReport implements Serializable {
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
         m.put("btp", billType);
-        m.put("class", PreBill.class);
+        m
+                .put("class", PreBill.class
+                );
         sql = "select sum(i.discount) from Bill i "
                 + " where type(i)!=:class "
                 + " and i.referenceBill.department=:d "
                 + " and i.retired=false  "
                 + " and i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2509,7 +2623,9 @@ public class PharmacySaleReport implements Serializable {
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
         m.put("btp", BillType.PharmacySale);
-        m.put("class", PreBill.class);
+        m
+                .put("class", PreBill.class
+                );
         sql = "select sum(i.discount)"
                 + "  from BillItem i "
                 + " where type(i.bill)!=:class "
@@ -2518,7 +2634,9 @@ public class PharmacySaleReport implements Serializable {
                 + " and i.bill.retired=false  "
                 + " and i.bill.billType=:btp "
                 + " and i.bill.createdAt between :fromDate and :toDate ";
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2530,7 +2648,9 @@ public class PharmacySaleReport implements Serializable {
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
         m.put("btp", BillType.PharmacySale);
-        m.put("class", PreBill.class);
+        m
+                .put("class", PreBill.class
+                );
         sql = "select sum(i.discount) "
                 + " from Bill i "
                 + " where type(i)!=:class "
@@ -2539,20 +2659,24 @@ public class PharmacySaleReport implements Serializable {
                 + " and  i.billType=:btp "
                 + " and i.createdAt between :fromDate and :toDate ";
 
-        if (paymentMethod != null) {
+        if (paymentMethod
+                != null) {
 
             sql += " and i.paymentMethod=:pm ";
             m.put("pm", paymentMethod);
 
         }
 
-        if (paymentScheme != null) {
+        if (paymentScheme
+                != null) {
 
             sql += " and i.paymentScheme=:ps ";
             m.put("ps", paymentScheme);
 
         }
-        return getBillItemFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return getBillItemFacade()
+                .findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
 
     }
 
@@ -2799,20 +2923,26 @@ public class PharmacySaleReport implements Serializable {
 //        pbi.getItemBatch().getPurcahseRate();
 //        pbi.getQty();
 
-        m.put("bc", PreBill.class);
-        m.put("fd", fromDate);
-        m.put("td", toDate);
+        m
+                .put("bc", PreBill.class
+                );
+        m.put(
+                "fd", fromDate);
+        m.put(
+                "td", toDate);
 
         jpql = "select pbi.billItem.bill.billType, pbi.billItem.item, sum(pbi.billItem.netValue), sum(pbi.itemBatch.purcahseRate*pbi.qty) "
                 + " from PharmaceuticalBillItem pbi "
                 + " where type(pbi.billItem.bill)=:bc "
                 + " and pbi.billItem.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             jpql += " and pbi.billItem.item.category=:cat ";
             m.put("cat", category);
         }
-        if (department != null) {
+        if (department
+                != null) {
             jpql = jpql + " and pbi.billItem.bill.department=:dept ";
             m.put("dept", department);
         }
@@ -2922,7 +3052,8 @@ public class PharmacySaleReport implements Serializable {
             totalMargineValue += r.getMarginValue();
         }
 
-        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date(/faces/pharmacy/pharmacy_report_category_vice_movement.xhtml)");
+        commonController.printReportDetails(fromDate, toDate, startTime,
+                "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date(/faces/pharmacy/pharmacy_report_category_vice_movement.xhtml)");
     }
 
     public void createCategoryMovementReportNew() {
@@ -2943,10 +3074,14 @@ public class PharmacySaleReport implements Serializable {
         if (department != null) {
             sql += " and pbi.billItem.bill.department=:dept ";
             m.put("dept", department);
+
         }
-        m.put("bc", PreBill.class);
-        m.put("fd", fromDate);
-        m.put("td", toDate);
+        m.put("bc", PreBill.class
+        );
+        m.put(
+                "fd", fromDate);
+        m.put(
+                "td", toDate);
 
         sql += " group by pbi.billItem.bill.billType, pbi.billItem.item "
                 + " order by pbi.billItem.item.name ";
@@ -3034,16 +3169,21 @@ public class PharmacySaleReport implements Serializable {
             totalMargineValue += r.getMarginValue();
         }
 
-        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date(/faces/pharmacy/pharmacy_report_category_vice_movement.xhtml)");
+        commonController.printReportDetails(fromDate, toDate, startTime,
+                "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date(/faces/pharmacy/pharmacy_report_category_vice_movement.xhtml)");
     }
 
     public void createCategoryMovementReportByItemBatch() {
         String jpql;
         Map m = new HashMap();
 
-        m.put("bc", PreBill.class);
-        m.put("fd", fromDate);
-        m.put("td", toDate);
+        m
+                .put("bc", PreBill.class
+                );
+        m.put(
+                "fd", fromDate);
+        m.put(
+                "td", toDate);
 
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
@@ -3055,12 +3195,14 @@ public class PharmacySaleReport implements Serializable {
                 + " and stk.itemBatch=pbi.itemBatch "
                 + " and pbi.billItem.bill.createdAt between :fd and :td ";
 
-        if (category != null) {
+        if (category
+                != null) {
             jpql = jpql + " and pbi.billItem.item.category=:cat";
             m.put("cat", category);
         }
 
-        if (department != null) {
+        if (department
+                != null) {
             jpql = jpql + " and pbi.billItem.bill.department=:dept ";
             m.put("dept", department);
         }
@@ -3187,7 +3329,7 @@ public class PharmacySaleReport implements Serializable {
         m.put("bts", Arrays.asList(new BillType[]{BillType.PharmacyTransferIssue, BillType.PharmacyTransferReceive}));
         m.put("bt", BillType.PharmacyBhtPre);
         m.put("bc2", RefundBill.class);
-        
+
 
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
@@ -3226,7 +3368,12 @@ public class PharmacySaleReport implements Serializable {
         totalPurchaseValue = 0.0;
         totalTatalValue = 0.0;
         totalMargineValue = 0.0;
+        int i=0;
         for (Object o[] : objs) {
+            i++;
+            if (i==100) {
+                break;
+            }
             try {
                 ItemBatch itemBatch;
                 BillType billType;
@@ -3279,28 +3426,32 @@ public class PharmacySaleReport implements Serializable {
                         r.setOpdSale(r.getOpdSale() + netValue);
                         r.setOpdSaleQty(r.getOpdSaleQty() + qty);
                         r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * qty));
-                        r.setOpdDiscount(billItem.getDiscount());
+                        r.setOpdDiscount(r.getOpdDiscount() + billItem.getDiscount());
                         totalOpdSale += netValue;
                         break;
                     case PharmacyBhtPre:
-                        System.out.println("bht sale ");
-                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
-                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
-                        System.out.println("qty = " + qty);
+//                        System.out.println("bht sale ");
+//                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
+//                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
+//                        System.out.println("qty = " + qty);
 //                        //System.out.println("r.getInwardIssue() = " + r.getInwardIssue());
                         r.setInwardIssue(r.getInwardIssue() + netValue);
                         r.setInwardIssueQty(r.getInwardIssueQty() + qty);
                         if (billItem.getBill().getBillClassType().equals(BillClassType.PreBill)) {
                             r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * qty));
-                        }else if(billItem.getBill().getBillClassType().equals(BillClassType.RefundBill)){
+                        } else if (billItem.getBill().getBillClassType().equals(BillClassType.RefundBill)) {
                             r.setPurchaseValue(r.getPurchaseValue() + (itemBatch.getPurcahseRate() * (-qty)));
                         }
-                        r.setInwardMargin(billItem.getMarginValue());
+                        r.setInwardMargin(r.getInwardMargin() + billItem.getMarginValue());
+                        r.setInwardDiscount(r.getInwardDiscount() + billItem.getDiscount());
                         totalInwardIssue += netValue;
 //                        //System.out.println("r.getInwardIssue() = " + r.getInwardIssue());
                         break;
                     case PharmacyIssue:
-//                        //System.out.println("pharmacy issue ");
+                        System.out.println("pharmacy issue ");
+                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
+                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
+                        System.out.println("qty = " + qty);
 //                        //System.out.println("r.getDepartmentIssue() = " + r.getDepartmentIssue());
                         r.setDepartmentIssue(r.getDepartmentIssue() + netValue);
                         r.setDepartmentIssueQty(r.getDepartmentIssueQty() + qty);
@@ -3313,7 +3464,7 @@ public class PharmacySaleReport implements Serializable {
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
                         System.out.println("qty IN = " + qty);
                         r.setTransferInQty(r.getTransferInQty() + qty);
-                        r.setTransferIn(r.getTransferIn() + (r.getTransferIn() * itemBatch.getPurcahseRate()));
+                        r.setTransferIn(r.getTransferIn() + (r.getTransferInQty() * itemBatch.getPurcahseRate()));
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
                         break;
                     case PharmacyTransferReceive:
@@ -3335,16 +3486,17 @@ public class PharmacySaleReport implements Serializable {
 
             r.setTotal(r.getOpdSale() + r.getInwardIssue() + r.getDepartmentIssue());
             //System.out.println("r.getTotal() = " + r.getTotal());
-            r.setMarginValue(r.getTotal() + r.getPurchaseValue());
+            r.setMarginValue(r.getInwardMargin());
 
             if (r.getItemBatch() != null && r.getStock() != null) {
                 totalPurchaseValue += r.getStock().getStock() * r.getItemBatch().getPurcahseRate();
             }
             totalTatalValue += r.getTotal();
-            totalMargineValue += r.getMarginValue();
+            totalMargineValue = r.getInwardMargin();
         }
 
-        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date- by batch(/faces/pharmacy/pharmacy_report_category_vice_movement_item_batch.xhtml)");
+        commonController.printReportDetails(fromDate, toDate, startTime,
+                "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date- by batch(/faces/pharmacy/pharmacy_report_category_vice_movement_item_batch.xhtml)");
     }
 
     public List<Object[]> fetchTransferIssueReciveBills() {
@@ -6943,6 +7095,7 @@ public class PharmacySaleReport implements Serializable {
         double inwardIssue;
         double inwardIssueQty;
         double inwardMargin;
+        double inwardDiscount;
         double departmentIssue;
         double departmentIssueQty;
         double total;
@@ -7104,6 +7257,14 @@ public class PharmacySaleReport implements Serializable {
 
         public void setTransferOutQty(double transferOutQty) {
             this.transferOutQty = transferOutQty;
+        }
+
+        public double getInwardDiscount() {
+            return inwardDiscount;
+        }
+
+        public void setInwardDiscount(double inwardDiscount) {
+            this.inwardDiscount = inwardDiscount;
         }
 
     }

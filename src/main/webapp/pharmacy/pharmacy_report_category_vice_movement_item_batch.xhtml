@@ -163,6 +163,15 @@
                     
                     <p:column  style="text-align: right;">
                         <f:facet name="header">
+                            <h:outputLabel value="Inward Discount" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.inwardDiscount}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
+                    
+                    <p:column  style="text-align: right;">
+                        <f:facet name="header">
                             <h:outputLabel value="Inward Margin" />
                         </f:facet>
                         <h:outputLabel value="#{i.inwardMargin}">

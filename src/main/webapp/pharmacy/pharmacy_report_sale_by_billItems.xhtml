@@ -32,7 +32,7 @@
                     <h:outputLabel value="Item"/>
                     <p:autoComplete value="#{pharmacySaleReport.item}" 
                                     forceSelection="true"
-                                    completeMethod="#{ampController.completeAmpByName}" 
+                                    completeMethod="#{ampController.completeAmp}" 
                                     var="myItem" itemValue="#{myItem}" itemLabel="#{myItem.name}" >
                         <p:column headerText="Item">
                             <h:outputLabel value="#{myItem.name}"></h:outputLabel>
@@ -133,6 +133,11 @@
                         </f:facet>
                         <h:outputLabel value="#{b.pharmaceuticalBillItem.qty}">                            
                         </h:outputLabel>
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{pharmacySaleReport.grantTotal}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
                     </p:column>
 
 
@@ -150,7 +155,12 @@
                         </f:facet>
                         <h:outputLabel value="#{b.discount}">
                             <f:convertNumber pattern="#,##0.00" />
-                        </h:outputLabel>                      
+                        </h:outputLabel>            
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{pharmacySaleReport.grantDiscount}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
                     </p:column>
                     <p:column styleClass="averageNumericColumn">
                         <f:facet name="header">
@@ -160,7 +170,7 @@
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                         <f:facet name="footer">
-                            <h:outputLabel value="#{pharmacySaleReport.grantTotal}">
+                            <h:outputLabel value="#{pharmacySaleReport.grantNetTotal}">
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                         </f:facet>

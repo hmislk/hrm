@@ -41,7 +41,7 @@
                                 </h:panelGrid>
                                 <h:panelGrid id="gpSelectButtons" columns="1"  >
                                     <p:commandButton id="btnDelete" onclick="if (!confirm('Are you sure you want to delete this record?'))
-                                                return false;" action="#{collectingCentreController.delete()}"  value="Delete"  />
+                                                return false;" action="#{collectingCentreController.delete()}"  value="Delete" ajax="false" />
                                 </h:panelGrid>
                             </p:panel>
                         </h:panelGrid  >
@@ -98,13 +98,16 @@
                                     <h:outputText id="lblAcc" value="Account No" ></h:outputText>
                                     <p:inputText autocomplete="off" id="txtAcc" value="#{collectingCentreController.current.accountNo}"  ></p:inputText>
 
+                                    <h:outputText id="lblInactive" value="Inactive" />
+                                    <p:selectBooleanCheckbox value="#{collectingCentreController.current.inactive}" />
+
                                     <h:outputText value="Creater" ></h:outputText>
                                     <h:outputText value="#{collectingCentreController.current.creater.webUserPerson.name}" ></h:outputText>
-                                    
+
                                     <h:outputText value="Created At" ></h:outputText>
                                     <h:outputText value="#{collectingCentreController.current.createdAt}" >
                                         <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
-                                     </h:outputText>
+                                    </h:outputText>
                                 </h:panelGrid>
                             </p:panel>
                         </p:panel>

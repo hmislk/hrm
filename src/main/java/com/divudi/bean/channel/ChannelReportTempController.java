@@ -2553,9 +2553,9 @@ public class ChannelReportTempController implements Serializable {
                 + " and c.institutionType=:typ ";
 
         m.put("typ", InstitutionType.Agency);
-        if (getReportKeyWord()!=null) {
+        if (getReportKeyWord() != null) {
             if (getReportKeyWord().isAdditionalDetails()) {
-                sql+= " and c.inactive!=true ";   
+                sql += " and c.inactive!=true ";
             }
         }
         agencies = getInstitutionFacade().findBySQL(sql, m);
@@ -2575,6 +2575,11 @@ public class ChannelReportTempController implements Serializable {
         sql = "select c from Institution c "
                 + " where c.retired=false "
                 + " and c.institutionType=:typ ";
+
+        if (getReportKeyWord().isBool1()) {
+            sql += " and c.inactive!=true ";
+        }
+        sql += " order by c.institutionCode ";
 
         m.put("typ", InstitutionType.CollectingCentre);
 
