@@ -1988,6 +1988,7 @@ public class CommonReport1 implements Serializable {
         staffTotal = 0.0;
         vat = 0.0;
         netTotal = 0.0;
+        biledBillsTotal=0.0;
         for (BillItem bi : billItems) {
             for (BillFee bf : bi.getBillFees()) {
                 if (bf.getFee().getFeeType() == FeeType.Staff) {
@@ -1997,6 +1998,7 @@ public class CommonReport1 implements Serializable {
                     bi.setHospitalFee(bi.getHospitalFee() + bf.getFeeValue());
                     total += bf.getFeeValue();
                 }
+                biledBillsTotal+=bf.getFeeGrossValue();
                 vat += bf.getFeeVat();
                 discount += bf.getFeeDiscount();
                 netTotal += bf.getFeeValue();
