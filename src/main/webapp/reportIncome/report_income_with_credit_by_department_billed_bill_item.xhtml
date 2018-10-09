@@ -116,7 +116,7 @@
                         </f:facet>
                         <h:outputLabel value="#{bi.bill.toDepartment.name}" ></h:outputLabel>
                     </p:column>
-                    <p:column headerText="Hospital Fee" style="text-align: right;">
+                    <p:column headerText="Hospital Fee" style="text-align: right;color: blue;">
                         <f:facet name="header">
                             <h:outputLabel value="Hospital Fee"/>
                         </f:facet>
@@ -125,6 +125,32 @@
                         </h:outputLabel>
                         <f:facet name="footer">
                             <h:outputLabel value="#{commonReport1.total}" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
+                    </p:column>
+                    <p:column headerText="Prof. Fee" style="text-align: right;color: blue;">
+                        <f:facet name="header">
+                            <h:outputLabel value="Prof. Fee"/>
+                        </f:facet>
+                        <h:outputLabel value="#{bi.staffFee}" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{commonReport1.staffTotal}" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
+                    </p:column>
+                    <p:column headerText="Gross" style="text-align: right;">
+                        <f:facet name="header">
+                            <h:outputLabel value="Gross"/>
+                        </f:facet>
+                        <h:outputLabel value="#{bi.grossValue}" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{commonReport1.biledBillsTotal}" >
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                         </f:facet>
@@ -138,19 +164,6 @@
                         </h:outputLabel>
                         <f:facet name="footer">
                             <h:outputLabel value="#{commonReport1.discount}" >
-                                <f:convertNumber pattern="#,##0.00" />
-                            </h:outputLabel>
-                        </f:facet>
-                    </p:column>
-                    <p:column headerText="Prof. Fee" style="text-align: right;">
-                        <f:facet name="header">
-                            <h:outputLabel value="Prof. Fee"/>
-                        </f:facet>
-                        <h:outputLabel value="#{bi.staffFee}" >
-                            <f:convertNumber pattern="#,##0.00" />
-                        </h:outputLabel>
-                        <f:facet name="footer">
-                            <h:outputLabel value="#{commonReport1.staffTotal}" >
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                         </f:facet>
