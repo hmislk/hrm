@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <ui:define name="content">
+        <h:form>
+            <p:panel header="Cost Of Sold">
+                <h:panelGrid columns="2" >
+
+                    <h:outputLabel value="From Date"/>
+                    <p:calendar styleClass="dateTimePicker" value="#{pharmacySaleReport.fromDate}" navigator="true" 
+                                pattern="yyyy MM dd hh:mm:ss a" />
+                    <h:outputLabel value="To Date"/>
+                    <p:calendar styleClass="dateTimePicker" value="#{pharmacySaleReport.toDate}" navigator="true" 
+                                pattern="yyyy MM dd hh:mm:ss a" />
+                    <h:outputLabel value="Department"/>
+                    <p:autoComplete value="#{pharmacySaleReport.department}"  
+                                    completeMethod="#{departmentController.completeDept}" 
+                                    var="dept" itemValue="#{dept}" required="false"
+                                    itemLabel="#{dept.name}" forceSelection="true"
+                                    requiredMessage="You must select a department" >
+                    </p:autoComplete>
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="3">
+                    <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createCostOfSold}"/>
+                    <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                        <pe:exporter type="xlsx" target="sum1" fileName="report_pharmacy_cost_of_sold"  />
+                    </p:commandButton>
+                    <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
+                        <p:printer target="panelPrint" />
+                    </p:commandButton>
+                </h:panelGrid>
+
+
+                <p:panel id="panelPrint" styleClass="noBorder summeryBorder" >
+                    <p:dataTable id="sum1" value="#{pharmacySaleReport.costOfSoldSummeryRows}" var="r" >   
+                        <f:facet name="header">
+                            <p:outputLabel value="Cost Of Sold" />
+                            &#13;&nbsp;
+                            <h:outputLabel value=" - "/>
+                            <h:outputLabel value="#{pharmacySaleReport.department.name}"/>&#13;&nbsp;
+                            <h:outputLabel value="From  "/>
+                            <h:outputLabel value="#{pharmacySaleReport.fromDate}">
+                                <f:convertDateTime pattern="dd MM yyyy" ></f:convertDateTime>
+                            </h:outputLabel>
+                            &#13;&nbsp;
+                            <h:outputLabel value="To  "/>
+                            <h:outputLabel value="#{pharmacySaleReport.toDate}">
+                                <f:convertDateTime pattern="dd MM yyyy" ></f:convertDateTime>
+                            </h:outputLabel>
+                            &#13;&nbsp;
+                        </f:facet>
+
+                        <p:column >
+                            <f:facet name="header">
+                                <h:outputLabel value="Type" />
+                            </f:facet>
+                            <h:outputLabel value="#{r.name}" 
+                                           rendered="#{r.name eq 'Calculated Closing Stock Value' or r.name eq 'Variance'}" 
+                                           style="font-weight: bold;" />
+                            <h:outputLabel value="#{r.name}" 
+                                           rendered="#{r.name eq 'Variance'}" 
+                                           style="font-weight: bold;" />
+                            <h:outputLabel value="#{r.name}" rendered="#{r.name ne 'Calculated Closing Stock Value' and r.name ne 'Variance'}" />
+                        </p:column>
+
+                        <p:column style="text-align: right;" >
+                            <f:facet name="header">
+                                <h:outputLabel value="Value" />
+                            </f:facet>
+                            <h:outputLabel value="#{r.value}"
+                                           rendered="#{r.name eq 'Calculated Closing Stock Value' or r.name eq 'Variance'}" 
+                                           style="font-weight: bold;text-decoration: underline overline;" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                            <h:outputLabel value="#{r.value}" 
+                                           rendered="#{r.name ne 'Calculated Closing Stock Value' and r.name ne 'Variance'}" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+
+
+
+
+
+            </p:panel>         
+
+
+        </h:form>
+
+    </ui:define>
+
+
+
+</ui:composition>
