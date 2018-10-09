@@ -3334,7 +3334,8 @@ public class PharmacySaleReport implements Serializable {
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
                 + " pbi.billItem, "
-                + " stk "
+                + " stk,"
+                + " pbi.purchaseRate "
                 + " from PharmaceuticalBillItem pbi,Stock stk "
                 + " where (type(pbi.billItem.bill)=:bc or (type(pbi.billItem.bill)!=:bc and pbi.billItem.bill.billType in :bts)"
                 + " or ((type(pbi.billItem.bill)=:bc or type(pbi.billItem.bill)=:bc2) and pbi.billItem.bill.billType=:bt)) "
@@ -3368,23 +3369,25 @@ public class PharmacySaleReport implements Serializable {
         totalPurchaseValue = 0.0;
         totalTatalValue = 0.0;
         totalMargineValue = 0.0;
-        int i=0;
+//        int i=0;
         for (Object o[] : objs) {
-            i++;
-            if (i==100) {
-                break;
-            }
+//            i++;
+//            if (i==100) {
+//                break;
+//            }
             try {
                 ItemBatch itemBatch;
                 BillType billType;
                 Stock stock;
                 double netValue = 0;
                 double qty = 0;
+                double pbipurchaseRate = 0;
 
                 billType = (BillType) o[0];
                 itemBatch = (ItemBatch) o[1];
                 BillItem billItem = (BillItem) o[2];
                 stock = (Stock) o[3];
+                pbipurchaseRate = (double ) o[4];
                 if (billItem != null) {
                     netValue = billItem.getNetValue();
                     qty = billItem.getPharmaceuticalBillItem().getQty();
@@ -3464,7 +3467,7 @@ public class PharmacySaleReport implements Serializable {
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
                         System.out.println("qty IN = " + qty);
                         r.setTransferInQty(r.getTransferInQty() + qty);
-                        r.setTransferIn(r.getTransferIn() + (r.getTransferInQty() * itemBatch.getPurcahseRate()));
+                        r.setTransferIn(r.getTransferIn() + (qty * pbipurchaseRate));
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
                         break;
                     case PharmacyTransferReceive:
@@ -3472,7 +3475,7 @@ public class PharmacySaleReport implements Serializable {
 //                        //System.out.println("r.getTransferOut() = " + r.getTransferOut());
                         System.out.println("qty OUT = " + qty);
                         r.setTransferOutQty(r.getTransferOutQty() + qty);
-                        r.setTransferOut(r.getTransferOut() + (r.getTransferOutQty() * itemBatch.getPurcahseRate()));
+                        r.setTransferOut(r.getTransferOut() + (qty * pbipurchaseRate));
 //                        //System.out.println("r.getTransferOut() = " + r.getTransferOut());
                         break;
 

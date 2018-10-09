@@ -139,6 +139,24 @@
                             </h:outputLabel>
                         </f:facet>
                     </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="PR"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.pharmaceuticalBillItem.purchaseRate}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="IBPR"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.pharmaceuticalBillItem.itemBatch.purcahseRate}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
 
 
                     <p:column styleClass="averageNumericColumn">

@@ -335,8 +335,8 @@ public class ReportsTransfer implements Serializable {
         purchaseValue = 0.0;
         saleValue = 0.0;
         for (BillItem ts : transferItems) {
-            purchaseValue += (ts.getPharmaceuticalBillItem().getItemBatch().getPurcahseRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
-            saleValue += (ts.getPharmaceuticalBillItem().getItemBatch().getRetailsaleRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
+            purchaseValue += (ts.getPharmaceuticalBillItem().getPurchaseRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
+            saleValue += (ts.getPharmaceuticalBillItem().getRetailRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Transfer/reports/Transfer issue by bill item(/faces/pharmacy/pharmacy_report_transfer_issue_bill_item.xhtml or /faces/pharmacy/pharmacy_report_transfer_issue_bill_item.xhtml)");

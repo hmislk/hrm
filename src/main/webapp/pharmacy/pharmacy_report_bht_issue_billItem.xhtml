@@ -126,6 +126,24 @@
                                     </f:facet>
                                     <h:outputLabel value="#{i.qty}" ></h:outputLabel>                                    
                                 </p:column>
+                                
+                                <p:column headerText="PR" styleClass="averageNumericColumn" style="color: red;">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Gross Value"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.purchaseRate}"  >
+                                        <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                    </h:outputLabel>  
+                                </p:column>
+                                
+                                <p:column headerText="IBPR" styleClass="averageNumericColumn" style="color: red;">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Gross Value"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.itemBatch.purcahseRate}"  >
+                                        <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                    </h:outputLabel>  
+                                </p:column>
 
                                 <p:column headerText="Gross Value" styleClass="averageNumericColumn">
                                     <f:facet name="header">
