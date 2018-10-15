@@ -77,7 +77,7 @@
                     <p:panel id="gpBillPreview" styleClass="noBorder summeryBorder">
                         <p:dataTable value="#{inwardReportControllerBht.patientRooms}" var="pr" id="tbl" rowIndexVar="i">
                             <f:facet name="header" >
-                                <p:outputLabel value="BHT VAT Report" />
+                                <p:outputLabel value="BHT Hos. Sup. Ser. Report" />
                                 <h:outputLabel value="Admission Type : All Addmissions" rendered="#{inwardReportControllerBht.reportKeyWord.admissionType eq null}" style=" white-space:pre-line;"/>
                                 <h:outputLabel value="Admission Type : #{inwardReportControllerBht.reportKeyWord.admissionType}" rendered="#{inwardReportControllerBht.reportKeyWord.admissionType ne null}" style=" white-space:pre-line;"/>
                                 <h:outputLabel value="BHT No : #{inwardReportControllerBht.reportKeyWord.patientEncounter.patient.person.name}" rendered="#{inwardReportControllerBht.reportKeyWord.patientEncounter ne null}" style=" white-space:pre-line;"/>

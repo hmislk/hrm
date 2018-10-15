@@ -247,7 +247,7 @@ public class PharmacySaleReport implements Serializable {
 
     List<DistributerWithDestributorItem> distributerWithDestributorItems;
     List<ItemsWithDistributer> itemsWithDistributers;
-    List<CostOfSoldSummeryRow>costOfSoldSummeryRows;
+    List<CostOfSoldSummeryRow> costOfSoldSummeryRows;
 
     PaymentScheme paymentScheme;
     PaymentMethod paymentMethod;
@@ -556,6 +556,18 @@ public class PharmacySaleReport implements Serializable {
         grantNetTotalWholeSale = fetchSaleByBillTotal(wholeSaleBillItems);
     }
 
+    public void createTableSaleBillItemsBilled() {
+        billItems = createSaleBillItemsBilled(BillType.PharmacyPre, new PreBill());
+        System.out.println("billItems.size() = " + billItems.size());
+        billItems.addAll(createSaleBillItemsBilled(BillType.PharmacyPre, new RefundBill()));
+        System.out.println("billItems.size() = " + billItems.size());
+        billItems.addAll(createSaleBillItemsBilledCancel(BillType.PharmacySale, new CancelledBill()));
+        System.out.println("billItems.size() = " + billItems.size());
+//        fetchSaleByBillTotals(billItems);
+//        wholeSaleBillItems = createSaleBillItems(BillType.PharmacyWholeSale);
+//        grantNetTotalWholeSale = fetchSaleByBillTotal(wholeSaleBillItems);
+    }
+
     public void fetchSaleByBillTotals(List<BillItem> bis) {
         grantNetTotal = 0.0;
         grantTotal = 0.0;
@@ -658,6 +670,94 @@ public class PharmacySaleReport implements Serializable {
 
         sql += "  order by i.item.name,i.createdAt,i.bill.billClassType ";
 
+        return billItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+
+    }
+
+    public List<BillItem> createSaleBillItemsBilled(BillType billType, Bill b) {
+        String sql;
+        Map m = new HashMap();
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
+        m.put("cl", b.getClass());
+        m.put("btp", billType);
+
+        sql = "select i "
+                + " from BillItem i "
+                + " where i.bill.retired=false "
+                + " and i.bill.billType=:btp "
+                + " and type(i.bill)=:cl "
+                + " and i.bill.createdAt between :fd and :td ";
+
+        if (department != null) {
+            sql += " and i.bill.department=:d ";
+            m.put("d", getDepartment());
+        }
+
+        if (category
+                != null) {
+            sql += " and i.item.category=:cat";
+            m.put("cat", category);
+        }
+
+        if (item
+                != null) {
+            sql += " and i.item=:itm";
+            m.put("itm", item);
+        }
+
+        if (vmp
+                != null) {
+            sql += " and i.item.vmp=:vmp";
+            m.put("vmp", vmp);
+        }
+
+//        sql += "  order by i.item.name,i.createdAt,i.bill.billClassType ";
+        return billItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+
+    }
+
+    public List<BillItem> createSaleBillItemsBilledCancel(BillType billType, Bill b) {
+        String sql;
+        Map m = new HashMap();
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
+        m.put("cl", b.getClass());
+        m.put("btp", billType);
+
+        sql = "select i "
+                + " from BillItem i "
+                + " where i.bill.retired=false "
+                + " and i.bill.billType=:btp "
+                + " and type(i.bill)=:cl "
+                + " and i.bill.billedBill.cancelled=true "
+                + " and i.bill.billedBill.referenceBill.cancelled=false "
+                + " and i.bill.createdAt between :fd and :td ";
+
+        if (department != null) {
+            sql += " and i.bill.department=:d ";
+            m.put("d", getDepartment());
+        }
+
+        if (category
+                != null) {
+            sql += " and i.item.category=:cat";
+            m.put("cat", category);
+        }
+
+        if (item
+                != null) {
+            sql += " and i.item=:itm";
+            m.put("itm", item);
+        }
+
+        if (vmp
+                != null) {
+            sql += " and i.item.vmp=:vmp";
+            m.put("vmp", vmp);
+        }
+
+//        sql += "  order by i.item.name,i.createdAt,i.bill.billClassType ";
         return billItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
 
     }
@@ -3333,7 +3433,6 @@ public class PharmacySaleReport implements Serializable {
         m.put("bt", BillType.PharmacyBhtPre);
         m.put("bc2", RefundBill.class);
 
-
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
                 + " pbi.billItem, "
@@ -3390,7 +3489,7 @@ public class PharmacySaleReport implements Serializable {
                 itemBatch = (ItemBatch) o[1];
                 BillItem billItem = (BillItem) o[2];
                 stock = (Stock) o[3];
-                pbipurchaseRate = (double ) o[4];
+                pbipurchaseRate = (double) o[4];
                 if (billItem != null) {
                     netValue = billItem.getNetValue();
                     qty = billItem.getPharmaceuticalBillItem().getQty();
@@ -3504,17 +3603,17 @@ public class PharmacySaleReport implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime,
                 "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date- by batch(/faces/pharmacy/pharmacy_report_category_vice_movement_item_batch.xhtml)");
     }
-    
+
     public void createCostOfSold() {
         Date startTime = new Date();
-        
+
         if (department == null) {
             JsfUtil.addErrorMessage("Please Select Department");
             return;
         }
         double d = 0.0;
         costOfSoldSummeryRows = new ArrayList<>();
-        
+
         CostOfSoldSummeryRow row = new CostOfSoldSummeryRow();
         row.setName("Openning Stock Value");
         Calendar cal = Calendar.getInstance();
@@ -3551,28 +3650,36 @@ public class PharmacySaleReport implements Serializable {
 
         row = new CostOfSoldSummeryRow();
         row.setName("Sale Cash Value");
-        row.setValue(fetchSaleValue(PaymentMethod.Cash, false));
+        row.setValue(fetchSaleValue(PaymentMethod.Cash, false)
+                + fetchSaleReturnValue(PaymentMethod.Cash, false)
+                + fetchSaleCancelValue(PaymentMethod.Cash, false));
         d += row.getValue();
         System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("Sale Card Value");
-        row.setValue(fetchSaleValue(PaymentMethod.Card, false));
+        row.setValue(fetchSaleValue(PaymentMethod.Card, false)
+                + fetchSaleReturnValue(PaymentMethod.Card, false)
+                + fetchSaleCancelValue(PaymentMethod.Card, false));
         d += row.getValue();
         System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("Sale Credit Value");
-        row.setValue(fetchSaleValue(PaymentMethod.Credit, false));
+        row.setValue(fetchSaleValue(PaymentMethod.Credit, false)
+                + fetchSaleReturnValue(PaymentMethod.Credit, false)
+                + fetchSaleCancelValue(PaymentMethod.Credit, false));
         d += row.getValue();
         System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("Sale Staff Credit Value");
-        row.setValue(fetchSaleValue(PaymentMethod.Credit, true));
+        row.setValue(fetchSaleValue(PaymentMethod.Credit, true)
+                + fetchSaleReturnValue(PaymentMethod.Credit, true)
+                + fetchSaleCancelValue(PaymentMethod.Credit, true));
         d += row.getValue();
         System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
@@ -3604,7 +3711,7 @@ public class PharmacySaleReport implements Serializable {
         d += row.getValue();
         System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
-        
+
         row = new CostOfSoldSummeryRow();
         row.setName("Calculated Closing Stock Value");
         row.setValue(d);
@@ -3624,8 +3731,8 @@ public class PharmacySaleReport implements Serializable {
         row.setValue(d);
         costOfSoldSummeryRows.add(row);
         System.out.println("costOfSoldSummeryRows.size() = " + costOfSoldSummeryRows.size());
-        
-        commonController.printReportDetails(fromDate, toDate, startTime,"Cost of sold");
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Cost of sold");
     }
 
     public double fetchFree() {
@@ -3651,7 +3758,7 @@ public class PharmacySaleReport implements Serializable {
     private double fillBHTIssue() {
         Map m = new HashMap();
         String sql;
-        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.itemBatch.purcahseRate) "
+        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
                 + " from BillItem bi "
                 + " where bi.bill.department=:d "
                 + " and bi.bill.createdAt  between :fd and :td "
@@ -3687,7 +3794,7 @@ public class PharmacySaleReport implements Serializable {
     private double fetchSaleValue(PaymentMethod pm, boolean staff) {
         String sql;
         Map m = new HashMap();
-        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.itemBatch.purcahseRate) "
+        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
                 + " from BillItem bi "
                 + " where bi.bill.department=:d "
                 + " and bi.bill.retired=false "
@@ -3710,6 +3817,68 @@ public class PharmacySaleReport implements Serializable {
         m.put("cl", PreBill.class);
         m.put("pm", pm);
         m.put("btp", BillType.PharmacyPre);
+
+        return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+    }
+
+    private double fetchSaleReturnValue(PaymentMethod pm, boolean staff) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
+                + " from BillItem bi "
+                + " where bi.bill.department=:d "
+                + " and bi.bill.retired=false "
+                + " and bi.bill.billType=:btp "
+                + " and bi.bill.paymentMethod=:pm "
+                + " and type(bi.bill)=:cl "
+                + " and bi.bill.createdAt between :fd and :td ";
+
+        if (pm == PaymentMethod.Credit) {
+            if (staff) {
+                sql += " and bi.bill.toStaff is not null ";
+            } else {
+                sql += " and bi.bill.toStaff is null ";
+            }
+        }
+
+        m.put("d", getDepartment());
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
+        m.put("cl", RefundBill.class);
+        m.put("pm", pm);
+        m.put("btp", BillType.PharmacyPre);
+
+        return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+    }
+
+    private double fetchSaleCancelValue(PaymentMethod pm, boolean staff) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
+                + " from BillItem bi "
+                + " where bi.bill.department=:d "
+                + " and bi.bill.retired=false "
+                + " and bi.bill.billType=:btp "
+                + " and bi.bill.billedBill.cancelled=true "
+                + " and bi.bill.billedBill.referenceBill.cancelled=false "
+                + " and bi.bill.paymentMethod=:pm "
+                + " and type(bi.bill)=:cl "
+                + " and bi.bill.createdAt between :fd and :td ";
+
+        if (pm == PaymentMethod.Credit) {
+            if (staff) {
+                sql += " and bi.bill.toStaff is not null ";
+            } else {
+                sql += " and bi.bill.toStaff is null ";
+            }
+        }
+
+        m.put("d", getDepartment());
+        m.put("fd", getFromDate());
+        m.put("td", getToDate());
+        m.put("cl", CancelledBill.class);
+        m.put("pm", pm);
+        m.put("btp", BillType.PharmacySale);
 
         return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
     }
@@ -5330,8 +5499,9 @@ public class PharmacySaleReport implements Serializable {
         }
 
     }
-    
-    public class CostOfSoldSummeryRow{
+
+    public class CostOfSoldSummeryRow {
+
         private String name;
         private double value;
 

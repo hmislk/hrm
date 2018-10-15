@@ -57,7 +57,8 @@
                 </h:panelGrid>
 
                 <h:panelGrid columns="3">
-                    <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createTableSaleBillItems()}"/>
+                    <p:commandButton ajax="false" value="Process Accept" action="#{pharmacySaleReport.createTableSaleBillItems()}"/>
+                    <p:commandButton ajax="false" value="Process Billed" action="#{pharmacySaleReport.createTableSaleBillItemsBilled()}"/>
                     <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
                         <pe:exporter type="xlsx" target="sum1" fileName="report_grn_detail_by_supplier"  />
                     </p:commandButton>
@@ -157,7 +158,27 @@
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
-
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="PM"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.paymentMethod}" />
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="cc"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.toInstitution.name}" />
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="s"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.toStaff.person.name}" />
+                    </p:column>
 
                     <p:column styleClass="averageNumericColumn">
                         <f:facet name="header">

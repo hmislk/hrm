@@ -498,7 +498,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
@@ -510,7 +510,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock * s.itemBatch.retailsaleRate) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock * s.itemBatch.retailsaleRate) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
@@ -522,7 +522,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock * s.itemBatch.purcahseRate) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock * s.itemBatch.purcahseRate) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
