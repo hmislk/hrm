@@ -16,7 +16,7 @@
         <h:panelGroup rendered="true" >
             <h:form>
                 <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
-                <p:panel  header="OPD Bill List With VAT 15%">
+                <p:panel  header="OPD Bill List With Hos. Sup. Ser.">
                     <h:panelGrid columns="2" styleClass="noPrintButton"> 
                         <h:outputLabel value="From Date"/>
                         <p:calendar id="frmDate" value="#{channelReportController.fromDate}" navigator="true"  pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
@@ -46,7 +46,7 @@
 
                     <p:dataTable value="#{channelReportController.channelBills}" var="b" id="tbl1" >
                         <f:facet name="header" >
-                            <p:outputLabel value="OPD Bills With VAT 15%" />
+                            <p:outputLabel value="OPD Bills With Hos. Sup. Ser." />
                             <h:outputLabel value="From : " style=" white-space:pre-line;"/>
                             <h:outputLabel  value="#{channelReportController.fromDate}" >
                                 <f:convertDateTime pattern="dd MMM yyyy HH:mm a"/>
@@ -109,7 +109,7 @@
 
                         <p:column style="text-align: right;" >
                             <f:facet name="header" >
-                                <p:outputLabel value="vat" />
+                                <p:outputLabel value="Hos. Sup. Ser." />
                             </f:facet>
                             <p:outputLabel value="#{b.vat}" >
                                 <f:convertNumber pattern="#,##0.00" />
@@ -118,7 +118,7 @@
 
                         <p:column style="text-align: right;" >
                             <f:facet name="header" >
-                                <p:outputLabel value="Vat Plus Net Total" />
+                                <p:outputLabel value="Hos. Sup. Ser. Plus Net Total" />
                             </f:facet>
                             <p:outputLabel value="#{b.netTotal+b.vat}" >
                                 <f:convertNumber pattern="#,##0.00" />

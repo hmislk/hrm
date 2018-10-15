@@ -676,14 +676,15 @@ public class PharmacyController implements Serializable {
         m.put("ins", institution);
         m.put("i", item);
         sql = "select i.department,sum(i.stock) from Stock i where "
-                + " i.department.institution=:ins and i.itemBatch.item=:i"
+                + " i.department.institution=:ins and i.itemBatch.item=:i "
+                + " and i.stock > 0 "
                 + " group by i.department"
                 + " having sum(i.stock) > 0 ";
 
         return getBillItemFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
 
     }
-
+    
     public List<Object[]> calDepartmentStock(Institution institution, Item itm) {
         //   //System.err.println("Cal Department Stock");
 

@@ -18,11 +18,11 @@
 
                     <f:facet name="header" >
                         <h:outputLabel value="List of Service"></h:outputLabel>
-                        
+
                         <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
                             <p:printer target="panIx" />
                         </p:commandButton>
-                        
+
                         <p:commandButton id="btnRefresh" ajax="false" value="OPD"
                                          styleClass="noPrintButton" 
                                          action="#{itemController.createOpdSeviceInvestgationList()}">                            
@@ -92,7 +92,7 @@
                                 </f:facet>
                                 <h:outputLabel value="#{ix.category.name}"/>
                             </p:column>
-                            
+
                             <p:column headerText="Account Name" filterBy="#{ix.category.name}" filterMatchMode="contains"  >
                                 <f:facet name="header">
                                     <h:outputLabel value="Account Name"/>
@@ -113,7 +113,7 @@
                                 </f:facet>
                                 <h:outputLabel value="#{ix.name}"/>
                             </p:column>        
-                            
+
                             <p:column headerText="Status" >
                                 <f:facet name="header">
                                     <h:outputLabel value="Status"/>
@@ -124,48 +124,86 @@
 
                             <p:column headerText="Hospital Locals" >                                          
                                 <f:facet name="header">
-                                    <h:outputLabel value="Hospita Locals"/>
+                                    <h:outputLabel value="Hospital Local"/>
                                 </f:facet>
-                                <h:outputLabel value="#{ix.hospitalFee}"/>
+                                <h:outputLabel value="#{ix.hospitalFee}" style="float: right;color: red;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
                             </p:column>
-                            
-                            <p:column headerText="Hospital Foriegners" >
+                            <p:column headerText="Professional Local" >                                          
                                 <f:facet name="header">
-                                <h:outputLabel value="Hospital Foreigners"/>
+                                    <h:outputLabel value="Professional Locals"/>
                                 </f:facet>
-                                <h:outputLabel value="#{ix.hospitalFfee}"/>
+                                <h:outputLabel value="#{ix.professionalFee}" style="float: right;color: red;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
                             </p:column>
-                            
-                            <p:column headerText="Professional Locals" >                                          
+                            <p:column  >                                          
                                 <f:facet name="header">
-                                <h:outputLabel value="Professional Locals"/>
+                                    <h:outputLabel value="CC Local"/>
                                 </f:facet>
-                                <h:outputLabel value="#{ix.professionalFee}"/>
+                                <h:outputLabel value="#{ix.otherFee}" style="float: right;color: red;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
                             </p:column>
-                            
-                            <p:column headerText="Professional Foriegners" >
+                            <p:column  >                                          
                                 <f:facet name="header">
-                                <h:outputLabel value="Professional Foreigners"/>
+                                    <h:outputLabel value="Total Local"/>
                                 </f:facet>
-                                <h:outputLabel value="#{ix.professionalFfee}"/>
+                                <h:outputLabel value="#{ix.totalFee}" style="float: right;color: red;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
                             </p:column>
-                            
+
+                            <p:column headerText="Hospital Foriegners"  >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Hospital Foreigners"/>
+                                </f:facet>
+                                <h:outputLabel value="#{ix.hospitalFfee}" style="float: right;color: blue;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Professional Foriegners"  >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Professional Foreigners"/>
+                                </f:facet>
+                                <h:outputLabel value="#{ix.professionalFfee}" style="float: right;color: blue;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column  >
+                                <f:facet name="header">
+                                    <h:outputLabel value="CC Foreigners"/>
+                                </f:facet>
+                                <h:outputLabel value="#{ix.otherFfee}" style="float: right;color: blue;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column  >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Total Foreigners"/>
+                                </f:facet>
+                                <h:outputLabel value="#{ix.totalFfee}" style="float: right;color: blue;">
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputLabel>
+                            </p:column>
+
                             <p:column headerText="Service Date Created">
                                 <f:facet name="header">
-                                <h:outputLabel value="Service Date Created"/>
+                                    <h:outputLabel value="Service Date Created"/>
                                 </f:facet>
                                 <h:outputLabel value="#{ix.createdAt}"/>
                             </p:column>
-                            
+
                             <p:column headerText="Fee Date Creted">
                                 <f:facet name="header">
-                                <h:outputLabel value="Fee Date Creted"/>
+                                    <h:outputLabel value="Fee Date Creted"/>
                                 </f:facet>
                                 <h:outputLabel value="#{ix.itemFee.createdAt}"/>
                             </p:column>
-                            
-                            
-                            
+
+
+
                         </p:dataTable>
                     </p:panel>
 

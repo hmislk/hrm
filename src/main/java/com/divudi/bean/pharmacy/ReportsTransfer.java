@@ -674,6 +674,44 @@ public class ReportsTransfer implements Serializable {
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Department Issue/Unit issue by bill (/faces/pharmacy/pharmacy_report_unit_issue_bill.xhtml)");
     }
+    
+    public void fillDepartmentUnitIssueByBillItem() {
+        Date startTime = new Date();
+
+        Map m = new HashMap();
+        String sql;
+
+        sql = "select bi from BillItem bi where "
+                + " bi.bill.createdAt between :fd and :td  "
+                + " and bi.bill.billType=:bt ";
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+        m.put("bt", BillType.PharmacyIssue);
+
+        if (fromDepartment != null) {
+            sql += " and bi.bill.fromDepartment=:fdept ";
+            m.put("fdept", fromDepartment);
+        }
+
+        if (toDepartment != null) {
+            sql += " and bi.bill.toDepartment=:tdept ";
+            m.put("tdept", toDepartment);
+        }
+
+        sql += " order by bi.bill.insId ";
+
+        transferItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        totalsValue = 0.0;
+        discountsValue = 0.0;
+        netTotalValues = 0.0;
+        for (BillItem bi : transferItems) {
+            totalsValue = totalsValue + bi.getGrossValue();
+            discountsValue = discountsValue + bi.getMarginValue();
+            netTotalValues = netTotalValues + bi.getNetValue();
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Department Issue/Unit issue by bill (/faces/pharmacy/pharmacy_report_unit_issue_bill.xhtml)");
+    }
 
     public void fillDepartmentUnitIssueByBillStore() {
         Map m = new HashMap();

@@ -17,7 +17,7 @@
         <h:panelGroup rendered="true" >
             <h:form>
                 <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
-                <p:panel  header="OPD Bill List With VAT 15%">
+                <p:panel  header="OPD Bill List With Hos. Sup. Ser.">
                     <h:panelGrid columns="2" styleClass="noPrintButton"> 
                         <h:outputLabel value="From Date"/>
                         <p:calendar id="frmDate" value="#{billController.reportKeyWord.fromDate}" navigator="true"  pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
@@ -135,7 +135,7 @@
                         </p:column>
                         <p:column style="text-align: right;" >
                             <f:facet name="header" >
-                                <p:outputLabel value="Vat" />
+                                <p:outputLabel value="Hos. Sup. Ser." />
                             </f:facet>
                             <p:outputLabel value="#{b.backwardReferenceBill.tax}" >
                                 <f:convertNumber pattern="#,##0.00" />

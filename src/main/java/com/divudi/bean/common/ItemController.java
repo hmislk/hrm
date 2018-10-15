@@ -607,7 +607,7 @@ public class ItemController implements Serializable {
         return suggestions;
 
     }
-    
+
     public List<Item> completeServiceAndTheaterServiceAndInwardService(String query) {
         List<Item> suggestions;
         String sql;
@@ -1022,7 +1022,12 @@ public class ItemController implements Serializable {
                 } else if (itf.getFeeType() == FeeType.Staff) {
                     i.setProfessionalFee(i.getProfessionalFee() + itf.getFee());
                     i.setProfessionalFfee(i.getProfessionalFfee() + itf.getFfee());
+                } else if (itf.getFeeType() == FeeType.CollectingCentre) {
+                    i.setOtherFee(i.getOtherFee() + itf.getFee());
+                    i.setOtherFfee(i.getOtherFfee() + itf.getFfee());
                 }
+                i.setTotalFee(i.getTotalFee() + itf.getFee());
+                i.setTotalFfee(i.getTotalFfee() + itf.getFfee());
             }
         }
         System.out.println("itemlist.size() = " + itemlist.size());
