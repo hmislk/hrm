@@ -3461,6 +3461,7 @@ public class PharmacySaleReport implements Serializable {
 //        objs.addAll(obj);
 //        System.out.println("objs = " + objs.size());
         categoryMovementReportRows = new ArrayList<>();
+        List<Stock> stocks = new ArrayList<>();
         ItemBatch pi = null;
         BillItem bi = null;
         CategoryMovementReportRow r;
@@ -3521,6 +3522,7 @@ public class PharmacySaleReport implements Serializable {
                     pi = itemBatch;
                     bi = billItem;
                     categoryMovementReportRows.add(r);
+                    stocks.add(stock);
                     System.out.println("size = " + categoryMovementReportRows.size());
                 }
 
@@ -3598,6 +3600,19 @@ public class PharmacySaleReport implements Serializable {
             }
             totalTatalValue += r.getTotal();
             totalMargineValue = r.getInwardMargin();
+        }
+
+        System.out.println("stocks.size() = " + stocks.size());
+        List<Stock> removeStocks = fetchDepartmentStocks();
+        System.out.println("1.removeStocks.size() = " + removeStocks.size());
+        removeStocks.removeAll(stocks);
+        System.out.println("2.removeStocks.size() = " + removeStocks.size());
+        for (Stock rs : removeStocks) {
+            r = new CategoryMovementReportRow();
+            r.setItemBatch(rs.getItemBatch());
+            r.setStock(rs);
+            totalPurchaseValue += r.getStock().getStock() * r.getItemBatch().getPurcahseRate();
+            categoryMovementReportRows.add(r);
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime,
@@ -3733,6 +3748,21 @@ public class PharmacySaleReport implements Serializable {
         System.out.println("costOfSoldSummeryRows.size() = " + costOfSoldSummeryRows.size());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Cost of sold");
+    }
+
+    public List<Stock> fetchDepartmentStocks() {
+        Map m = new HashMap();
+        String sql;
+        sql = "select s from Stock s "
+                + " where s.department=:d "
+                + " and s.stock>0 "
+                + " and (s.itemBatch.item.departmentType is null or s.itemBatch.item.departmentType =:depty) "
+                + " order by s.itemBatch.item.name";
+        m.put("d", department);
+        m.put("depty", DepartmentType.Pharmacy);
+        List<Stock> stocks = stockFacade.findBySQL(sql, m);
+
+        return stocks;
     }
 
     public double fetchFree() {
