@@ -64,7 +64,6 @@
                                     <f:facet name="header">
                                         <h:outputLabel value="BHT No"/>
                                     </f:facet>
-                                    #{i.billType}
                                     <h:outputLabel value="#{i.patientEncounter.bhtNo}" ></h:outputLabel>                                    
                                 </p:column>
 
@@ -73,6 +72,13 @@
                                         <h:outputLabel value="Bill No"/>
                                     </f:facet>
                                     <h:outputLabel value="#{i.deptId}" ></h:outputLabel>                                    
+                                </p:column>
+                                
+                                <p:column headerText="Bill No">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Bill Class Type"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.billClassType}" ></h:outputLabel>                                    
                                 </p:column>
 
                                 <p:column headerText="Cancelled No">

@@ -1934,6 +1934,10 @@ public class BillController implements Serializable {
                         bf.setFeeVat(roundOff(bf.getFeeVat()));
                     }
                 }
+                bf.setFeeGrossValue(roundOff(bf.getFeeGrossValue()));
+                bf.setFeeValue(roundOff(bf.getFeeValue()));
+                bf.setFeeDiscount(roundOff(bf.getFeeDiscount()));
+                bf.setFeeVat(roundOff(bf.getFeeVat()));
                 bf.setFeeVatPlusValue(bf.getFeeValue() + bf.getFeeVat());
 
                 entryGross += bf.getFeeGrossValue();

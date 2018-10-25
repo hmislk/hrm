@@ -257,7 +257,11 @@ public class StoreGrnController implements Serializable {
             System.err.println("2.bi = " + i.getSearialNo());
 //            createSerialNumber(i);
             PharmaceuticalBillItem ph = i.getPharmaceuticalBillItem();
-            ph.setDoe(applicationController.getStoresExpiery());
+            if (i.getPharmaceuticalBillItem() != null && i.getPharmaceuticalBillItem().getDoe() == null) {
+                ph.setDoe(applicationController.getStoresExpiery());
+            } else {
+                System.out.println("ph.getDoe() = " + ph.getDoe());
+            }
             i.setPharmaceuticalBillItem(null);
             System.out.println("1");
             i.setCreatedAt(new Date());
