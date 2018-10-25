@@ -42,8 +42,9 @@
 
                         </h:panelGrid>
                            
-                        <p:panelGrid columns="3">
+                        <p:panelGrid columns="4">
                         <p:commandButton ajax="false" value="Process" action="#{inwardReportController1.processPatientRooms()}" onclick="onSubmitButton();"  ></p:commandButton>
+                        <p:commandButton ajax="false" value="Process Bill Date" action="#{inwardReportController1.processPatientRoomsBillDate()}" onclick="onSubmitButton();"  ></p:commandButton>
 
                         <p:commandButton ajax="false" value="Back" action="inward_report_bht_income_by_caregories"/>
 

@@ -6015,43 +6015,43 @@ public class SearchController implements Serializable {
     public void createChannelAgencyPaymentTable() {
         Date startTime = new Date();
 
-        createAgentPaymentTable(BillType.AgentPaymentReceiveBill);
+        createAgentPaymentTable(BillType.AgentPaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Agent/Agent payment bill search(/faces/agent_bill_search_own.xhtml)");
     }
 
     public void createChannelAgencyCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentCreditNoteBill);
+        createAgentPaymentTable(BillType.AgentCreditNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createChannelAgencyDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentDebitNoteBill);
+        createAgentPaymentTable(BillType.AgentDebitNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill);
+        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill);
+        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCentrePaymentTable() {
         Date startTime = new Date();
-        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill);
+        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Collecting center/Collecting center bill serach(/faces/lab/collecting_centre_bill_search_own.xhtml)");
     }
 
-    public void createAgentPaymentTable(BillType billType) {
+    public void createAgentPaymentTable(BillType billType, boolean searchAll) {
         bills = new ArrayList<>();
         String sql;
         Map temMap = new HashMap();
@@ -6088,7 +6088,11 @@ public class SearchController implements Serializable {
         temMap.put("ins", getSessionController().getInstitution());
 
         //System.err.println("Sql " + sql);
-        bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
+        if (searchAll) {
+            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        } else {
+            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
+        }
 
     }
 

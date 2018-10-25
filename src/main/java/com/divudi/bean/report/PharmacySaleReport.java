@@ -3523,7 +3523,7 @@ public class PharmacySaleReport implements Serializable {
                     bi = billItem;
                     categoryMovementReportRows.add(r);
                     stocks.add(stock);
-                    System.out.println("size = " + categoryMovementReportRows.size());
+//                    System.out.println("size = " + categoryMovementReportRows.size());
                 }
 
 //                //System.out.println("tbt = " + tbt);
@@ -3555,10 +3555,10 @@ public class PharmacySaleReport implements Serializable {
 //                        //System.out.println("r.getInwardIssue() = " + r.getInwardIssue());
                         break;
                     case PharmacyIssue:
-                        System.out.println("pharmacy issue ");
-                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
-                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
-                        System.out.println("qty = " + qty);
+//                        System.out.println("pharmacy issue ");
+//                        System.out.println("billItem.getBill().getBillClass() = " + billItem.getBill().getBillClassType());
+//                        System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
+//                        System.out.println("qty = " + qty);
 //                        //System.out.println("r.getDepartmentIssue() = " + r.getDepartmentIssue());
                         r.setDepartmentIssue(r.getDepartmentIssue() + netValue);
                         r.setDepartmentIssueQty(r.getDepartmentIssueQty() + qty);
@@ -3569,7 +3569,7 @@ public class PharmacySaleReport implements Serializable {
                     case PharmacyTransferIssue:
 //                        //System.out.println("tx issue ");
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
-                        System.out.println("qty IN = " + qty);
+//                        System.out.println("qty IN = " + qty);
                         r.setTransferInQty(r.getTransferInQty() + qty);
                         r.setTransferIn(r.getTransferIn() + (qty * pbipurchaseRate));
 //                        //System.out.println("r.getTransferIn() = " + r.getTransferIn());
@@ -3577,7 +3577,7 @@ public class PharmacySaleReport implements Serializable {
                     case PharmacyTransferReceive:
 //                        //System.out.println("tx issue ");
 //                        //System.out.println("r.getTransferOut() = " + r.getTransferOut());
-                        System.out.println("qty OUT = " + qty);
+//                        System.out.println("qty OUT = " + qty);
                         r.setTransferOutQty(r.getTransferOutQty() + qty);
                         r.setTransferOut(r.getTransferOut() + (qty * pbipurchaseRate));
 //                        //System.out.println("r.getTransferOut() = " + r.getTransferOut());
@@ -3639,28 +3639,28 @@ public class PharmacySaleReport implements Serializable {
         cal.add(Calendar.DATE, -1);
         row.setValue(fetchOpenningClosingStock(cal.getTime()));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("GRN Value");
         row.setValue(0 - fetchGrnPurchaseRows(Arrays.asList(new BillType[]{BillType.PharmacyGrnBill, BillType.PharmacyGrnReturn})));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("Purchase Value");
         row.setValue(0 - fetchGrnPurchaseRows(Arrays.asList(new BillType[]{BillType.PharmacyPurchaseBill, BillType.PurchaseReturn})));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
         row.setName("Free Qty Value");
         row.setValue(fetchFree());
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3669,7 +3669,7 @@ public class PharmacySaleReport implements Serializable {
                 + fetchSaleReturnValue(PaymentMethod.Cash, false)
                 + fetchSaleCancelValue(PaymentMethod.Cash, false));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3678,7 +3678,7 @@ public class PharmacySaleReport implements Serializable {
                 + fetchSaleReturnValue(PaymentMethod.Card, false)
                 + fetchSaleCancelValue(PaymentMethod.Card, false));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3687,7 +3687,7 @@ public class PharmacySaleReport implements Serializable {
                 + fetchSaleReturnValue(PaymentMethod.Credit, false)
                 + fetchSaleCancelValue(PaymentMethod.Credit, false));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3696,35 +3696,35 @@ public class PharmacySaleReport implements Serializable {
                 + fetchSaleReturnValue(PaymentMethod.Credit, true)
                 + fetchSaleCancelValue(PaymentMethod.Credit, true));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
-        row.setName("Sale Transfer Issue Value");
+        row.setName("Transfer Issue Value");
         row.setValue(fetchTransferIssueRecive(BillType.PharmacyTransferIssue));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
-        row.setName("Sale Transfer Receive Value");
+        row.setName("Transfer Receive Value");
         row.setValue(fetchTransferIssueRecive(BillType.PharmacyTransferReceive));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
-        row.setName("Sale Unit Issue Value");
-        row.setValue(0 - fetchTransferIssueRecive(BillType.PharmacyIssue));
+        row.setName("Unit Issue Value");
+        row.setValue(fetchTransferIssueRecive(BillType.PharmacyIssue));
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
-        row.setName("Sale BHT Issue Value");
+        row.setName("BHT Issue Value");
         row.setValue(fillBHTIssue());
         d += row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3738,7 +3738,7 @@ public class PharmacySaleReport implements Serializable {
         cal.setTime(getToDate());
         row.setValue(fetchOpenningClosingStock(cal.getTime()));
         d -= row.getValue();
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
         costOfSoldSummeryRows.add(row);
 
         row = new CostOfSoldSummeryRow();
@@ -3807,11 +3807,16 @@ public class PharmacySaleReport implements Serializable {
         String sql;
         Map temMap = new HashMap();
 
-        sql = "select sum(b.netTotal) "
-                + " FROM Bill b "
-                + " where b.department=:dept "
-                + " and  b.billType= :bTp  "
-                + " and  b.createdAt between :fromDate and :toDate ";
+        sql = "select sum(bi.pharmaceuticalBillItem.purchaseRate * bi.pharmaceuticalBillItem.qty) "
+                + " FROM BillItem bi "
+                + " where bi.bill.department=:dept "
+                + " and bi.bill.billType= :bTp  "
+                + " and bi.bill.createdAt between :fromDate and :toDate ";
+//        sql = "select sum(b.netTotal) "
+//                + " FROM Bill b "
+//                + " where b.department=:dept "
+//                + " and  b.billType= :bTp  "
+//                + " and  b.createdAt between :fromDate and :toDate ";
 
         temMap.put("toDate", getToDate());
         temMap.put("fromDate", getFromDate());
@@ -3848,7 +3853,9 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", pm);
         m.put("btp", BillType.PharmacyPre);
 
-        return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("fetchSaleValue = " + d);
+        return d;
     }
 
     private double fetchSaleReturnValue(PaymentMethod pm, boolean staff) {
@@ -3878,7 +3885,9 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", pm);
         m.put("btp", BillType.PharmacyPre);
 
-        return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("fetchSaleReturnValue = " + d);
+        return d;
     }
 
     private double fetchSaleCancelValue(PaymentMethod pm, boolean staff) {
@@ -3888,7 +3897,7 @@ public class PharmacySaleReport implements Serializable {
                 + " from BillItem bi "
                 + " where bi.bill.department=:d "
                 + " and bi.bill.retired=false "
-                + " and bi.bill.billType=:btp "
+                + " and (bi.bill.billType=:btp or bi.bill.billType=:btp2) "
                 + " and bi.bill.billedBill.cancelled=true "
                 + " and bi.bill.billedBill.referenceBill.cancelled=false "
                 + " and bi.bill.paymentMethod=:pm "
@@ -3909,8 +3918,11 @@ public class PharmacySaleReport implements Serializable {
         m.put("cl", CancelledBill.class);
         m.put("pm", pm);
         m.put("btp", BillType.PharmacySale);
+        m.put("btp2", BillType.PharmacyPre);
 
-        return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("fetchSaleCancelValue = " + d);
+        return d;
     }
 
     private double fetchGrnPurchaseRows(List<BillType> billTypes) {

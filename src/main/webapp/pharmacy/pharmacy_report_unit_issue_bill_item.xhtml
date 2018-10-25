@@ -102,6 +102,23 @@
                                     </h:outputLabel>
                                 </p:column>
 
+                                <p:column headerText="qty" style="text-align: right;">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="qty"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{bi.pharmaceuticalBillItem.qty}"  >
+                                        <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                    </h:outputLabel>                                  
+                                </p:column>
+                                <p:column headerText="Gross Value" style="text-align: right;">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Gross Value"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{bi.pharmaceuticalBillItem.purchaseRate}"  >
+                                        <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                    </h:outputLabel>                                  
+                                </p:column>
+                                
                                 <p:column headerText="Gross Value" style="text-align: right;">
                                     <f:facet name="header">
                                         <h:outputLabel value="Gross Value"/>
