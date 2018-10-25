@@ -52,13 +52,15 @@ public enum InwardChargeType {
     ExerciseECG("Exercise E.C.G"),
     OperationTheatreNursingCharges("Operation Theatre Nursing Charges"),
     OperationTheatreMachineryCharges("Operation Theatre Machinery Charges"),
-    TheaterConsumbale("Theater Consumables & Drugs"),
+    TheaterConsumbale("Theater Consumables"),
+//    TheaterConsumbale("Theater Consumables & Drugs"),
     VAT("VAT (15%)"),
     AccessoryCharges("Accessory Charges"),
     EyeLence("Eye Lence"),
     HospitalSupportService("Hospital Support Service"),
     ExtraMedicine("Extra Medicine"),
     DialysisTreatment("Dialysis Treatment Charges"),
+    Dialysis("Dialysis"),
     
     @Deprecated
     Investigations("Investigations"),

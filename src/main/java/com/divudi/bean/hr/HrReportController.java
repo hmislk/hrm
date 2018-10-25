@@ -8,6 +8,7 @@ package com.divudi.bean.hr;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.data.BillType;
 import com.divudi.data.MonthEndRecord;
 import com.divudi.data.Sex;
 import com.divudi.data.dataStructure.WeekDayWork;
@@ -78,6 +79,7 @@ import jxl.read.biff.BiffException;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
+import org.json.JSONArray;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -905,6 +907,11 @@ public class HrReportController implements Serializable {
         fetchCheckStaffEndOfProbation(i);
     }
 
+    public void listnerStaffAdmin() {
+        listnerCheckStaffRetierd();
+        listnerCheckBirthdays();
+    }
+
     public void listnerCheckStaffRetierd() {
         int months = 3;
         List<Staff> staffs = fetchCheckStaffRetierd(months);
@@ -917,6 +924,41 @@ public class HrReportController implements Serializable {
         if (!staffs.isEmpty()) {
             JsfUtil.addErrorMessage("This Employes Retierd within " + months + " Months (" + st + ")");
         }
+    }
+
+    public void listnerCheckBirthdays() {
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " and c.person.dob is not null "
+                + " order by c.person.name ";
+        m.put("class", Consultant.class);
+
+        List<Staff> list = staffFacade.findBySQL(sql, m);
+        System.out.println("staffs = " + list.size());
+        String msg = "Today Birthday ";
+        for (Staff s : list) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+                Calendar now = Calendar.getInstance();
+                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+                    msg += s.getPerson().getName() + "-" + s.getCode() + ",";
+                }
+            }
+        }
+        JsfUtil.addSuccessMessage("Birthday Reminder..");
+        JsfUtil.addSuccessMessage(msg);
+
     }
 
     public List<Staff> fetchCheckStaffRetierd(int months) {
@@ -5375,6 +5417,214 @@ public class HrReportController implements Serializable {
         System.out.println("staffs.size() = " + staffs.size());
 
         return staffs;
+    }
+
+    // Dashboard
+    public String drawPiechartStaffCount() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Gender");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select s.person.sex,count(s.person.sex) "
+                + " from Staff s "
+                + " where s.retired=false "
+                + " and type(s)!=:class "
+                + " and s.person.sex is not null "
+                + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " group by s.person.sex "
+                + " order by s.person.sex ";
+
+        m.put("d", new Date());
+        m.put("class", Consultant.class);
+
+        List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
+        for (Object[] ob : objects) {
+            Sex s = (Sex) ob[0];
+            System.out.println("s = " + s);
+            long d = (long) ob[1];
+            System.out.println("d = " + d);
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+
+//        subArray.put(0, "Male");
+//        subArray.put(1, 150);
+//        mainJSONArray.put(subArray);
+//        subArray = new JSONArray();
+//        subArray.put(0, "Female");
+//        subArray.put(1, 80);
+//        mainJSONArray.put(subArray);
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawTableRetrired() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+        List<Staff> list = fetchCheckStaffRetierd(3);
+        for (Staff s : list) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+            subArray = new JSONArray();
+            subArray.put(0, s.getCode());
+            subArray.put(1, s.getPerson().getName());
+            subArray.put(2, format.format(s.getDateRetired()));
+            subArray.put(3, s.getSpeciality().getName());
+            if (s.getWorkingDepartment() == null) {
+                subArray.put(4, "No Department");
+            } else {
+                subArray.put(4, s.getWorkingDepartment().getName());
+            }
+            mainJSONArray.put(subArray);
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+    
+    public String drawTableEndOfProbation() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+//        subArray = new JSONArray();
+//        subArray.put(0, "Code");
+//        subArray.put(1, "Name");
+//        subArray.put(2, "Date of Join");
+//        subArray.put(3, "Specility");
+//        subArray.put(4, "Department");
+//        mainJSONArray.put(subArray);
+        List<Staff> list = fetchCheckStaffEndOfProbation(-3);
+        for (Staff s : list) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+            subArray = new JSONArray();
+            subArray.put(0, s.getCode());
+            subArray.put(1, s.getPerson().getName());
+            subArray.put(2, format.format(s.getDateJoined()));
+            subArray.put(3, s.getSpeciality().getName());
+            if (s.getWorkingDepartment() == null) {
+                subArray.put(4, "No Department");
+            } else {
+                subArray.put(4, s.getWorkingDepartment().getName());
+            }
+            mainJSONArray.put(subArray);
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawTableBirthdayReminder() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " and c.person.dob is not null "
+                + " order by c.person.name ";
+        m.put("class", Consultant.class);
+
+        List<Staff> list = staffFacade.findBySQL(sql, m);
+        System.out.println("staffs = " + list.size());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+        for (Staff s : list) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+                Calendar now = Calendar.getInstance();
+                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+                    subArray = new JSONArray();
+                    subArray.put(0, s.getCode());
+                    subArray.put(1, s.getPerson().getName());
+                    subArray.put(2, s.getSpeciality().getName());
+                    if (s.getWorkingDepartment() == null) {
+                        subArray.put(3, "No Department");
+                    } else {
+                        subArray.put(3, s.getWorkingDepartment().getName());
+                    }
+                    mainJSONArray.put(subArray);
+                }
+            }
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawPiechartStaffCountDepartment() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Department");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select s.workingDepartment,count(s.workingDepartment) "
+                + " from Staff s "
+                + " where s.retired=false "
+                + " and type(s)!=:class "
+                + " and s.workingDepartment is not null "
+                + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " group by s.workingDepartment "
+                + " order by s.workingDepartment.name ";
+
+        m.put("d", new Date());
+        m.put("class", Consultant.class);
+
+        List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
+        for (Object[] ob : objects) {
+            Department d = (Department) ob[0];
+            System.out.println("d.getName() = " + d.getName());
+            long count = (long) ob[1];
+            System.out.println("d = " + count);
+            subArray = new JSONArray();
+            subArray.put(0, d.getName());
+            subArray.put(1, count);
+            mainJSONArray.put(subArray);
+        }
+
+//        subArray.put(0, "Male");
+//        subArray.put(1, 150);
+//        mainJSONArray.put(subArray);
+//        subArray = new JSONArray();
+//        subArray.put(0, "Female");
+//        subArray.put(1, 80);
+//        mainJSONArray.put(subArray);
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
     }
 
     public List<StaffComponentSummery> getStaffComponentSummerys() {

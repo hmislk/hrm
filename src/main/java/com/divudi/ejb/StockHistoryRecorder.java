@@ -219,6 +219,56 @@ public class StockHistoryRecorder {
 //        System.err.println("Chanel Duplicate Find End =" + new Date());
 //
 //    }
+    
+//    @SuppressWarnings("unused")
+//    @Schedule(hour = "06", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
+//    public void myTimerBirthdayReminder() {
+//        String sql;
+//        Map m = new HashMap();
+//
+//        sql = "select c from Staff c "
+//                + " where c.retired=false "
+//                + " and type(c)!=:class "
+//                //                + " and c.person.dob=:dob "
+//                + " order by c.person.name ";
+//        m.put("class", Consultant.class);
+////        m.put("dob", new Date());
+//
+//        List<Staff> staffs = staffFacade.findBySQL(sql, m);
+//        System.out.println("staffs = " + staffs.size());
+//        String msg = "Today Birthday ";
+//        for (Staff s : staffs) {
+//            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+//            Calendar dob = Calendar.getInstance();
+//            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+//                dob.setTime(s.getPerson().getDob());
+//                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+//                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+//                Calendar now = Calendar.getInstance();
+//                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+//                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+//                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+//                    msg += s.getPerson().getName() + "-" + s.getCode() + ",";
+//                }
+//            }
+//        }
+//        while (msg.length() > 160) {
+//            System.out.println("msg.length() = " + msg.length());
+//            if (msg.length() <= 160) {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.Marketing);
+//                System.out.println("msg = " + msg);
+//            } else {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg.substring(0, 159), null, SmsType.Marketing);
+//                System.out.println("msg.substring(0, 159) = " + msg.substring(0, 159));
+//                msg = msg.substring(159);
+//            }
+//        }
+//        if (msg.length()>15) {
+//            sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.Marketing);
+//        }
+//        System.out.println("---msg = " + msg);
+//    }
 
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "03", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mornining", persistent = false)
