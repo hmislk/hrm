@@ -137,6 +137,7 @@
                         <th>No Pay Cou</th>
                         <th>Late No Pay Cou</th>
                         <th>EPF/ETF Diductable Salary</th>
+                        <th>Tra Val</th>
                         <th>Per Val</th>
                         <th>Per percent</th>
                         <ui:repeat value="#{salaryCycleController.headersAdd}" var="h">
@@ -282,6 +283,10 @@
                                 </h:outputText>
                             </td>
                             <td style="text-align: right;;"><h:outputText value="#{scc.transEpfEtfDiductableSalary}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </h:outputText>
+                            </td>
+                            <td style="text-align: right;color: green;"><h:outputText value="#{scc.traVal}" >
                                     <f:convertNumber pattern="#,##0.00" />
                                 </h:outputText>
                             </td>

@@ -33,6 +33,7 @@ import com.divudi.entity.Patient;
 import com.divudi.entity.Person;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.ServiceSession;
+import com.divudi.entity.ServiceSessionLeave;
 import com.divudi.entity.channel.ArrivalRecord;
 import com.divudi.facade.AgentHistoryFacade;
 import com.divudi.facade.ArrivalRecordFacade;
@@ -45,6 +46,7 @@ import com.divudi.facade.ItemFeeFacade;
 import com.divudi.facade.PatientFacade;
 import com.divudi.facade.PersonFacade;
 import com.divudi.facade.ServiceSessionFacade;
+import com.divudi.facade.ServiceSessionLeaveFacade;
 import com.divudi.facade.StaffFacade;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -107,6 +109,8 @@ public class Api {
     private PersonFacade personFacade;
     @EJB
     ArrivalRecordFacade arrivalRecordFacade;
+    @EJB
+    ServiceSessionLeaveFacade serviceSessionLeaveFacade;
 
     @EJB
     private CommonFunctions commonFunctions;
@@ -721,14 +725,14 @@ public class Api {
         System.err.println("~~~~~~Channel API~~~~~~ Json(Get Bill Sessions) = " + json);
         return json;
     }
-    
+
     @GET
     @Path("/docArrival/")
     @Produces("application/json")
     public String getDoctorArrivals() {
-        System.err.println("~~~~~~Channel API~~~~~~ Get All Doctors(/docs/)");
+        System.err.println("~~~~~~Channel API~~~~~~ Get Arrival(/docArrival/)");
         JSONArray array = new JSONArray();
-        List<ArrivalRecord> arrivalRecords=fetchDoctorArrival();
+        List<ArrivalRecord> arrivalRecords = fetchDoctorArrival();
         if (!arrivalRecords.isEmpty()) {
             for (ArrivalRecord a : arrivalRecords) {
                 JSONObject jSONObject = new JSONObject();
@@ -747,11 +751,40 @@ public class Api {
 
         String json = array.toString();
 //        String json = jSONObjectOut.toString();
+        System.err.println("~~~~~~Channel API~~~~~~ Get Arrival(/docArrival/) = " + json);
+        return json;
+    }
+
+    @GET
+    @Path("/docLeave/")
+    @Produces("application/json")
+    public String getDoctorLeaves() {
+        System.err.println("~~~~~~Channel API~~~~~~ Get All Doctors(/docs/)");
+        JSONArray array = new JSONArray();
+        List<ServiceSessionLeave> sessionLeaves = fetchDoctorLeaves();
+        if (!sessionLeaves.isEmpty()) {
+            for (ServiceSessionLeave s : sessionLeaves) {
+                JSONObject jSONObject = new JSONObject();
+                jSONObject.put("lea_doc_name", s.getStaff().getPerson().getName());
+                jSONObject.put("lea_ses_time", getCommonController().getTimeFormat24(s.getOriginatingSession().getStartingTime()));
+                jSONObject.put("lea_ses_date", getCommonController().getDateFormat(s.getOriginatingSession().getSessionDate()));
+                jSONObject.put("lea_comment", s.getDeactivateComment());
+                jSONObject.put("lea_created_at", getCommonController().getDateTimeFormat24(s.getCreatedAt()));
+                jSONObject.put("lea_creater", s.getCreater().getWebUserPerson().getName());
+                array.put(jSONObject);
+            }
+
+        } else {
+//            jSONObjectOut.put("specilities", array);
+//            jSONObjectOut.put("error", "1");
+//            jSONObjectOut.put("error_description", "No Data.");
+        }
+
+        String json = array.toString();
+//        String json = jSONObjectOut.toString();
         System.err.println("~~~~~~Channel API~~~~~~ Json(Get All Doctors) = " + json);
         return json;
     }
-    
-    
 
     //----------------------------------------------------
     public List<Object[]> doctorsList(String doc_code, Long spec_id) {
@@ -1041,7 +1074,7 @@ public class Api {
                 map.put("bill_id", billObjects.get(0).getBill().getId());
                 map.put("bill_number", billObjects.get(0).getBill().getInsId());
                 if (billObjects.get(0).getBill().getCreditCompany() != null) {
-                    map.put("bill_agent", billObjects.get(0).getBill().getCreditCompany().getName()+" ("+billObjects.get(0).getBill().getCreditCompany().getInstitutionCode()+")");
+                    map.put("bill_agent", billObjects.get(0).getBill().getCreditCompany().getName() + " (" + billObjects.get(0).getBill().getCreditCompany().getInstitutionCode() + ")");
                 } else {
                     if (billObjects.get(0).getBill().getToStaff() != null) {
                         map.put("bill_agent", billObjects.get(0).getBill().getToStaff().getPerson().getName() + " (" + billObjects.get(0).getBill().getToStaff().getCode() + ")");
@@ -1189,7 +1222,8 @@ public class Api {
             return 0;
         }
 
-        return obj * 0.15;
+        return obj*0;
+//        return obj * 0.15; 2018-07-05
     }
 
     String fetchErrors(String name, String phone, String doc, long ses, long agent, String agent_ref, String st_foriegn) {
@@ -1463,8 +1497,10 @@ public class Api {
             if (f.getFeeType() == FeeType.Staff) {
                 bf.setStaff(f.getStaff());
                 bf.setFeeGrossValue(bf.getFeeValue());
-                bf.setFeeVat(bf.getFeeValue() * 0.15);
-                bf.setFeeVatPlusValue(bf.getFeeValue() * 1.15);
+                bf.setFeeVat(bf.getFeeValue()*0);
+                bf.setFeeVatPlusValue(bf.getFeeValue());
+//                bf.setFeeVat(bf.getFeeValue() * 0.15);
+//                bf.setFeeVatPlusValue(bf.getFeeValue() * 1.15);
                 bf.setFeeDiscount(0.0);
             } else {
                 bf.setFeeGrossValue(bf.getFeeValue());
@@ -1750,7 +1786,7 @@ public class Api {
             return false;
         }
     }
-    
+
     public List<ArrivalRecord> fetchDoctorArrival() {
 
         String sql;
@@ -1767,8 +1803,24 @@ public class Api {
 
         arrivalRecords = arrivalRecordFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("arrivalRecords.size() = " + arrivalRecords.size());
-        
+
         return arrivalRecords;
+
+    }
+
+    public List<ServiceSessionLeave> fetchDoctorLeaves() {
+
+        HashMap m = new HashMap();
+        String sql;
+        sql = "Select s From ServiceSessionLeave s Where "
+                + " s.sessionDate=:dt "
+                + " order by s.originatingSession.startingTime ";
+        m.put("dt", new Date());
+
+        List<ServiceSessionLeave> serviceSessionLeaves = serviceSessionLeaveFacade.findBySQL(sql, m, TemporalType.DATE);
+        System.out.println("serviceSessionLeaves.size() = " + serviceSessionLeaves.size());
+
+        return serviceSessionLeaves;
 
     }
 

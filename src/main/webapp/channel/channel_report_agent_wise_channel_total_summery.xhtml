@@ -59,16 +59,21 @@
                             </p:outputLabel>
                         </f:facet>
 
-                        <p:column>
+                        <p:column sortBy="#{s.agency.institutionCode}">
                             <f:facet name="header">
-                                <p:outputLabel value="Agency" />
+                                <p:outputLabel value="Agency Code" />
                             </f:facet>
-                            <p:outputLabel value="#{s.agency.name} - (#{s.agency.institutionCode})" />
+                            <p:outputLabel value="#{s.agency.institutionCode}" />
                             <f:facet name="footer">
                                 <p:outputLabel value="Total Count" />
                             </f:facet>
                         </p:column>
-
+                        <p:column sortBy="#{s.agency.name}" >
+                            <f:facet name="header">
+                                <p:outputLabel value="Agency" />
+                            </f:facet>
+                            <p:outputLabel value="#{s.agency.name}" />
+                        </p:column>
                         <p:column styleClass="numberCol" >
                             <f:facet name="header">
                                 <p:outputLabel value="Count" />

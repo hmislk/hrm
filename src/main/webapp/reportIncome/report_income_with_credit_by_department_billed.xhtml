@@ -28,18 +28,18 @@
                         <p:calendar styleClass="noPrintButton" value="#{commonReport1.toDate}" pattern="dd MMMM yyyy hh:mm:ss a" >
                         </p:calendar>
                         <h:outputLabel  value="Department" />
-                        <p:autoComplete styleClass="noPrintButton"  value="#{commonReport1.department}" 
-                                        style="text-align: left; margin: px; padding: 0px;" 
+                        <p:autoComplete styleClass="noPrintButton mediuminput"  value="#{commonReport1.department}" 
                                         completeMethod="#{departmentController.completeDept}" var="dept" itemValue="#{dept}" 
                                         itemLabel="#{dept.name}" forceSelection="true" rendered="true"
                                         requiredMessage="You must select a department" >
                         </p:autoComplete>
-                        <h:outputLabel  value="Only OPD Income" />
+                        <h:outputLabel  value="Search By" />
                         <p:selectOneRadio value="#{commonReport1.radio}" >
                             <f:selectItem itemLabel="All" itemValue="1" />
                             <f:selectItem itemLabel="Only OPD" itemValue="2" />
                             <f:selectItem itemLabel="Only Channel" itemValue="3" />
                             <f:selectItem itemLabel="Only Pharmacy" itemValue="4" />
+                            <f:selectItem itemLabel="Only Collecting Center" itemValue="5" />
                         </p:selectOneRadio>
                     </h:panelGrid>
                     <h:panelGrid columns="5">
@@ -167,9 +167,9 @@
                             </h:outputLabel>
                         </f:facet>
                     </p:column>
-                    <p:column headerText="Vat" style="text-align: right;">
+                    <p:column headerText="Hos. Sup. Ser." style="text-align: right;">
                         <f:facet name="header">
-                            <h:outputLabel value="Vat"/>
+                            <h:outputLabel value="Hos. Sup. Ser."/>
                         </f:facet>
                         <h:outputLabel value="#{b.vat}" >
                             <f:convertNumber pattern="#,##0.00" />

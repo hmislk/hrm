@@ -182,6 +182,8 @@ public class StaffSalary implements Serializable {
     @Transient
     double perPercentage;
     @Transient
+    double traVal;
+    @Transient
     double WorkingDays;
     @Transient
     double WorkingDaysBefore;
@@ -1283,6 +1285,14 @@ public class StaffSalary implements Serializable {
 
     public void setWorkingDaysAfter(double WorkingDaysAfter) {
         this.WorkingDaysAfter = WorkingDaysAfter;
+    }
+
+    public double getTraVal() {
+        return traVal;
+    }
+
+    public void setTraVal(double traVal) {
+        this.traVal = traVal;
     }
 
 }

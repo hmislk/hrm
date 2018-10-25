@@ -39,14 +39,14 @@
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Report Credit Bill Payment(OPD/Pharmacy/Inward)" action="/inward/inward_search_balance_payment_1" /> 
                                     </h:panelGrid>
                                 </p:panel>
-                                <p:panel header="10) VAT Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                <p:panel header="10) Hos. Sup. Ser. Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
-                                        <p:commandButton styleClass="linkButton" ajax="false" value="OPD VAT 15%" action="/reportCashier/report_opd_bills_for_vat"/> 
-                                        <p:commandButton styleClass="linkButton" ajax="false" value="All Channel Bill With Vat" action="/channel/channel_report_all_bills_for_vat"/>
-                                        <p:commandButton value="BHT VAT Report" action="/inward/inward_report_bht_inward_vat"  styleClass="linkButton" ajax="false" />
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="OPD Hos. Sup. Ser." action="/reportCashier/report_opd_bills_for_vat"/> 
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="All Channel Bill With Hos. Sup. Ser." action="/channel/channel_report_all_bills_for_vat"/>
+                                        <p:commandButton value="BHT Hos. Sup. Ser. Report" action="/inward/inward_report_bht_inward_vat"  styleClass="linkButton" ajax="false" />
                                     </h:panelGrid>
                                 </p:panel>
-                                <p:panel header="13) VAT Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                <p:panel header="13) WHT Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Details) (5%)" action="/reportInstitution/report_with_holding_tax" actionListener="#{billController.clearTotals}"/> 
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Summary) (5%)" action="/reportInstitution/report_with_holding_tax_summary" actionListener="#{billController.clearTotals}"/> 
@@ -79,6 +79,9 @@
                                 <p:panel header="11) Quick Book Reports" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <p:commandButton styleClass="linkButton" ajax="false" value="QB day income report " action="/qbReports/report_qb_day_income_with_out_professional" actionListener="#{quickBookReportController.listnerReportNameChange}"/>                             
                                     <p:commandButton styleClass="linkButton" ajax="false" value="Item To Export report " action="/qbReports/report_qb_item_list" actionListener="#{quickBookReportController.listnerReportNameChange}"/>                             
+                                </p:panel>
+                                <p:panel header="14) Summary By Investigation All" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                    <p:commandButton styleClass="linkButton" ajax="false" value="Summary By Investigation or Category" action="/reportInstitution/report_investigation_service_summery_Inward"/>                             
                                 </p:panel>
 
                             </h:panelGrid>

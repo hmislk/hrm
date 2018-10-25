@@ -32,6 +32,21 @@
                             <f:selectItem itemLabel="Collecting Center Only" itemValue="1" />
                             <f:selectItem itemLabel="OPD Only" itemValue="2" />
                         </p:selectOneRadio>
+                        <p:outputLabel value="Only with Refering Doctor" />
+                        <p:selectBooleanCheckbox value="#{commonReport1.onlyOPD}" />
+                        <h:outputLabel value="Service Name"/>
+                        <p:autoComplete value="#{commonReport1.item}" completeMethod="#{itemController.completeItem}" var="ix" 
+                                        itemLabel="#{ix.name}" itemValue="#{ix}" size="30"  style="width: 400px;" forceSelection="true" >
+                            <p:column>
+                                #{ix.name}
+                            </p:column>
+                            <p:column>
+                                #{ix.department.name}
+                            </p:column>  
+                            <p:column>
+                                #{ix.category.name}
+                            </p:column> 
+                        </p:autoComplete>
                         <h:outputLabel value="Referring Doctor"/>
                         <p:autoComplete forceSelection="true" id="cmbDoc" value="#{commonReport1.referringDoctor}"
                                         completeMethod="#{doctorController.completeDoctor}"
@@ -112,8 +127,21 @@
                             </f:facet>
                             <h:outputLabel value="#{d.bill.referredBy.person.name}"/>
                         </p:column>
+                        
+                        <p:column headerText="Item" rendered="#{commonReport1.item eq null}" >
+                            <f:facet name="header">
+                                <h:outputLabel value="Item" />
+                            </f:facet>
+                            <h:outputLabel value="#{d.item.name}"/>
+                        </p:column>
 
-
+                        <p:column headerText="CC"  >
+                            <f:facet name="header">
+                                <h:outputLabel value="CC" />
+                            </f:facet>
+                            <h:outputLabel value="#{d.bill.fromInstitution.name}"/>
+                        </p:column>
+                        
                         <p:column headerText="Date/Time" 
                                   sortBy="#{d.bill.createdAt}">
                             <f:facet name="header">

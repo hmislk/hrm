@@ -124,6 +124,12 @@
                     <p:outputLabel value="#{d.billItem.bill.creditCompany.name}" />
                 </p:column>
 
+                <p:column headerText="Ref. Doc">
+                    <f:facet name="header">
+                        <p:outputLabel value="Ref. Doc"/>
+                    </f:facet>
+                    <p:outputLabel value="#{d.billItem.bill.referredBy.person.name}" />
+                </p:column>
                 <p:column headerText="Name">
                     <f:facet name="header">
                         <p:outputLabel value="Name"/>
@@ -193,9 +199,9 @@
                     </f:facet>
                 </p:column>    
 
-                <p:column headerText="Vat Fee" style="text-align: right;">
+                <p:column headerText="Hos. Sup. Ser. Fee" style="text-align: right;">
                     <f:facet name="header">
-                        <p:outputLabel value="Vat Fee"/>
+                        <p:outputLabel value="Hos. Sup. Ser. Fee"/>
                     </f:facet>
                     <p:outputLabel value="#{d.vatFee}">
                         <f:convertNumber pattern="#,##0.00"/>

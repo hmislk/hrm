@@ -126,7 +126,13 @@ public class PettyCashBillController implements Serializable {
     private boolean checkInvoice() {
         Calendar year = Calendar.getInstance();
         Calendar c = Calendar.getInstance();
-        c.set(year.get(Calendar.YEAR), 3, 1, 0, 0, 0);
+        int m = c.get(Calendar.MONTH);
+        System.out.println("m = " + m);
+        if (m < 3) {
+            c.set(year.get(Calendar.YEAR)-1, 3, 1, 0, 0, 0);
+        } else {
+            c.set(year.get(Calendar.YEAR), 3, 1, 0, 0, 0);
+        }
         Date fd = c.getTime();
         System.out.println("d = " + fd);
         DecimalFormat df = new DecimalFormat("00000");

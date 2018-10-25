@@ -11,12 +11,12 @@
 
 
             <h:panelGrid columns="2" class="alignTop">
-                <p:panel style="width: 500px;height: 520px;">
+                <p:panel style="width: 450px;height: 520px;">
                     <h:panelGrid columns="2">
                         <h:outputLabel  value="Speciality" ></h:outputLabel>
                         <p:autoComplete  forceSelection="true" value="#{sheduleController.speciality}" id="acSpeciality" placeholder="Speciality"
                                          completeMethod="#{doctorSpecialityController.completeSpeciality}" var="mysp" itemLabel="#{mysp.name}" itemValue="#{mysp}"
-                                         converter="specilityCon"   >
+                                         converter="specilityCon" styleClass="mediuminput"  >
                             <f:ajax event="itemSelect" execute="acSpeciality" render="scStaff"  />
                         </p:autoComplete>
 
@@ -25,7 +25,7 @@
                         <h:outputLabel  value="Doctor" ></h:outputLabel>
                         <p:autoComplete   forceSelection="true" value="#{sheduleController.currentStaff}" id="scStaff" placeholder="Doctor"
                                           completeMethod="#{sheduleController.completeStaff}" var="mys" itemLabel="#{mys.person.nameWithTitle}" itemValue="#{mys}"
-                                          converter="stfcon"   >   
+                                          converter="stfcon" styleClass="mediuminput"  >   
                             <f:ajax event="itemSelect" execute="scStaff" render="lstSelect gpDetail" listener="#{sheduleController.prepareAdd()}" />
                         </p:autoComplete>  
 
@@ -33,7 +33,7 @@
 
                         <h:outputLabel  value="Sessions" ></h:outputLabel>
                         <h:panelGrid id="gpSelectText" >
-                            <p:selectOneListbox  id="lstSelect" converter="sscon"    value="#{sheduleController.current}" style="width: 400px; height: 400px;"  >
+                            <p:selectOneListbox  id="lstSelect" converter="sscon"    value="#{sheduleController.current}" style="width: 300px; height: 400px;"  >
                                 <f:selectItems  value="#{sheduleController.items}" var="myItem" itemValue="#{myItem}" itemLabel="#{myItem.name}" ></f:selectItems>
                                 <f:ajax render="gpDetail" execute="lstSelect" event="click" listener="#{sheduleController.fillFees()}" >
                                 </f:ajax>
@@ -60,7 +60,7 @@
 
                 </p:panel>
 
-                <p:panel id="gpDetail" header="Session Details" style="width: 750px;height: 520px;">  
+                <p:panel id="gpDetail" header="Session Details" style="width: 800px;height: 520px;">  
                     <f:facet name="header" >
                         <p:outputLabel value="Session Details" ></p:outputLabel>
                         <p:spacer width="30" height="1" ></p:spacer>
@@ -76,7 +76,7 @@
                     </f:facet>
 
                     <h:panelGrid columns="1" > 
-                        <p:tabView style="width: 700px!important;height: 410px;">
+                        <p:tabView style="width: 750px!important;height: 460px;">
                             <p:tab title="Details">
                                 <h:panelGrid columns="2" cellpadding="10">
                                     <p:outputLabel value="Session Name"/>
@@ -251,6 +251,7 @@
 
             </h:panelGrid>
             <p:commandButton value="Update Fees" action="#{sheduleController.createOnCallFeeOldSession()}" rendered="#{webUserController.hasPrivilege('Developers')}"  ajax="false" />
+            <p:commandButton value="Calculate CC Commission Fees" action="#{sheduleController.calculateAllSessionsForCreditCardCommission()}" rendered="#{webUserController.hasPrivilege('Developers')}"  ajax="false" />
             <p:commandButton value="Manually Create Seesion For Selected Doctor" action="#{sheduleController.createFutureSessionsManually()}" rendered="#{webUserController.hasPrivilege('Developers')}"  ajax="false" />
         </h:form>
     </ui:define>

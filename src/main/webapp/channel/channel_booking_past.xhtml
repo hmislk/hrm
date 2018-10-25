@@ -483,17 +483,27 @@
                         </p:panel>
 
                         <p:tab title="Cancel" id="cancel">                                                         
-                            #{channelBillController.billSession.bill.billType}
+                            #{channelBillController.billSession.billItem.bill.paymentMethod}-
+                            #{channelBillController.billSession.billItem.bill.paidBill.paymentMethod}<br></br>
 
                             <h:panelGroup rendered="#{channelBillController.billSession.billItem.bill.paymentMethod eq 'Agent'}" >
                                 <p:outputLabel value="Re-payment Method"/>
                                 <p:selectOneMenu  id="cmbCancellPs" value="#{channelBillController.cancelPaymentMethod}">  
                                     <f:selectItem itemLabel="Select Cancel Payment Method" ></f:selectItem>
-                                    <f:selectItems value="#{enumController.paymentMethodsForChannelAgentSettle}"/>                                                               
+                                    <f:selectItems value="#{enumController.paymentMethodsForChannelAgentSettle}"/>
+                                    <f:ajax event="change" execute="@this"  render="aaa"/>
                                 </p:selectOneMenu>
                             </h:panelGroup>
 
-
+                            <h:panelGroup rendered="#{channelBillController.billSession.billItem.bill.paidBill ne null and channelBillController.billSession.billItem.bill.paidBill.paymentMethod eq 'Card'}" >
+                                <p:outputLabel value="Re-Payment Method"/>
+                                <p:selectOneMenu  id="cmbCancellPs2" value="#{channelBillController.cancelPaymentMethod}">  
+                                    <f:selectItem itemLabel="Select Cancel Payment Method" ></f:selectItem>
+                                    <f:selectItems value="#{enumController.paymentMethodsForChannelSettle}"/>    
+                                    <f:ajax event="change" execute="@this"  render="aaa"/>
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+                            <p:outputLabel id="aaa" value="#{channelBillController.cancelPaymentMethod}"/>
 
 
                             <h:panelGroup>
@@ -710,7 +720,7 @@
                         </p:tab>
 
 
-                        <p:tab title="Search">
+<!--                        <p:tab title="Search">
                             <p:calendar id="calFrom"  value="#{channelSearchController.fromDate}" pattern="dd MMMM yyyy" >   
                                 <f:ajax event="dateSelect" execute="@this" render="bSessionSearch"/>
                             </p:calendar>
@@ -846,7 +856,7 @@
                                     </h:commandLink>
                                 </p:column> 
                             </p:dataTable> 
-                        </p:tab>
+                        </p:tab>-->
                         <p:tab title="Views">
                             <h:panelGrid columns="2">
                                 <p:panel header="Selected Session">

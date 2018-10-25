@@ -28,6 +28,9 @@
                                                        style="#{commonController.currentDateTime > i.itemBatch.dateOfExpire ?'color: red; ': 
                                                                             commonController.dateAfterThreeMonthsCurrentDateTime > i.itemBatch.dateOfExpire ?'color: red; background-color: yellow;':''}"></h:outputLabel>
                                     </p:column>
+                                    <p:column headerText="Code">
+                                        <h:outputLabel value="#{i.itemBatch.item.code}" />
+                                    </p:column>
                                     <p:column headerText="Rate">
                                         <h:outputLabel value="#{i.itemBatch.retailsaleRate}" >
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
@@ -69,6 +72,8 @@
                                 <h:outputLabel value="#{pharmacyAdjustmentController.stock.itemBatch.id}" ></h:outputLabel>
                                 <h:outputLabel value="Name"/>
                                 <h:outputLabel value="#{pharmacyAdjustmentController.stock.itemBatch.item.name}" ></h:outputLabel>
+                                <h:outputLabel value="Department Type"/>
+                                <h:outputLabel value="#{pharmacyAdjustmentController.stock.itemBatch.item.departmentType}" ></h:outputLabel>
                                 <h:outputLabel value="Retail Sale Rate"/>
 
                                 <h:outputLabel value="#{pharmacyAdjustmentController.stock.itemBatch.retailsaleRate}" >

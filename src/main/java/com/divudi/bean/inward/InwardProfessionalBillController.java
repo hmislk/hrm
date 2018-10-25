@@ -12,6 +12,7 @@ import com.divudi.bean.common.BillBeanController;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.bean.common.util.JsfUtil;
 import com.divudi.data.BillClassType;
 import com.divudi.data.BillNumberSuffix;
 import com.divudi.data.BillType;
@@ -64,7 +65,7 @@ public class InwardProfessionalBillController implements Serializable {
     SessionController sessionController;
     @Inject
     AdmissionController admissionController;
-    @Inject 
+    @Inject
     CommonController commonController;
     ////////////////////
     @EJB
@@ -375,6 +376,11 @@ public class InwardProfessionalBillController implements Serializable {
 
     public void addProfessionalFee() {
         if (generalChecking()) {
+            return;
+        }
+
+        if (getProEncounterComponent().getPatientEncounterComponentType() == null) {
+            JsfUtil.addErrorMessage("Please Select Perform Type");
             return;
         }
 
@@ -725,7 +731,7 @@ public class InwardProfessionalBillController implements Serializable {
         current = null;
         batchBill = null;
         makeNullList();
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Service & Items/Add Outside Charges(/faces/inward/inward_bill_professional.xhtml)");
     }
 
@@ -1003,5 +1009,4 @@ public class InwardProfessionalBillController implements Serializable {
         this.commonController = commonController;
     }
 
-    
 }

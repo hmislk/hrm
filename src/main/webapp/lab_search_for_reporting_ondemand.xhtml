@@ -26,25 +26,32 @@
                                     <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createPatientInvestigationsTable()}" onclick="onSubmitButton();" />
                                     <p:commandButton id="btnSearch2" ajax="false" value="Search All" action="#{searchController.createPatientInvestigationsTableAll()}" onclick="onSubmitButton();" />
                                 </h:panelGrid>
-                                <h:panelGrid columns="4" >
+                                <h:panelGrid columns="5" >
                                     <h:outputLabel value="Bill No"/>
                                     <h:outputLabel value="Patient Name"/>
                                     <h:outputLabel value="Patient Phone"/>                               
                                     <h:outputLabel value="Investigation Name"/>
+                                    <h:outputLabel value="Report Type"/>
                                     <p:inputText autocomplete="off"  value="#{searchController.searchKeyword.billNo}" />
                                     <p:inputText autocomplete="off" value="#{searchController.searchKeyword.patientName}" />
                                     <p:inputText autocomplete="off"  value="#{searchController.searchKeyword.patientPhone}" />
                                     <p:inputText autocomplete="off" value="#{searchController.searchKeyword.itemName}"/>
+                                    <p:selectOneMenu value="#{searchController.reportKeyWord.investigationReportType}" >                               
+                                        <f:selectItem itemLabel="Select Report Type" />
+                                        <f:selectItem itemLabel="General" itemValue="General"/>
+                                        <f:selectItem itemLabel="Microbiology" itemValue="Microbiology"/>
+                                    </p:selectOneMenu>
                                     <h:outputLabel value="Report Department"/>
                                     <h:outputLabel value="Bill Department"/>
                                     <h:outputLabel value="BHT"/>
-                                    <h:outputLabel/>
+                                    <h:outputLabel value="Collecting Center"/>
+                                    <h:outputLabel value=""/>
                                     <p:autoComplete completeMethod="#{departmentController.completeDept}" styleClass="shortinput2"
-                                                        var="dept" itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" 
-                                                        value="#{searchController.reportKeyWord.department}" converter="departmentConverter"/>
-                                    <p:autoComplete completeMethod="#{departmentController.completeDept}" styleClass="shortinput2"
-                                                        var="dept" itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" 
-                                                        value="#{searchController.reportKeyWord.departmentFrom}" converter="departmentConverter"/>
+                                                    var="dept" itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" 
+                                                    value="#{searchController.reportKeyWord.department}" converter="departmentConverter"/>
+                                    <p:autoComplete completeMethod="#{departmentController.completeDept}" styleClass="shortinput2" 
+                                                    var="dept" itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" 
+                                                    value="#{searchController.reportKeyWord.departmentFrom}" converter="departmentConverter"/>
                                     <p:autoComplete converter="admis" widgetVar="aPt" id="acPt" forceSelection="true" styleClass="shortinput2"
                                                     value="#{searchController.patientEncounter}"
                                                     completeMethod="#{admissionController.completePatientAll}" 
@@ -70,6 +77,14 @@
                                         <p:column>
                                             <h:outputLabel  value="Cancelled"  rendered="#{myItem.retired}"/>
                                         </p:column>
+                                    </p:autoComplete>
+
+                                    <p:autoComplete converter="deal" value="#{searchController.reportKeyWord.institution}" 
+                                                    forceSelection="true" id="acColl" styleClass="shortinput2"
+                                                    completeMethod="#{institutionController.completeCollectingCenter}" 
+                                                    var="vt" itemLabel="#{vt.name}" itemValue="#{vt}" >
+                                        <p:column>#{vt.institutionCode}</p:column>
+                                        <p:column>#{vt.name}</p:column>
                                     </p:autoComplete>
 
                                 </h:panelGrid>
@@ -151,6 +166,10 @@
                                         </h:outputLabel>
                                     </h:panelGroup>
                                 </p:tooltip>
+                            </p:column>
+
+                            <p:column  headerText="C.C." styleClass="alignTop" >
+                                <p:outputLabel value="#{pi.billItem.bill.collectingCentre.name} (#{pi.billItem.bill.collectingCentre.institutionCode})" />
                             </p:column>
 
 

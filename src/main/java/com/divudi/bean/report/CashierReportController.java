@@ -132,6 +132,40 @@ public class CashierReportController implements Serializable {
 
     }
 
+    private BillsTotals createRow(List<BillType> bts, WebUser webUser) {
+        BillsTotals newB = new BillsTotals();
+        List<Object[]> objects = calTotalValueOwnNew(webUser, bts);
+        for (Object[] ob : objects) {
+            PaymentMethod pm = (PaymentMethod) ob[0];
+            System.out.println("pm = " + pm);
+            double total = (double) ob[1];
+            System.out.println("total = " + total);
+            if (pm == PaymentMethod.Cash) {
+                newB.setCash(total);
+                finalCashTot += newB.getCash();
+            }
+            if (pm == PaymentMethod.Card) {
+                newB.setCard(total);
+                finalCardTot += newB.getCard();
+            }
+            if (pm == PaymentMethod.Cheque) {
+                newB.setCheque(total);
+                finalChequeTot += newB.getCheque();
+            }
+            if (pm == PaymentMethod.Credit) {
+                newB.setCredit(total);
+                finalCreditTot += newB.getCredit();
+            }
+            if (pm == PaymentMethod.Slip) {
+                newB.setSlip(total);
+                finalSlipTot += newB.getSlip();
+            }
+        }
+
+        return newB;
+
+    }
+
     private BillsTotals createRowAgent(BillType billType, String suffix, Bill bill, WebUser webUser) {
         BillsTotals newB = new BillsTotals();
         newB.setName(billType.getLabel() + " " + suffix);
@@ -938,6 +972,82 @@ public class CashierReportController implements Serializable {
 
     }
 
+    public void calCashierDataTotalOnlyCashierNew() {
+        header = "Cashier";
+        Date startTime = new Date();
+        finalCashTot = finalChequeTot = finalCardTot = finalCreditTot = finalSlipTot = 0;
+        webUserBillsTotals = new ArrayList<>();
+        for (WebUser webUser : getCashiersCashier()) {
+            WebUserBillsTotal tmp = new WebUserBillsTotal();
+            System.out.println("webUser.getWebUserPerson().getName() = " + webUser.getWebUserPerson().getName());
+            tmp.setWebUser(webUser);
+            List<BillsTotals> billls = new ArrayList<>();
+
+            BillsTotals billsTotals = createRow(Arrays.asList(getEnumController().getCashFlowBillTypesCashier()), webUser);
+
+            BillsTotals newSum = new BillsTotals();
+            newSum.setName("Total ");
+            newSum.setBold(true);
+            newSum.setCard(billsTotals.getCard());
+            newSum.setCash(billsTotals.getCash());
+            newSum.setCheque(billsTotals.getCheque());
+            newSum.setCredit(billsTotals.getCredit());
+            newSum.setSlip(billsTotals.getSlip());
+
+            if (newSum.getCard() != 0 || newSum.getCash() != 0 || newSum.getCheque() != 0 || newSum.getCredit() != 0 || newSum.getSlip() != 0) {
+                billls.add(newSum);
+            }
+
+            tmp.setBillsTotals(billls);
+            webUserBillsTotals.add(tmp);
+        }
+        commonController.printReportDetails(fromDate, toDate, startTime, "All cashier summery(/reportCashier/report_cashier_summery_all_total_only.xhtml)");
+
+    }
+
+    public void calCashierDataTotalOnlyChannelNew() {
+        header = "Channel";
+        Date startTime = new Date();
+        finalCashTot = finalChequeTot = finalCardTot = finalCreditTot = finalSlipTot = 0;
+        webUserBillsTotals = new ArrayList<>();
+        for (WebUser webUser : getCashiersChannel()) {
+            WebUserBillsTotal tmp = new WebUserBillsTotal();
+            System.out.println("webUser.getWebUserPerson().getName() = " + webUser.getWebUserPerson().getName());
+            tmp.setWebUser(webUser);
+            List<BillsTotals> billls = new ArrayList<>();
+
+            BillsTotals billsTotals = createRow(Arrays.asList(getEnumController().getCashFlowBillTypesChannel()), webUser);
+
+            //channel agent bill cash cancel refund
+            BillsTotals newC = createRow(BillType.ChannelAgent, "Cancelled", new CancelledBill(), webUser);
+            BillsTotals newR = createRow(BillType.ChannelAgent, "Refunded", new RefundBill(), webUser);
+
+            billsTotals.setCard(billsTotals.getCard() + newC.getCard() + newR.getCard());
+            billsTotals.setCash(billsTotals.getCash() + newC.getCash() + newR.getCash());
+            billsTotals.setCheque(billsTotals.getCheque() + newC.getCheque() + newR.getCheque());
+            billsTotals.setCredit(billsTotals.getCredit() + newC.getCredit() + newR.getCredit());
+            billsTotals.setSlip(billsTotals.getSlip() + newC.getSlip() + newR.getSlip());
+
+            BillsTotals newSum = new BillsTotals();
+            newSum.setName("Total ");
+            newSum.setBold(true);
+            newSum.setCard(billsTotals.getCard());
+            newSum.setCash(billsTotals.getCash());
+            newSum.setCheque(billsTotals.getCheque());
+            newSum.setCredit(billsTotals.getCredit());
+            newSum.setSlip(billsTotals.getSlip());
+
+            if (newSum.getCard() != 0 || newSum.getCash() != 0 || newSum.getCheque() != 0 || newSum.getCredit() != 0 || newSum.getSlip() != 0) {
+                billls.add(newSum);
+            }
+
+            tmp.setBillsTotals(billls);
+            webUserBillsTotals.add(tmp);
+        }
+        commonController.printReportDetails(fromDate, toDate, startTime, "All cashier summery(/reportCashier/report_cashier_summery_all_total_only.xhtml)");
+
+    }
+
     public void calCashierDataTotalOnlyUsingReciptNo() {
         fromDate = null;
         toDate = null;
@@ -1042,6 +1152,28 @@ public class CashierReportController implements Serializable {
         temMap.put("ins", getSessionController().getInstitution());
 
         return getBillFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+
+    }
+
+    private List<Object[]> calTotalValueOwnNew(WebUser w, List<BillType> bts) {
+        String sql;
+        Map temMap = new HashMap();
+
+        sql = "select b.paymentMethod,sum(b.netTotal+b.vat) from Bill b where "
+                + " b.creater=:cret "
+                + " and b.institution=:ins "
+                + " and b.retired=false "
+                + " and b.billType in :billTp "
+                + " and b.createdAt between :fromDate and :toDate "
+                + " group by b.paymentMethod ";
+
+        temMap.put("toDate", getToDate());
+        temMap.put("fromDate", getFromDate());
+        temMap.put("billTp", bts);
+        temMap.put("cret", w);
+        temMap.put("ins", getSessionController().getInstitution());
+
+        return getBillFacade().findAggregates(sql, temMap, TemporalType.TIMESTAMP);
 
     }
 
@@ -1485,8 +1617,8 @@ public class CashierReportController implements Serializable {
                 + " and b.institution=:ins "
                 + " and b.billType in :btp "
                 + " and b.createdAt between :fromDate and :toDate "
-                + " group by us "
-                + " having sum(b.netTotal)!=0 ";
+                + " group by us ";
+//                + " having sum(b.netTotal)!=0 ";
         temMap.put("toDate", getToDate());
         temMap.put("fromDate", getFromDate());
         temMap.put("btp", btpList);

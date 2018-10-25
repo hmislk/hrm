@@ -762,10 +762,11 @@ public class InwardReportController implements Serializable {
     public void createPatientInvestigationsTableAll() {
         Date startTime = new Date();
 
-        String sql = "select pi from PatientInvestigation pi join pi.investigation  "
-                + " i join pi.billItem.bill b join b.patient.person p where "
-                + " b.createdAt between :fromDate and :toDate  "
-                + "and pi.encounter is not null ";
+        String sql = "select pi from PatientInvestigation pi "
+                + " join pi.investigation i "
+                + " join pi.billItem.bill b "
+                + " join b.patient.person p "
+                + " where pi.encounter is not null ";
 
         Map temMap = new HashMap();
 
@@ -773,15 +774,18 @@ public class InwardReportController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
-//       
+        
+        if (withFooter) {
+            sql += " and  b.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        } else {
+            sql += " and b.createdAt between :fromDate and :toDate ";
+        }
 
         sql += " order by pi.id desc  ";
-//    
 
         temMap.put("toDate", getToDate());
         temMap.put("fromDate", getFromDate());
 
-        //System.err.println("Sql " + sql);
         patientInvestigations = getPatientInvestigationFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Investigation Trace(/faces/inward/investigation_search_for_reporting_bht.xhtml)");

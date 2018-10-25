@@ -127,6 +127,25 @@ public class SurgeryBillController implements Serializable {
         }
     }
 
+    public void removeTimeServiceNew(BillFee bf) {
+
+        if (bf.getPatientItem() != null) {
+            bf.getPatientItem().setRetirer(getSessionController().getLoggedUser());
+            bf.getPatientItem().setRetiredAt(new Date());
+            bf.getPatientItem().setRetired(true);
+            getPatientItemFacade().edit(bf.getPatientItem());
+            
+            bf.setRetirer(getSessionController().getLoggedUser());
+            bf.setRetiredAt(new Date());
+            bf.setRetired(true);
+            getBillFeeFacade().edit(bf);
+
+            updateBillItem(bf.getBillItem());
+            updateBill(bf.getBill());
+            getBillBean().updateBatchBill(bf.getBill().getForwardReferenceBill());
+        }
+    }
+
     public void removeProEncFromList(EncounterComponent encounterComponent) {
         removeEncounterComponentFromList(encounterComponent, getProEncounterComponents());
     }
@@ -444,7 +463,7 @@ public class SurgeryBillController implements Serializable {
         UtilityController.addSuccessMessage("Surgery Detail Successfull Updated");
 
         makeNull();
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Theater/Add surgories/Save Surgery Detail(/faces/theater/inward_bill_surgery.xhtml)");
     }
 
@@ -774,6 +793,4 @@ public class SurgeryBillController implements Serializable {
         this.commonController = commonController;
     }
 
-    
 }
-

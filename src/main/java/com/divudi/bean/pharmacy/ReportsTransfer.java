@@ -10,6 +10,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.util.JsfUtil;
 import com.divudi.data.BillType;
 import com.divudi.data.dataStructure.StockReportRecord;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.inward.SurgeryBillType;
 import com.divudi.data.table.String1Value3;
 import com.divudi.ejb.CommonFunctions;
@@ -93,6 +94,8 @@ public class ReportsTransfer implements Serializable {
     double totalBHTIssueQty;
     double totalIssueValue;
     double totalBHTIssueValue;
+    
+    ReportKeyWord reportKeyWord;
 
     /**
      * EJBs
@@ -332,8 +335,8 @@ public class ReportsTransfer implements Serializable {
         purchaseValue = 0.0;
         saleValue = 0.0;
         for (BillItem ts : transferItems) {
-            purchaseValue += (ts.getPharmaceuticalBillItem().getItemBatch().getPurcahseRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
-            saleValue += (ts.getPharmaceuticalBillItem().getItemBatch().getRetailsaleRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
+            purchaseValue += (ts.getPharmaceuticalBillItem().getPurchaseRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
+            saleValue += (ts.getPharmaceuticalBillItem().getRetailRate() * ts.getPharmaceuticalBillItem().getQtyInUnit());
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Transfer/reports/Transfer issue by bill item(/faces/pharmacy/pharmacy_report_transfer_issue_bill_item.xhtml or /faces/pharmacy/pharmacy_report_transfer_issue_bill_item.xhtml)");
@@ -370,6 +373,11 @@ public class ReportsTransfer implements Serializable {
                 sql += " and bi.bill.department=:tdept ";
                 m.put("tdept", toDepartment);
             }
+        }
+        
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and bi.item=:itm";
+            m.put("itm", getReportKeyWord().getItem());
         }
 
         sql += " order by bi.id";
@@ -666,6 +674,44 @@ public class ReportsTransfer implements Serializable {
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Department Issue/Unit issue by bill (/faces/pharmacy/pharmacy_report_unit_issue_bill.xhtml)");
     }
+    
+    public void fillDepartmentUnitIssueByBillItem() {
+        Date startTime = new Date();
+
+        Map m = new HashMap();
+        String sql;
+
+        sql = "select bi from BillItem bi where "
+                + " bi.bill.createdAt between :fd and :td  "
+                + " and bi.bill.billType=:bt ";
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+        m.put("bt", BillType.PharmacyIssue);
+
+        if (fromDepartment != null) {
+            sql += " and bi.bill.fromDepartment=:fdept ";
+            m.put("fdept", fromDepartment);
+        }
+
+        if (toDepartment != null) {
+            sql += " and bi.bill.toDepartment=:tdept ";
+            m.put("tdept", toDepartment);
+        }
+
+        sql += " order by bi.bill.insId ";
+
+        transferItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        totalsValue = 0.0;
+        discountsValue = 0.0;
+        netTotalValues = 0.0;
+        for (BillItem bi : transferItems) {
+            totalsValue = totalsValue + bi.getGrossValue();
+            discountsValue = discountsValue + bi.getMarginValue();
+            netTotalValues = netTotalValues + bi.getNetValue();
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Department Issue/Unit issue by bill (/faces/pharmacy/pharmacy_report_unit_issue_bill.xhtml)");
+    }
 
     public void fillDepartmentUnitIssueByBillStore() {
         Map m = new HashMap();
@@ -748,6 +794,11 @@ public class ReportsTransfer implements Serializable {
         if (category != null) {
             sql += " and b.item.category=:cat";
             m.put("cat", category);
+
+        }
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and b.item=:itm";
+            m.put("itm", getReportKeyWord().getItem());
 
         }
 
@@ -1575,6 +1626,17 @@ public class ReportsTransfer implements Serializable {
 
     public void setItemBHTIssueCountTrancerReciveCounts(List<ItemBHTIssueCountTrancerReciveCount> itemBHTIssueCountTrancerReciveCounts) {
         this.itemBHTIssueCountTrancerReciveCounts = itemBHTIssueCountTrancerReciveCounts;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord==null) {
+            reportKeyWord=new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
     public class ItemBHTIssueCountTrancerReciveCount {

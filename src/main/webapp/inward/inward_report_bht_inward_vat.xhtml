@@ -14,7 +14,7 @@
 
             <ui:define name="content">
                 <h:form>
-                    <p:panel header="BHT VAT Report" styleClass="alignTop" >
+                    <p:panel header="BHT Hos. Sup. Ser. Report" styleClass="alignTop" >
                         <h:panelGrid columns="2">
                             <h:outputLabel value="From Date"/>
                             <p:calendar navigator="true" id="fromDate" value="#{bhtSummeryFinalizedController.fromDate}"  pattern="dd MMMM yyyy hh mm ss a" >
@@ -51,7 +51,7 @@
                     <p:panel id="gpBillPreview" styleClass="noBorder summeryBorder">
                         <p:dataTable value="#{bhtSummeryFinalizedController.bhtWithVats}" var="bwv" id="tbl" rowIndexVar="i">
                             <f:facet name="header" >
-                                <p:outputLabel value="BHT VAT Report" />
+                                <p:outputLabel value="BHT Hos. Sup. Ser. Report" />
                                 <h:outputLabel value="Admission Type : All Addmissions" rendered="#{bhtSummeryFinalizedController.admissionType eq null}" style=" white-space:pre-line;"/>
                                 <h:outputLabel value="Admission Type : #{bhtSummeryFinalizedController.admissionType}" rendered="#{bhtSummeryFinalizedController.admissionType ne null}" style=" white-space:pre-line;"/>
                                 <h:outputLabel value="From : " style=" white-space:pre-line;"/>
@@ -149,7 +149,7 @@
                             </p:column>
                             <p:column styleClass="averageNumericColumn" style="width: 5%!important;">
                                 <f:facet name="header">
-                                    <h:outputLabel value="VAT"/> 
+                                    <h:outputLabel value="Hos. Sup. Ser."/> 
                                 </f:facet>
                                 <h:outputLabel  value="#{bwv.vat}">
                                     <f:convertNumber pattern="#,##0.00" />

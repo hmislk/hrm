@@ -34,6 +34,8 @@ public class MonthEndRecord {
     double leave_maternity;
     double overtime;
     double latedays;
+    double latedays10Mins;
+    double latedays90Mins;
     double lateNoPays;
     double absent;
     double dayoff;
@@ -229,6 +231,22 @@ public class MonthEndRecord {
 
     public void setLeave_maternity(double leave_maternity) {
         this.leave_maternity = leave_maternity;
+    }
+
+    public double getLatedays10Mins() {
+        return latedays10Mins;
+    }
+
+    public void setLatedays10Mins(double latedays10Mins) {
+        this.latedays10Mins = latedays10Mins;
+    }
+
+    public double getLatedays90Mins() {
+        return latedays90Mins;
+    }
+
+    public void setLatedays90Mins(double latedays90Mins) {
+        this.latedays90Mins = latedays90Mins;
     }
 
 }

@@ -83,6 +83,13 @@
                         </f:facet>
                         <h:outputLabel value="#{i.itemBatch.item.name}" />
                     </p:column>
+                    
+                    <p:column >
+                        <f:facet name="header">
+                            <h:outputLabel value="Category" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.itemBatch.item.category.name}" />
+                    </p:column>
 
                     <p:column >
                         <f:facet name="header">
@@ -159,6 +166,15 @@
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                         </f:facet>
+                    </p:column>
+                    
+                    <p:column  style="text-align: right;">
+                        <f:facet name="header">
+                            <h:outputLabel value="Inward Discount" />
+                        </f:facet>
+                        <h:outputLabel value="#{i.inwardDiscount}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
                     </p:column>
                     
                     <p:column  style="text-align: right;">

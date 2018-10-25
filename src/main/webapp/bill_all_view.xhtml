@@ -39,6 +39,10 @@
                                         </h:outputLabel>
                                         <h:outputLabel value="#{billSearch.billSearch.patient.person.phone}" >
                                         </h:outputLabel>
+                                        <h:outputLabel value="Credit Paid" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.patientEncounter.creditPaidAmount}" >
+                                        </h:outputLabel>
                                     </p:panelGrid>
                                 </p:panel>
                                 <p:panel header="Bill Detail">
@@ -463,6 +467,15 @@
                                     <p:column headerText="Bill">
                                         <h:outputLabel value="#{bip21.bill.deptId} - " />
                                         <h:outputLabel value="#{bip21.bill.id}" />
+                                    </p:column>
+                                    <p:column headerText="institution">
+                                        <h:outputLabel value="#{bip21.bill.institution}" />
+                                    </p:column>
+                                    <p:column headerText="item">
+                                        <h:outputLabel value="#{bip21.item.id}" />
+                                    </p:column>
+                                    <p:column headerText="item">
+                                        <h:outputLabel value="#{bip21.item.name}" />
                                     </p:column>
                                     <p:column headerText="Ref">
                                         <h:outputLabel value="#{bip21.paidForBillFee.bill.billType}" />

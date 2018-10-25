@@ -57,6 +57,8 @@ public class AgentHistory implements Serializable {
     String comment;
     @Transient
     double transCumilativeTotal;
+    @Transient
+    boolean duplicateChannel;
 
     public String getReferenceNo() {
         return referenceNo;
@@ -231,6 +233,14 @@ public class AgentHistory implements Serializable {
     @Override
     public String toString() {
         return "com.divudi.entity.AgentHistory[ id=" + id + " ]";
+    }
+
+    public boolean isDuplicateChannel() {
+        return duplicateChannel;
+    }
+
+    public void setDuplicateChannel(boolean duplicateChannel) {
+        this.duplicateChannel = duplicateChannel;
     }
 
 }

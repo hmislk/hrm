@@ -47,6 +47,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -599,7 +600,7 @@ public class StaffController implements Serializable {
         }
         return suggestions;
     }
-    
+
     public List<Staff> completeDoctor(String query) {
         List<Staff> suggestions;
         String sql;
@@ -906,7 +907,7 @@ public class StaffController implements Serializable {
          *
          *
          */
-        String sql = "";
+        String sql = "";    
         HashMap hm = new HashMap();
         if (selectText.trim().equals("")) {
             sql = "select c from Staff c "
@@ -917,7 +918,7 @@ public class StaffController implements Serializable {
             sql = "select c from Staff c"
                     + " where c.retired=false "
                     + " and type(c)!=:class"
-                    + " and (upper(c.person.name) like :q or upper(c.code) like :p) "
+                    + " and (upper(c.person.name) like :q or upper(c.code) like :p or upper(c.epfNo) like :p) "
                     + " order by c.person.name";
             hm.put("q", "%" + getSelectText().toUpperCase() + "%");
             hm.put("p", "%" + getSelectText().toUpperCase() + "%");
@@ -1102,6 +1103,64 @@ public class StaffController implements Serializable {
 //            getPersonFacade().edit(current.getPerson());
 //        }
         getCurrent().chageCodeToInteger();
+
+        String sql;
+        Map m = new HashMap();
+        if (getCurrent().getId() == null || getCurrent().getId() == 0.0) {
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes"
+                    + " and s.code=:c ";
+            m.put("c", getCurrent().getCode());
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            Staff s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getCode() = " + s.getCode());
+                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return;
+            }
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes"
+                    + " and s.epfNo=:c ";
+            m.put("c", getCurrent().getEpfNo());
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getEpfNo() = " + s.getEpfNo());
+                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return;
+            }
+        } else {
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes"
+                    + " and s.code=:c "
+                    + " and s.id!=:staff ";
+            m.put("staff", getCurrent().getId());
+            m.put("c", getCurrent().getCode());
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            Staff s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getCode() = " + s.getCode());
+                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return;
+            }
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes"
+                    + " and s.epfNo=:c "
+                    + " and s.id!=:staff ";
+            m.put("staff", getCurrent().getId());
+            m.put("c", getCurrent().getEpfNo());
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getEpfNo() = " + s.getEpfNo());
+                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return;
+            }
+        }
 
         if (getCurrent().getPerson().getDob() != null && getCurrent().getPerson().getSex() != null) {
             System.out.println("getCurrent().getPerson().getSex() = " + getCurrent().getPerson().getSex());

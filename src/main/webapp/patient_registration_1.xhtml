@@ -51,6 +51,12 @@
                                         </f:facet>
                                         <h:outputLabel value="#{i+1}" />
                                     </p:column>
+                                    <p:column >
+                                        <f:facet name="header" >
+                                            <p:outputLabel value="ID" />
+                                        </f:facet>
+                                        <h:outputLabel value="#{p.id}"/>
+                                    </p:column>
                                     <p:column sortBy="#{p.person.nameWithTitle}" style="min-width: 300px">
                                         <f:facet name="header" >
                                             <p:outputLabel value="Name" />
@@ -142,7 +148,7 @@
                                         </f:facet>
                                         <h:outputLabel value="#{p.creater.webUserPerson.name}" />
                                     </p:column>
-                                    <p:column >
+                                    <p:column sortBy="#{p.bill.insId}" >
                                         <f:facet name="header" >
                                             <p:outputLabel value="Bill" />
                                         </f:facet>

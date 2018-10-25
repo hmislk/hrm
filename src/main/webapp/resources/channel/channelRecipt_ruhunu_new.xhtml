@@ -219,12 +219,23 @@
                                         <h:outputLabel value=":" rendered="#{cc.attrs.hos eq true}" ></h:outputLabel>
                                     </td>
                                     <td>
-                                        <h:outputLabel value="#{cc.attrs.bill.netTotal-cc.attrs.bill.staffFee}" rendered="#{cc.attrs.hos eq true}" >
+                                        <h:outputLabel value="#{cc.attrs.bill.netTotal-(cc.attrs.bill.staffFee+cc.attrs.bill.creditCardCommission+160)}" 
+                                                       rendered="#{cc.attrs.hos eq true and 
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 600 and
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 610 and
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 630 
+                                                                            }" >
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                         </h:outputLabel>
-<!--                                        <h:outputLabel value="#{cc.attrs.bill.vatPlusHosFee}" >
+                                        <h:outputLabel value="500" 
+                                                       rendered="#{cc.attrs.hos eq true
+                                                                   and (
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 600 or
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 610 or
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 630 
+                                                                   )}" >
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
-                                        </h:outputLabel>-->
+                                        </h:outputLabel>
                                     </td>
 
                                 </tr>
@@ -243,25 +254,36 @@
                                         <h:outputLabel value="#{cc.attrs.bill.staffFee}" rendered="#{cc.attrs.doc eq true}">
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                         </h:outputLabel>
-<!--                                        <h:outputLabel value="#{cc.attrs.bill.vatPlusStaffFee}" >
-                                            <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
-                                        </h:outputLabel>-->
                                     </td>
 
                                 </tr>
 
                                 <tr>
                                     <td>
-                                        <h:outputLabel value="Hospital Support Service" rendered="#{cc.attrs.bill.vat ne 0.0 and cc.attrs.hos eq true}"></h:outputLabel>
+                                        <h:outputLabel value="Hospital Support Service" rendered="#{cc.attrs.hos eq true}" ></h:outputLabel>
                                     </td>
                                     <td>
-                                        <p:spacer width="10" rendered="#{cc.attrs.bill.vat ne 0.0 and cc.attrs.hos eq true}"></p:spacer>
+                                        <p:spacer width="10" rendered="#{cc.attrs.hos eq true}" ></p:spacer>
                                     </td>
                                     <td>
-                                        <h:outputLabel value=":" rendered="#{cc.attrs.bill.vat ne 0.0 and cc.attrs.hos eq true}"></h:outputLabel>
+                                        <h:outputLabel value=":" rendered="#{cc.attrs.hos eq true}" ></h:outputLabel>
                                     </td>
                                     <td>
-                                        <h:outputLabel value="#{cc.attrs.bill.vat}" rendered="#{cc.attrs.bill.vat ne 0.0 and cc.attrs.hos eq true}">
+                                        <h:outputLabel value="#{160+cc.attrs.bill.creditCardCommission+cc.attrs.bill.vat}" 
+                                                       rendered="#{cc.attrs.hos eq true and 
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 600 and
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 610 and
+                                                                   (cc.attrs.bill.netTotal-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) ne 630 
+                                                                            }">
+                                            <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{cc.attrs.bill.netTotal+cc.attrs.bill.vat-(cc.attrs.bill.staffFee+500)}" 
+                                                       rendered="#{cc.attrs.hos eq true
+                                                                   and (
+                                                                   (cc.attrs.bill.netTotal+cc.attrs.bill.vat-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 600 or
+                                                                   (cc.attrs.bill.netTotal+cc.attrs.bill.vat-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 610 or
+                                                                   (cc.attrs.bill.netTotal+cc.attrs.bill.vat-cc.attrs.bill.staffFee-cc.attrs.bill.creditCardCommission) eq 630 
+                                                                   )}">
                                             <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                         </h:outputLabel>
                                     </td>
@@ -290,7 +312,7 @@
 
                                 </tr>
 
-                                
+
 
                                 <tr>
                                     <td>
@@ -368,7 +390,7 @@
                     <div style="position: absolute!important;
                          left: 5%!important; 
                          top: 45%!important;"
-                          >
+                         >
                         <h:outputLabel value="&quot;Collected for and on behalf of the Doctor&quot;" 
                                        rendered="#{cc.attrs.hos ne true}"
                                        style="font-size: 9px!important;" />

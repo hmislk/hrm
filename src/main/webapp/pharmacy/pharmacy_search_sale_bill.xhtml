@@ -4,7 +4,8 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core">
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
 
     <h:body>
         <ui:composition template="/resources/template/template.xhtml">
@@ -22,6 +23,9 @@
                                 </p:calendar>
                                 <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createPharmacyRetailBills}"/>
                                 <p:commandButton id="btnSearchAll" ajax="false" value="Search All" action="#{searchController.createPharmacyRetailAllBills()}"/>
+                                <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                                    <pe:exporter type="xlsx" target="tblBills" fileName="PHARMACY BILL SEARCH SALE BILL"  />
+                                </p:commandButton>
                                 <p:spacer height="30"/>
                             </h:panelGrid>
                             <h:panelGrid columns="6" >
@@ -66,7 +70,7 @@
 
                             <p:column headerText="View">
                                 <p:commandButton ajax="false" value="View Bill" disabled="#{bill.referenceBill eq null}"
-                                                 action="pharmacy_reprint_bill_sale">
+                                                 action="#{searchController.viewPharmacySale(bill)}">
                                     <f:setPropertyActionListener value="#{bill.referenceBill}" target="#{pharmacyBillSearch.bill}"/>   
                                 </p:commandButton>
                             </p:column>
@@ -90,6 +94,13 @@
                                 </h:outputLabel>
 
                                 <br/>                                
+                                <h:panelGroup rendered="#{bill.cancelled}">
+                                    <h:outputLabel style="color: red;" value="Canceled at " />
+                                    <h:outputLabel style="color: red;" 
+                                                   value="#{bill.cancelledBill.createdAt}" >
+                                        <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                    </h:outputLabel>
+                                </h:panelGroup>
                                 <h:panelGroup rendered="#{bill.refunded}" >
                                     <h:outputLabel style="color: red;" value="Return at " />
                                     <h:outputLabel style="color: red;" rendered="#{bill.refunded}" 
