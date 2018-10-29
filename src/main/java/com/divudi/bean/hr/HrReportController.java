@@ -987,9 +987,11 @@ public class HrReportController implements Serializable {
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
                 + " and ss.dateRetired between :fd and :td "
+                + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
+        m.put("cd", new Date());
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
@@ -1038,9 +1040,12 @@ public class HrReportController implements Serializable {
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
                 + " and ss.dateJoined between :fd and :td "
+                + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
+        m.put("cd",new Date());
+        
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
@@ -5539,9 +5544,11 @@ public class HrReportController implements Serializable {
         sql = "select c from Staff c "
                 + " where c.retired=false "
                 + " and type(c)!=:class "
+                + " and (c.dateLeft is null or c.dateLeft>:cd)"
                 + " and c.person.dob is not null "
                 + " order by c.person.name ";
         m.put("class", Consultant.class);
+        m.put("cd", new Date());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
         System.out.println("staffs = " + list.size());

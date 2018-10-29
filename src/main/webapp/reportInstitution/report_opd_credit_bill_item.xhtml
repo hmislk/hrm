@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ca="http://java.sun.com/jsf/composite/cashSummery"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <ui:define name="content">
+        <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
+        <h:form id="panelPrint" styleClass="noBorder summeryBorder">
+
+            <p:panel  style="border: none;">
+                <f:facet name="header" >
+
+                    <p:outputLabel value="#{creditSummeryController.institution.name} "/> 
+                    <p:outputLabel value=" Credit Bill Items"/><br/>
+
+                    <h:panelGrid columns="2" styleClass="noPrintButton">
+
+                        <h:outputLabel value="From Date"/>
+                        <p:calendar id="frmDate" value="#{creditSummeryController.fromDate}" 
+                                    navigator="true"  pattern="dd MMMM yyyy HH:mm:ss" />
+
+                        <h:outputLabel value="To Date"/>
+                        <p:calendar id="toDate" value="#{creditSummeryController.toDate}" 
+                                    navigator="true" pattern="dd MMMM yyyy HH:mm:ss" />
+
+                        <h:outputLabel value="Credit Company"/>
+                        <p:autoComplete styleClass="noPrintButton" id="creditCom" forceSelection="true" 
+                                        value="#{creditSummeryController.reportKeyWord.institution}" 
+                                        completeMethod="#{creditCompanyController.completeCredit}" 
+                                        var="ix" itemLabel="#{ix.name}" itemValue="#{ix}" size="30"  
+                                        style="width: 400px;" /> 
+                    </h:panelGrid>
+                    <h:panelGrid columns="5" styleClass="noPrintButton">
+                        <p:spacer width="100" height="1"/>   
+                        <p:commandButton id="btnRefresh" value="Refresh" 
+                                         ajax="false"  styleClass="noPrintButton" 
+                                         style="float: right;" 
+                                         action="#{creditSummeryController.createCreditCompanyBillItem}" />
+
+                        <p:commandButton ajax="false" value="Print"  styleClass="noPrintButton" style="float: right;" >
+                            <p:printer target="panelPrint" />
+                        </p:commandButton>
+
+                        <p:commandButton actionListener="#{creditSummeryController.makeNull}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                            <pe:exporter subTable="true" type="xlsx" target="safrin" fileName="credit_dep_by_bill"  />
+                        </p:commandButton>
+
+                    </h:panelGrid>
+                </f:facet>
+
+            </p:panel>            
+            <p:dataTable id="safrin" value="#{creditSummeryController.billItems}" 
+                         var="bi" rowIndexVar="i" >  
+                <f:facet name="header">
+                    <h:outputLabel value="Report By Bill"/>
+                    <h:outputLabel value="#{creditSummeryController.reportKeyWord.institution.name}" style="white-space: pre-line"/>
+                    <br/>
+                    <h:outputLabel value="From  :  "/>
+                    <h:outputLabel value="#{creditSummeryController.fromDate}"  >
+                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm:ss a" />
+                    </h:outputLabel>
+                    <p:spacer width="30" height="1"/>
+                    <h:outputLabel value="To "/>
+                    <h:outputLabel value="#{creditSummeryController.toDate}"  >
+                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm:ss a" />
+                    </h:outputLabel>
+                </f:facet>
+                <p:column>
+                    <f:facet name="header" >
+                        <p:outputLabel value="No" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{i+1}" />
+                </p:column>                      
+                <p:column>
+                    <f:facet name="header" >
+                        <p:outputLabel value="Bill No" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.bill.insId}" />
+                </p:column>                      
+                <p:column>
+                    <f:facet name="header" >
+                        <p:outputLabel value="Ref. Bill No" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.bill.billedBill.insId}" />
+                </p:column>                      
+                <p:column>
+                    <f:facet name="header" >
+                        <p:outputLabel value="Item Name" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.item.name}" />
+                </p:column>                      
+                <p:column>
+                    <f:facet name="header" >
+                        <p:outputLabel value="Patient Name" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.bill.patient.person.name}" />
+                </p:column>                      
+                <p:column styleClass="numberCol">
+                    <f:facet name="header" >
+                        <p:outputLabel value="Gross Value" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.grossValue}" >
+                        <f:convertNumber pattern="#,##0.00" />
+                    </h:outputLabel>
+                    <f:facet name="footer" >
+                        <h:outputLabel value="#{creditSummeryController.total}" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>                             
+                    </f:facet>
+                </p:column>                      
+                <p:column styleClass="numberCol">
+                    <f:facet name="header" >
+                        <p:outputLabel value="Discount" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.discount}" >
+                        <f:convertNumber pattern="#,##0.00" />
+                    </h:outputLabel>
+                    <f:facet name="footer" >
+                        <h:outputLabel value="#{creditSummeryController.totalVat}" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>                             
+                    </f:facet>
+                </p:column>                      
+                <p:column styleClass="numberCol" >
+                    <f:facet name="header" >
+                        <p:outputLabel value="Net Value" />                                  
+                    </f:facet>
+                    <h:outputLabel value="#{bi.netValue}" >
+                        <f:convertNumber pattern="#,##0.00" />
+                    </h:outputLabel>
+                    <f:facet name="footer"  >
+                        <h:outputLabel value="#{creditSummeryController.totalVatCalculatedValue}" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>                             
+                    </f:facet>
+                </p:column>                      
+            </p:dataTable>
+        </h:form>
+    </ui:define>
+</ui:composition>
