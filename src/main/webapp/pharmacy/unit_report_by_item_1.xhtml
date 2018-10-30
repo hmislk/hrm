@@ -14,7 +14,11 @@
             <ui:define name="content">
                 <h:form >
                     <p:panel header="Unit Issue By Item"> 
-                        <h:panelGrid columns="4" >
+                        <h:panelGrid columns="2" >
+                            <h:outputLabel value="From" ></h:outputLabel>
+                            <p:calendar value="#{reportsTransfer.fromDate}" pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
+                            <h:outputLabel value="To" ></h:outputLabel>
+                            <p:calendar value="#{reportsTransfer.toDate}" pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
                             <h:outputLabel value="From Department" />
                             <p:autoComplete completeMethod="#{departmentController.completeDept}" 
                                             var="dept" itemLabel="#{dept.name}"
@@ -29,16 +33,24 @@
                                             value="#{reportsTransfer.toDepartment}" converter="departmentConverter" >
                             </p:autoComplete>
 
-                            <h:outputLabel value="From" ></h:outputLabel>
-                            <p:calendar value="#{reportsTransfer.fromDate}" pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
-                            <h:outputLabel value="To" ></h:outputLabel>
-                            <p:calendar value="#{reportsTransfer.toDate}" pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
                             <h:outputLabel value="Item Category"/>
                             <p:autoComplete  value="#{reportsTransfer.category}" 
                                              forceSelection="true"
                                              completeMethod="#{pharmaceuticalItemCategoryController.completeCategory}" 
                                              var="vt" itemLabel="#{vt.name}" itemValue="#{vt}" >
                             </p:autoComplete> 
+                            <h:outputLabel value="Item"/>
+                            <p:autoComplete id="exItem" value="#{reportsTransfer.reportKeyWord.item}"
+                                            forceSelection="true"
+                                            completeMethod="#{itemController.completeAmpItem}" var="vt"
+                                            itemLabel="#{vt.name}" itemValue="#{vt}" >
+                                <p:column headerText="Item" >
+                                    <h:outputLabel value="#{vt.name}"></h:outputLabel>
+                                </p:column>
+                                <p:column headerText="Code" >
+                                    <h:outputLabel value="#{vt.code}"></h:outputLabel>
+                                </p:column>                         
+                            </p:autoComplete>
                         </h:panelGrid>
 
                         <p:commandButton ajax="false" value="Fill" 

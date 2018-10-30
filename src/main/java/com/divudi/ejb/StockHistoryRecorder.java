@@ -5,30 +5,43 @@
  */
 package com.divudi.ejb;
 
+import com.divudi.data.ApplicationInstitution;
 import com.divudi.data.FeeType;
 import com.divudi.data.HistoryType;
 import com.divudi.data.PersonInstitutionType;
+import com.divudi.data.SmsType;
+import com.divudi.entity.AgentHistory;
+import com.divudi.entity.Bill;
 import com.divudi.entity.Department;
 import com.divudi.entity.FeeChange;
+import com.divudi.entity.Institution;
 import com.divudi.entity.Item;
 import com.divudi.entity.ItemFee;
 import com.divudi.entity.ServiceSession;
+import com.divudi.entity.Sms;
 import com.divudi.entity.Staff;
 import com.divudi.entity.channel.ArrivalRecord;
 import com.divudi.entity.pharmacy.Ampp;
 import com.divudi.entity.pharmacy.StockHistory;
+import com.divudi.facade.AgentHistoryFacade;
 import com.divudi.facade.AmpFacade;
 import com.divudi.facade.DepartmentFacade;
 import com.divudi.facade.FeeChangeFacade;
 import com.divudi.facade.FingerPrintRecordFacade;
+import com.divudi.facade.InstitutionFacade;
 import com.divudi.facade.ItemFacade;
 import com.divudi.facade.ItemFeeFacade;
 import com.divudi.facade.PharmaceuticalItemFacade;
 import com.divudi.facade.ServiceSessionFacade;
+import com.divudi.facade.SmsFacade;
 import com.divudi.facade.StaffFacade;
 import com.divudi.facade.StockFacade;
 import com.divudi.facade.StockHistoryFacade;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +87,12 @@ public class StockHistoryRecorder {
     FingerPrintRecordFacade fingerPrintRecordFacade;
     @EJB
     FinalVariables finalVariables;
+    @EJB
+    AgentHistoryFacade agentHistoryFacade;
+    @EJB
+    InstitutionFacade institutionFacade;
+    @EJB
+    SmsFacade smsFacade;
 
     @Inject
     CommonFunctions commonFunctions;
@@ -147,6 +166,111 @@ public class StockHistoryRecorder {
     }
 
 //    @SuppressWarnings("unused")
+//    @Schedule(hour = "09", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
+//    public void myTimerDailyChannelDuplicateFinder() {
+//        Date now = new Date();
+//        System.err.println("Chanel Duplicate Find Start = " + now);
+//
+//        Calendar c = Calendar.getInstance();
+//        c.setTime(commonFunctions.getEndOfDay());
+////        System.out.println("c.getTime() = " + c.getTime());
+//        c.add(Calendar.DATE, -1);
+////        System.out.println("c.getTime() = " + c.getTime());
+//        Date td = c.getTime();
+////        System.out.println("td = " + td);
+//        c.add(Calendar.DATE, -14);
+//        Date fd = commonFunctions.getStartOfDay(c.getTime());
+////        System.out.println("fd = " + fd);
+//        SimpleDateFormat format = new SimpleDateFormat("yy MM dd hh:mm:ss a");
+////        System.out.println("format.format(fd) = " + format.format(fd));
+////        System.out.println("format.format(td) = " + format.format(td));
+//        List<AgentHistory> agentHistorys = createAgentHistoryDuplicates(fd, td);
+////        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+//        String msg = "";
+//        msg = "Channel Duplicate \n";
+//        msg += "F D - " + format.format(fd) + " \n";
+//        msg += "T D - " + format.format(td) + " \n";
+//        msg += "Dup. - " + agentHistorys.size() + " \n"
+//                + "Bill No -\n";
+//        for (AgentHistory a : agentHistorys) {
+//            msg += a.getBill().getInsId() + "\n";
+//        }
+//
+//        System.out.println("****msg.length() = " + msg.length());
+//        System.out.println("****msg = " + msg);
+//
+//        while (msg.length() > 160) {
+//            System.out.println("msg.length() = " + msg.length());
+//            if (msg.length() <= 160) {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.ChannelDoctorAraival);
+//                sendSmsToNumberList("077-7920348", ApplicationInstitution.Ruhuna, msg, null, SmsType.ChannelDoctorAraival);
+//                System.out.println("msg = " + msg);
+//            } else {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg.substring(0, 159), null, SmsType.ChannelDoctorAraival);
+//                sendSmsToNumberList("077-7920348", ApplicationInstitution.Ruhuna, msg.substring(0, 159), null, SmsType.ChannelDoctorAraival);
+//                System.out.println("msg.substring(0, 159) = " + msg.substring(0, 159));
+//                msg = msg.substring(159);
+//            }
+//        }
+//        sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.ChannelDoctorAraival);
+//        sendSmsToNumberList("077-7920348", ApplicationInstitution.Ruhuna, msg, null, SmsType.ChannelDoctorAraival);
+//        System.out.println("---msg = " + msg);
+//
+//        System.err.println("Chanel Duplicate Find End =" + new Date());
+//
+//    }
+    
+//    @SuppressWarnings("unused")
+//    @Schedule(hour = "06", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
+//    public void myTimerBirthdayReminder() {
+//        String sql;
+//        Map m = new HashMap();
+//
+//        sql = "select c from Staff c "
+//                + " where c.retired=false "
+//                + " and type(c)!=:class "
+//                //                + " and c.person.dob=:dob "
+//                + " order by c.person.name ";
+//        m.put("class", Consultant.class);
+////        m.put("dob", new Date());
+//
+//        List<Staff> staffs = staffFacade.findBySQL(sql, m);
+//        System.out.println("staffs = " + staffs.size());
+//        String msg = "Today Birthday ";
+//        for (Staff s : staffs) {
+//            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+//            Calendar dob = Calendar.getInstance();
+//            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+//                dob.setTime(s.getPerson().getDob());
+//                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+//                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+//                Calendar now = Calendar.getInstance();
+//                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+//                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+//                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+//                    msg += s.getPerson().getName() + "-" + s.getCode() + ",";
+//                }
+//            }
+//        }
+//        while (msg.length() > 160) {
+//            System.out.println("msg.length() = " + msg.length());
+//            if (msg.length() <= 160) {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.Marketing);
+//                System.out.println("msg = " + msg);
+//            } else {
+//                sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg.substring(0, 159), null, SmsType.Marketing);
+//                System.out.println("msg.substring(0, 159) = " + msg.substring(0, 159));
+//                msg = msg.substring(159);
+//            }
+//        }
+//        if (msg.length()>15) {
+//            sendSmsToNumberList("078-8044212", ApplicationInstitution.Ruhuna, msg, null, SmsType.Marketing);
+//        }
+//        System.out.println("---msg = " + msg);
+//    }
+
+//    @SuppressWarnings("unused")
 //    @Schedule(hour = "03", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mornining", persistent = false)
 //    public void myTimerDailyChannelShedule() {
 //        Date startTime = new Date();
@@ -161,7 +285,6 @@ public class StockHistoryRecorder {
 //        //System.out.println("End writing stock history: " + new Date());
 ////        //System.out.println("TIme taken for Hx is " + (((new Date()) - startTime )/(1000*60*60)) + " minutes.");
 //    }
-
     public void generateSessions(Staff staff) {
         String sql;
         Map m = new HashMap();
@@ -254,7 +377,7 @@ public class StockHistoryRecorder {
                         System.out.println("ss.getId() = " + ss.getId());
                         System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
                         System.out.println("ss.getName() = " + ss.getName());
-                        if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE)&&sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH)&&sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
+                        if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE) && sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH) && sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
                             ServiceSession newSs = new ServiceSession();
                             newSs = channelBean.fetchCreatedServiceSession(ss.getStaff(), nowDate, ss);
                             System.out.println("newSs 1 = " + newSs);
@@ -315,7 +438,7 @@ public class StockHistoryRecorder {
                         System.out.println("ss.getId() = " + ss.getId());
                         System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
                         System.out.println("ss.getName() = " + ss.getName());
-                        if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE)&&sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH)&&sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
+                        if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE) && sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH) && sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
                             ServiceSession newSs = new ServiceSession();
                             newSs = channelBean.fetchCreatedServiceSession(ss.getStaff(), nowDate, ss);
                             System.out.println("newSs 1 = " + newSs);
@@ -425,7 +548,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
@@ -437,7 +560,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock * s.itemBatch.retailsaleRate) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock * s.itemBatch.retailsaleRate) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
@@ -449,7 +572,7 @@ public class StockHistoryRecorder {
         Map m = new HashMap();
         m.put("d", department);
         m.put("i", item);
-        sql = "select sum(s.stock * s.itemBatch.purcahseRate) from Stock s where s.department=:d and s.itemBatch.item=:i";
+        sql = "select sum(s.stock * s.itemBatch.purcahseRate) from Stock s where s.department=:d and s.itemBatch.item=:i and s.stock > 0 ";
         return getStockFacade().findDoubleByJpql(sql, m);
     }
 
@@ -494,6 +617,145 @@ public class StockHistoryRecorder {
         List<ItemFee> itemFees = getItemFeeFacade().findBySQL(sql, m);
         System.out.println("itemFees.size() = " + itemFees.size());
         return itemFees;
+    }
+
+    public List<AgentHistory> createAgentHistoryDuplicates(Date fd, Date td) {
+        Date startTime = new Date();
+        List<AgentHistory> agentHistorys = new ArrayList<>();
+        long agent = 20385287l;
+        Institution ins = institutionFacade.find(agent);
+        if (ins == null) {
+            return new ArrayList<>();
+        }
+        System.out.println("ins.getName() = " + ins.getName());
+        HistoryType[] ht = {HistoryType.ChannelBooking, HistoryType.ChannelDeposit, HistoryType.ChannelDepositCancel, HistoryType.ChannelDebitNote,
+            HistoryType.ChannelDebitNoteCancel, HistoryType.ChannelCreditNote, HistoryType.ChannelCreditNoteCancel};
+        List<HistoryType> historyTypes = Arrays.asList(ht);
+
+        List<AgentHistory> aHistorys = createAgentHistory(fd, td, ins, historyTypes);
+        System.out.println("aHistorys.size() = " + aHistorys.size());
+        agentHistorys = checkChannelDuplicateOnly(aHistorys);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+
+        return agentHistorys;
+
+    }
+
+    public List<AgentHistory> createAgentHistory(Date fd, Date td, Institution i, List<HistoryType> hts) {
+        String sql;
+        Map m = new HashMap();
+
+        sql = " select ah from AgentHistory ah where ah.retired=false "
+                + " and ah.bill.retired=false "
+                + " and ah.createdAt between :fd and :td ";
+
+        if (i != null) {
+            sql += " and (ah.bill.fromInstitution=:ins"
+                    + " or ah.bill.creditCompany=:ins) ";
+
+            m.put("ins", i);
+        }
+
+        if (hts != null) {
+            sql += " and ah.historyType in :hts ";
+
+            m.put("hts", hts);
+        }
+
+        m.put("fd", fd);
+        m.put("td", td);
+
+        sql += " order by ah.createdAt ";
+
+        List<AgentHistory> agentHistorys = agentHistoryFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+
+        System.out.println("m = " + m);
+        System.out.println("sql = " + sql);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+
+        return agentHistorys;
+
+    }
+
+    public List<AgentHistory> checkChannelDuplicateOnly(List<AgentHistory> agentHistorys) {
+        boolean start = true;
+        AgentHistory lastHistory = null;
+        double d = 0.0;
+        List<AgentHistory> ahs = new ArrayList<>();
+        for (AgentHistory a : agentHistorys) {
+            if (start || lastHistory == null) {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+                start = false;
+                continue;
+            }
+            System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
+            System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
+            if (lastHistory.getReferenceNo() != null && lastHistory.getReferenceNo().equals(a.getReferenceNo())
+                    && !a.getBill().isCancelled()) {
+//                ahs.add(lastHistory);
+                ahs.add(a);
+                a.setDuplicateChannel(true);
+                lastHistory = a;
+            } else {
+                a.setDuplicateChannel(false);
+                lastHistory = a;
+            }
+
+        }
+        return ahs;
+    }
+
+    public void sendSmsToNumberList(String sendingNo, ApplicationInstitution ai, String msg, Bill b, SmsType smsType) {
+
+        if (sendingNo.contains("077") || sendingNo.contains("076")
+                || sendingNo.contains("071") || sendingNo.contains("070")
+                || sendingNo.contains("072")
+                || sendingNo.contains("075")
+                || sendingNo.contains("078")) {
+        } else {
+            return;
+        }
+
+        if (ai == ApplicationInstitution.Ruhuna) {
+            StringBuilder sb = new StringBuilder(sendingNo);
+            sb.deleteCharAt(3);
+            sendingNo = sb.toString();
+
+            String url = "https://cpsolutions.dialog.lk/index.php/cbs/sms/send?destination=94";
+            HttpResponse<String> stringResponse;
+            String pw = "&q=14488825498722";
+
+            String messageBody2 = msg;
+
+            System.out.println("messageBody2 = " + messageBody2.length());
+
+            final StringBuilder request = new StringBuilder(url);
+            request.append(sendingNo.substring(1, 10));
+            request.append(pw);
+
+            try {
+                System.out.println("pw = " + pw);
+                System.out.println("sendingNo = " + sendingNo);
+                System.out.println("sendingNo.substring(1, 10) = " + sendingNo.substring(1, 10));
+                System.out.println("text = " + messageBody2);
+
+                stringResponse = Unirest.post(request.toString()).field("message", messageBody2).asString();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return;
+            }
+
+            Sms sms = new Sms();
+            sms.setPassword(pw);
+            sms.setCreatedAt(new Date());
+            sms.setBill(b);
+            sms.setSmsType(smsType);
+            sms.setSendingUrl(url);
+            sms.setSendingMessage(messageBody2);
+            smsFacade.create(sms);
+        }
     }
 
 // Add business logic below. (Right-click in editor and choose

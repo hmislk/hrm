@@ -56,6 +56,8 @@ public class ReportKeyWord {
     Roster roster;
     PaysheetComponent paysheetComponent;
     SalaryCycle salaryCycle;
+    SalaryCycle salaryCycleFrom;
+    SalaryCycle salaryCycleTo;
     Shift shift;
     Speciality speciality;
     Patient patient;
@@ -561,6 +563,28 @@ public class ReportKeyWord {
 
     public void setMachine(Machine machine) {
         this.machine = machine;
+    }
+
+    public SalaryCycle getSalaryCycleFrom() {
+        if (salaryCycleFrom==null) {
+            salaryCycleFrom=new SalaryCycle();
+        }
+        return salaryCycleFrom;
+    }
+
+    public void setSalaryCycleFrom(SalaryCycle salaryCycleFrom) {
+        this.salaryCycleFrom = salaryCycleFrom;
+    }
+
+    public SalaryCycle getSalaryCycleTo() {
+        if (salaryCycleTo==null) {
+            salaryCycleTo=new SalaryCycle();
+        }
+        return salaryCycleTo;
+    }
+
+    public void setSalaryCycleTo(SalaryCycle salaryCycleTo) {
+        this.salaryCycleTo = salaryCycleTo;
     }
 
 }

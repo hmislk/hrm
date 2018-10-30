@@ -270,10 +270,15 @@ public class SearchController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
-        
+
         if (getReportKeyWord().getInstitution() != null) {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
+        }
+
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
         }
 
         sql += " order by pi.id desc  ";
@@ -2270,7 +2275,11 @@ public class SearchController implements Serializable {
 
         sql += " order by bi.id desc  ";
 
-        billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        if (getReportKeyWord().isAdditionalDetails()) {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            billItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP, 50);
+        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Adjustments/Search adjustment bills(/faces/pharmacy/pharmacy_search_adjustment_bill_item.xhtml)");
 
@@ -3743,7 +3752,7 @@ public class SearchController implements Serializable {
         temMap.put("fromDate", getFromDate());
         temMap.put("bType", BillType.PaymentBill);
 //        temMap.put("refType", BillType.OpdBill);
-        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill,BillType.CollectingCentreBill}));
+        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill, BillType.CollectingCentreBill}));
 
         billItems = getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
 
@@ -3810,7 +3819,7 @@ public class SearchController implements Serializable {
         temMap.put("fromDate", getFromDate());
         temMap.put("bType", BillType.PaymentBill);
 //        temMap.put("refType", BillType.OpdBill);
-        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill,BillType.CollectingCentreBill}));
+        temMap.put("refType", Arrays.asList(new BillType[]{BillType.OpdBill, BillType.CollectingCentreBill}));
 
         billItems = getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
 
@@ -4092,20 +4101,25 @@ public class SearchController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
-        
+
         if (getReportKeyWord().getDepartment() != null) {
             sql += " and b.toDepartment=:dep ";
             temMap.put("dep", getReportKeyWord().getDepartment());
         }
-        
+
         if (getReportKeyWord().getDepartmentFrom() != null) {
             sql += " and b.fromDepartment=:depFrom ";
             temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
         }
-        
+
         if (getReportKeyWord().getInstitution() != null) {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
+        }
+
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
         }
 
         sql += " order by pi.id desc  ";
@@ -4297,20 +4311,25 @@ public class SearchController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
-        
+
         if (getReportKeyWord().getDepartment() != null) {
             sql += " and b.toDepartment=:dep ";
             temMap.put("dep", getReportKeyWord().getDepartment());
         }
-        
+
         if (getReportKeyWord().getDepartmentFrom() != null) {
             sql += " and b.fromDepartment=:depFrom ";
             temMap.put("depFrom", getReportKeyWord().getDepartmentFrom());
         }
-        
+
         if (getReportKeyWord().getInstitution() != null) {
             sql += " and b.collectingCentre=:col ";
             temMap.put("col", getReportKeyWord().getInstitution());
+        }
+
+        if (getReportKeyWord().getInvestigationReportType() != null) {
+            sql += " and i.reportType=:rt ";
+            temMap.put("rt", getReportKeyWord().getInvestigationReportType());
         }
 
         sql += " order by pi.id desc  ";
@@ -5996,43 +6015,43 @@ public class SearchController implements Serializable {
     public void createChannelAgencyPaymentTable() {
         Date startTime = new Date();
 
-        createAgentPaymentTable(BillType.AgentPaymentReceiveBill);
+        createAgentPaymentTable(BillType.AgentPaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Agent/Agent payment bill search(/faces/agent_bill_search_own.xhtml)");
     }
 
     public void createChannelAgencyCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentCreditNoteBill);
+        createAgentPaymentTable(BillType.AgentCreditNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createChannelAgencyDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentDebitNoteBill);
+        createAgentPaymentTable(BillType.AgentDebitNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill);
+        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill);
+        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill,getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCentrePaymentTable() {
         Date startTime = new Date();
-        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill);
+        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Collecting center/Collecting center bill serach(/faces/lab/collecting_centre_bill_search_own.xhtml)");
     }
 
-    public void createAgentPaymentTable(BillType billType) {
+    public void createAgentPaymentTable(BillType billType, boolean searchAll) {
         bills = new ArrayList<>();
         String sql;
         Map temMap = new HashMap();
@@ -6069,7 +6088,11 @@ public class SearchController implements Serializable {
         temMap.put("ins", getSessionController().getInstitution());
 
         //System.err.println("Sql " + sql);
-        bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
+        if (searchAll) {
+            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        } else {
+            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
+        }
 
     }
 
@@ -7186,88 +7209,92 @@ public class SearchController implements Serializable {
 
     public String viewPharmacySale(Bill b) {
         return viewBill(b, BillType.PharmacyPre,
-                "/pharmacy/pharmacy_reprint_bill_sale", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_bill_sale", "Please Search Again and View Bill", false);
     }
 
     public String viewGrnRecive(Bill b) {
         return viewBill(b, BillType.PharmacyOrderApprove,
-                "/pharmacy/pharmacy_grn", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_grn", "Please Search Again and View Bill", false);
     }
 
     public String viewGrnReciveWs(Bill b) {
         return viewBill(b, BillType.PharmacyOrderApprove,
-                "/pharmacy/pharmacy_grn_wh", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_grn_wh", "Please Search Again and View Bill", false);
     }
 
     public String viewPoApprove(Bill b) {
         return viewBill(b, BillType.PharmacyOrder,
-                "/pharmacy/pharmacy_purhcase_order_approving", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_purhcase_order_approving", "Please Search Again and View Bill", false);
     }
 
     public String viewPo(Bill b) {
         return viewBill(b, BillType.PharmacyOrderApprove,
-                "/pharmacy/pharmacy_reprint_po", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_po", "Please Search Again and View Bill", false);
     }
 
     public String viewPoRequest(Bill b) {
         return viewBill(b, BillType.PharmacyOrder,
-                "/pharmacy/pharmacy_reprint_order_request", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_order_request", "Please Search Again and View Bill", false);
     }
 
     public String viewGrnReciveForReturn(Bill b) {
         return viewBill(b, BillType.PharmacyGrnBill,
-                "/pharmacy/pharmacy_reprint_grn", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_grn", "Please Search Again and View Bill", false);
     }
 
     public String viewGrnReturn(Bill b) {
         return viewBill(b, BillType.PharmacyGrnBill,
-                "/pharmacy/pharmacy_return_good", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_return_good", "Please Search Again and View Bill", false);
     }
 
     public String viewTransferRequest(Bill b) {
         return viewBill(b, BillType.PharmacyTransferRequest,
-                "/pharmacy/pharmacy_reprint_transfer_request", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_transfer_request", "Please Search Again and View Bill", false);
     }
 
     public String viewTransferIssue(Bill b) {
         return viewBill(b, BillType.PharmacyTransferRequest,
-                "/pharmacy/pharmacy_transfer_issue", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_transfer_issue", "Please Search Again and View Bill", false);
     }
 
     public String viewTransferReceive(Bill b) {
         return viewBill(b, BillType.PharmacyTransferIssue,
-                "/pharmacy/pharmacy_transfer_receive", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_transfer_receive", "Please Search Again and View Bill", false);
     }
 
     public String viewTransferIssueRe(Bill b) {
         return viewBill(b, BillType.PharmacyTransferIssue,
-                "/pharmacy/pharmacy_reprint_transfer_isssue", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_transfer_isssue", "Please Search Again and View Bill", false);
     }
 
     public String viewIssue(Bill b) {
         return viewBill(b, BillType.PharmacyIssue,
-                "/pharmacy/pharmacy_reprint_bill_unit_issue", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_reprint_bill_unit_issue", "Please Search Again and View Bill", false);
     }
 
     public String viewIssueReturn(Bill b) {
         return viewBill(b, BillType.PharmacyIssue,
-                "/pharmacy/pharmacy_reprint_bill_unit_issue_return", "Please Search Again and View Bill",true);
+                "/pharmacy/pharmacy_reprint_bill_unit_issue_return", "Please Search Again and View Bill", true);
     }
+
     public String viewBHTIssue(Bill b) {
         return viewBill(b, BillType.PharmacyBhtPre,
-                "/inward/pharmacy_reprint_bill_sale_bht", "Please Search Again and View Bill",false);
+                "/inward/pharmacy_reprint_bill_sale_bht", "Please Search Again and View Bill", false);
     }
+
     public String viewBHTIssueReturn(Bill b) {
         return viewBill(b, BillType.PharmacyBhtPre,
-                "/inward/pharmacy_reprint_bill_return_bht", "Please Search Again and View Bill",true);
+                "/inward/pharmacy_reprint_bill_return_bht", "Please Search Again and View Bill", true);
     }
+
     public String viewPharmacyReturnItemAndPayment(Bill b) {
         return viewBill(b, BillType.PharmacyPre,
-                "/pharmacy/pharmacy_bill_return_retail", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_bill_return_retail", "Please Search Again and View Bill", false);
     }
+
     public String viewPharmacyReturnItemOnly(Bill b) {
         return viewBill(b, BillType.PharmacyPre,
-                "/pharmacy/pharmacy_bill_return_pre", "Please Search Again and View Bill",false);
+                "/pharmacy/pharmacy_bill_return_pre", "Please Search Again and View Bill", false);
     }
 
     //---Open Correct Bill
@@ -7324,8 +7351,8 @@ public class SearchController implements Serializable {
     public void listnerBillTypeChange() {
         reportKeyWord.setArea(null);
     }
-    
-    public void listnerReportSearch(){
+
+    public void listnerReportSearch() {
         getReportKeyWord().setDepartment(getSessionController().getLoggedUser().getDepartment());
     }
 

@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:hr="http://java.sun.com/jsf/composite/autocomplete">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+
+                <h:form >
+                    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawChannelCountChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Date'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                },
+                                colors: ['#AB0D06', '#007329'],
+                                trendlines: {
+                                    0: {type: 'exponential', color: '#333', opacity: 1},
+                                    1: {type: 'linear', color: '#111', opacity: .3}
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_channel'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <center>
+                        <p:panel>
+                            <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
+                            <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
+                        </p:panel>
+                        <p:panel>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 30 Days" >
+                                    <div id="chart_channel" style="width: 1500px; height: 600px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                        </p:panel>
+                    </center>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>

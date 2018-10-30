@@ -28,6 +28,18 @@
                                             itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" 
                                             value="#{reportsTransfer.toDepartment}" converter="departmentConverter" >
                             </p:autoComplete>
+                            <h:outputLabel value="Item"/>
+                            <p:autoComplete id="exItem" value="#{reportsTransfer.reportKeyWord.item}"
+                                            forceSelection="true"
+                                            completeMethod="#{itemController.completeAmpItem}" var="vt"
+                                            itemLabel="#{vt.name}" itemValue="#{vt}" >
+                                <p:column headerText="Item" >
+                                    <h:outputLabel value="#{vt.name}"></h:outputLabel>
+                                </p:column>
+                                <p:column headerText="Code" >
+                                    <h:outputLabel value="#{vt.code}"></h:outputLabel>
+                                </p:column>                         
+                            </p:autoComplete>
                             <h:outputLabel value="From" ></h:outputLabel>
                             <p:calendar value="#{reportsTransfer.fromDate}" pattern="dd MM yyyy HH:mm:ss a" ></p:calendar>
                             <h:outputLabel value="To" ></h:outputLabel>
@@ -65,33 +77,41 @@
                                     </h:panelGrid>
                                 </f:facet>
 
-                                <p:column headerText="Bill No"  
-                                          sortBy="#{i.bill.deptId}"
+                                <p:column sortBy="#{i.bill.deptId}"
                                           filterBy="#{i.bill.deptId}"
                                           filterMatchMode="contains"
                                           >
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Bill No" />
+                                    </f:facet>
                                     <h:outputLabel value="#{i.bill.deptId}" ></h:outputLabel>
                                 </p:column>
-                                <p:column headerText="Ref. Bill No"
-                                          >
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Ref. Bill No" />
+                                    </f:facet>
                                     <h:outputLabel value="#{i.bill.backwardReferenceBill.deptId}" ></h:outputLabel>
                                 </p:column>
-                                <p:column headerText="Date"
-                                          sortBy="#{i.bill.createdAt}"
+                                <p:column sortBy="#{i.bill.createdAt}"
                                           filterBy="#{i.bill.createdAt}"
                                           filterMatchMode="contains"
                                           >
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Date" />
+                                    </f:facet>
                                     <h:outputLabel value="#{i.bill.createdAt}"  >
-                                        <f:convertDateTime pattern="dd/MM/yy" ></f:convertDateTime>
+                                        <f:convertDateTime pattern="yy MM dd hh:mm:ss a" ></f:convertDateTime>
                                     </h:outputLabel>
                                 </p:column>
-                                <p:column headerText="Item Descreption">
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Item Descreption" />
+                                    </f:facet>
                                     <h:outputLabel value="#{i.item.name}"  >                                      
                                     </h:outputLabel>
                                 </p:column>
 
-                                <p:column headerText="Code"
-                                          sortBy="#{i.pharmaceuticalBillItem.itemBatch.item.code}"
+                                <p:column sortBy="#{i.pharmaceuticalBillItem.itemBatch.item.code}"
                                           filterBy="#{i.pharmaceuticalBillItem.itemBatch.item.code}"
                                           filterMatchMode="contains"
                                           >
@@ -101,19 +121,37 @@
                                     <h:outputLabel value="#{i.pharmaceuticalBillItem.itemBatch.item.code}" style="width: 100px!important;" ></h:outputLabel>
                                 </p:column>
 
-                                <p:column headerText="Qty" style="text-align: right;">
+                                <p:column style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Qty" />
+                                    </f:facet>
                                     <h:outputLabel value="#{i.pharmaceuticalBillItem.qty}"  >
                                         <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                     </h:outputLabel>
                                                                     </p:column>
-                                <p:column headerText="Cost Rate" style="text-align: right;">
-                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.itemBatch.purcahseRate}"  >
+                                <p:column style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Cost Rate" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.purchaseRate}"  >
                                         <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                     </h:outputLabel>                                  
                                 </p:column>
 
-                                <p:column headerText="Cost Value" style="text-align: right;">
-                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.itemBatch.purcahseRate * i.pharmaceuticalBillItem.qty}" >
+                                <p:column style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Cost Value" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.pharmaceuticalBillItem.purchaseRate * i.pharmaceuticalBillItem.qty}" >
+                                        <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
+                                    </h:outputLabel>                                  
+                                </p:column>
+                                
+                                <p:column style="text-align: right;">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="netValue" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.netValue}"  >
                                         <f:convertNumber pattern="#,##0.00" ></f:convertNumber>
                                     </h:outputLabel>                                  
                                 </p:column>

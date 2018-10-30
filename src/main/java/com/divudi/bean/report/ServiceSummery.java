@@ -1640,15 +1640,18 @@ public class ServiceSummery implements Serializable {
             getServiceSubCategoryController().setParentCategory(getCategory());
             List<ServiceSubCategory> subCategorys = getServiceSubCategoryController().getItems();
             if (subCategorys.isEmpty()) {
+                System.err.println("if");
                 return getBillItemByCategory(getCategory(), billType, discharged);
             } else {
                 Set<BillItem> setBillItem = new HashSet<>();
                 for (ServiceSubCategory ssc : subCategorys) {
+                    System.out.println("ssc.getName() = " + ssc.getName());
                     setBillItem.addAll(getBillItemByCategory(ssc, billType, discharged));
                 }
                 System.out.println("setBillItem = " + setBillItem);
                 List<BillItem> tmpBillItems = new ArrayList<>();
                 tmpBillItems.addAll(setBillItem);
+                tmpBillItems.addAll(getBillItemByCategory(getCategory(), billType, discharged));
                 return tmpBillItems;
             }
         }

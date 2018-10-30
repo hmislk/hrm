@@ -13,17 +13,18 @@
                     <p:panel header="COLLECTING CENTRE PAYMENT BILL SEARCH" >
                         <f:facet name="header" >
                             <h:panelGroup>                               
-                                <h:panelGrid columns="5" >
+                                <h:panelGrid columns="6" >
                                     <h:outputLabel value="From Date"/>
                                     <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{searchController.fromDate}"
-                                                navigator="false" pattern="dd MMMM yyyy hh mm ss a" >      
-                                    </p:calendar>
+                                                navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
                                     <h:outputLabel value="To Date"/>
-                                    <p:calendar id="toDate" value="#{searchController.toDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >                                                                              
-                                    </p:calendar>
+                                    <p:calendar styleClass="dateTimePicker" id="toDate" value="#{searchController.toDate}" 
+                                                navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
+                                    <p:selectBooleanCheckbox value="#{searchController.reportKeyWord.additionalDetails}" />
                                     <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createCollectingCentrePaymentTable}" onclick="onSubmitButton();"/>
-                                    <p:spacer height="30"/><h:outputLabel/><h:outputLabel/><h:outputLabel/><h:outputLabel/>
-
+                                    <p:spacer height="30"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="5" >
                                     <h:outputLabel value="Bill No"/>
                                     <h:outputLabel value="Agent"/>
                                     <h:outputLabel value="Agent Code"/>
@@ -59,7 +60,7 @@
                                         <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
                                     </h:outputLabel>
                                 </h:panelGroup>
-                            
+
                             </p:column>  
                             <p:column headerText="Billed by" >
                                 <h:commandLink action="/agent_bill_reprint" >

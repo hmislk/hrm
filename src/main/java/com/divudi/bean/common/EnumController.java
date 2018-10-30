@@ -253,6 +253,7 @@ public class EnumController implements Serializable {
             InwardChargeType.HospitalSupportService,
             InwardChargeType.ExtraMedicine,
             InwardChargeType.DialysisTreatment,
+            InwardChargeType.Dialysis,
             InwardChargeType.OtherCharges};
 
         return b;

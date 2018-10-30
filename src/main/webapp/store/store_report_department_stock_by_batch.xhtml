@@ -89,6 +89,20 @@
                                         <h:outputLabel value="Item code"/>
                                     </f:facet>
                                     <h:outputLabel value="#{i.itemBatch.item.code}" ></h:outputLabel>
+                                </p:column> 
+                                
+                                <p:column headerText="Item Type">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Item Type"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.itemBatch.item.departmentType.label}" ></h:outputLabel>
+                                </p:column>
+                                
+                                <p:column headerText="Item Category">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Item Category"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.itemBatch.item.category.name}" ></h:outputLabel>
                                 </p:column>                                
 
                                 <p:column headerText="Quantity" style="text-align: right;">

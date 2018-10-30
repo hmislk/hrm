@@ -123,6 +123,11 @@
                                 <p:column headerText="ID">
                                     #{ti.billFee.bill.forwardReferenceBill.insId}
                                 </p:column>
+                                <p:column headerText="Add Time">
+                                    <p:outputLabel value="#{ti.billFee.createdAt}" >
+                                        <f:convertDateTime pattern="yyyy MM dd hh mm ss a" />
+                                    </p:outputLabel>
+                                </p:column>
                                 <p:column headerText="Start Time">
                                     <p:calendar navigator="true"  
                                                 value="#{ti.billFee.patientItem.fromTime}" 

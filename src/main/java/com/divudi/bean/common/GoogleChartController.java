@@ -160,7 +160,7 @@ public class GoogleChartController implements Serializable {
 
     }
 
-    public void drawAllChat(){
+    public void drawAllChat() {
         drawChannelAndScanCountChart();
         drawChannelingMethodsChart();
         drawCollectionCenterInvestigationCountChart();
@@ -398,11 +398,11 @@ public class GoogleChartController implements Serializable {
             subArray = new JSONArray();
         }
         System.out.println("mainJSONArray.length = " + mainJSONArray.length());
-        if (mainJSONArray.length()<2) {
+        if (mainJSONArray.length() < 2) {
             mainJSONArray = new JSONArray();
         }
         System.out.println("mainJSONArray.toString() = " + mainJSONArray.toString());
-        
+
         return mainJSONArray.toString();
     }
 
@@ -450,6 +450,75 @@ public class GoogleChartController implements Serializable {
         }
         System.out.println("mainJSONArray.toString() = " + mainJSONArray.toString());
         return mainJSONArray.toString();
+
+    }
+
+    public String drawChannelCountChart() {
+        System.out.println("1.Time = " + new Date());
+        Calendar cal = Calendar.getInstance();
+        Date toDate = cal.getTime();
+
+        cal.add(Calendar.MONTH, -1);
+        Date fromDate = cal.getTime();
+
+        System.out.println("fromDate = " + fromDate);
+        System.out.println("toDate = " + toDate);
+
+        JSONArray jSONArray1 = new JSONArray();
+        JSONArray arrays = new JSONArray();
+
+        arrays.put(0, "Date");
+        arrays.put(1, "Channel Count");
+//        arrays.put(2, "Scan Count");
+        jSONArray1.put(arrays);
+
+        double netTot = 0.0;
+
+        JSONArray inarr = new JSONArray();
+        Date fd = commonFunctions.getStartOfDay(fromDate);
+        Date td = commonFunctions.getEndOfDay(toDate);
+
+        DateFormat df = new SimpleDateFormat("yy MMM dd");
+        String formatedDate = df.format(fd);
+
+        BillType[] billTypes = new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent};
+        Class[] classes = new Class[]{CancelledBill.class, RefundBill.class};
+
+        List<Object[]> objects = fetchBillsTotalNew(billTypes, null, null, null, new BilledBill(), fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objects.size() = " + objects.size());
+        List<Object[]> objectsCan = fetchBillsTotalNew(billTypes, null, classes, null, null, fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objectsCan.size() = " + objectsCan.size());
+        for (Object[] obj : objects) {
+//            System.out.println("objects[0] = " + obj[0]);
+            Date d=(Date) obj[0];
+            long tot = 0l;
+            for (Object[] ob1 : objects) {
+//                System.out.println("ob1[0] = " + ob1[0]);
+                if (d.equals((Date)ob1[0])) {
+//                    System.out.println("ob1[1] = " + ob1[1]);
+                    tot += (long) ob1[1];
+                    break;
+                }
+            }
+            for (Object[] ob2 : objectsCan) {
+//                System.out.println("ob2[0] = " + ob2[0]);
+                if (d.equals((Date)ob2[0])) {
+//                    System.out.println("ob2[1] = " + ob2[1]);
+                    tot -= (long) ob2[1];
+                    break;
+                }
+            }
+//            System.out.println("***obj[0] = " + obj[0]);
+//            System.out.println("***tot = " + tot);
+            arrays = new JSONArray();
+            arrays.put(0, obj[0]);
+            arrays.put(1, tot);
+            jSONArray1.put(arrays);
+        }
+//        System.out.println("2.objects.size() = " + objects.size());
+
+        System.out.println("2.Time = " + new Date());
+        return jSONArray1.toString();
 
     }
 
@@ -586,6 +655,76 @@ public class GoogleChartController implements Serializable {
         System.out.println("sql = " + sql);
         System.out.println("m = " + m);
         System.out.println("getBillFeeFacade().findAggregateLong(sql, m, TemporalType.TIMESTAMP) = " + d);
+        return d;
+    }
+
+    public double countChannelBill(Bill bill, Class[] bills, List<BillType> bts, Date fd, Date td, FeeType ft) {
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = " select count(distinct(bf.bill)) from BillFee  bf where "
+                + " bf.bill.retired=false "
+                + " and bf.bill.billType in :bt "
+                + " and type(bf.bill)=:class "
+                //                + " and bf.fee.feeType =:ft "
+                + " and bf.feeValue>0 ";
+
+        if (bill != null) {
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " and bf.bill.cancelled=true ";
+                System.err.println("cancel");
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " and bf.bill.refunded=true ";
+                System.err.println("Refund");
+            }
+
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " and bf.bill.singleBillSession.sessionDate between :fd and :td ";
+            }
+            if (bill.getClass().equals(CancelledBill.class)) {
+                sql += " and bf.bill.cancelledBill.createdAt between :fd and :td ";
+            }
+            if (bill.getClass().equals(RefundBill.class)) {
+                sql += " and bf.bill.refundedBill.createdAt between :fd and :td ";
+            }
+        }
+
+        if (bills != null) {
+            if (Arrays.asList(bills).contains(CancelledBill.class)
+                    || Arrays.asList(bills).contains(RefundBill.class)) {
+                sql += " and (bf.bill.refunded=true or bf.bill.cancelled=true) ";
+            }
+
+            if (Arrays.asList(bills).contains(BilledBill.class)) {
+                sql += " and bf.bill.singleBillSession.sessionDate between :fd and :td ";
+            }
+            if (Arrays.asList(bills).contains(CancelledBill.class)) {
+                sql += " and bf.bill.cancelledBill.createdAt between :fd and :td ";
+            }
+            if (Arrays.asList(bills).contains(RefundBill.class)) {
+                sql += " and bf.bill.refundedBill.createdAt between :fd and :td ";
+            }
+        }
+
+//        if (ft == FeeType.OwnInstitution) {
+//            sql += " and bf.fee.name =:fn ";
+//            m.put("fn", "Hospital Fee");
+//        }
+//
+//        m.put("ft", ft);
+        m.put("fd", fd);
+        m.put("td", td);
+        m.put("class", BilledBill.class);
+        m.put("bt", bts);
+
+        double d = getBillFeeFacade().findAggregateLong(sql, m, TemporalType.TIMESTAMP);
+
+        System.out.println("sql = " + sql);
+        System.out.println("m = " + m);
+        System.out.println("d = " + d);
+
         return d;
     }
 
@@ -859,6 +998,152 @@ public class GoogleChartController implements Serializable {
             return getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
         } else {
             return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        }
+
+    }
+
+    public List<Object[]> fetchBillsTotalNew(BillType[] billTypes, BillType bt, Class[] bills, Class[] nbills, Bill b, Date fd, Date td, Institution billedInstitution, Institution creditCompany, boolean withOutDocFee, boolean count, Staff staff, Speciality sp, WebUser webUser) {
+
+        String sql = "";
+        Map m = new HashMap();
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql = " select FUNC('Date',b.singleBillSession.sessionDate), count(b) ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql = " select FUNC('Date',b.createdAt), count(b) ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql = " select FUNC('Date',b.createdAt), count(b) ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql = " select FUNC('Date',b.createdAt), count(b) ";
+                } else {
+//                    System.err.println("billed");
+                    sql = " select FUNC('Date',b.singleBillSession.sessionDate), count(b) ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql = " select FUNC('Date',b.createdAt), sum(b.netTotal-b.staffFee) ";
+        } else {
+            sql = " select FUNC('Date',b.createdAt), sum(b.netTotal) ";
+        }
+
+        sql += " from Bill b "
+                + " where b.retired=false ";
+
+        if (b != null) {
+            if (b.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+        }
+
+        if (bills != null) {
+            if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                System.err.println("Can or Ref");
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            } else {
+//                System.err.println("billed");
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+        }
+
+        if (billTypes != null) {
+            sql += " and b.billType in :bt ";
+            List<BillType> bts = Arrays.asList(billTypes);
+            m.put("bt", bts);
+        }
+        if (bt != null) {
+            sql += " and b.billType=:bt ";
+            m.put("bt", bt);
+        }
+        if (bills != null) {
+            sql += " and type(b) in :class ";
+            List<Class> cs = Arrays.asList(bills);
+            m.put("class", cs);
+        }
+        if (nbills != null) {
+            sql += " and type(b) not in :nclass ";
+            List<Class> ncs = Arrays.asList(nbills);
+            m.put("nclass", ncs);
+        }
+        if (b != null) {
+            sql += " and type(b)=:class ";
+            m.put("class", b.getClass());
+        }
+        if (billedInstitution != null) {
+            sql += " and b.institution=:ins ";
+            m.put("ins", billedInstitution);
+        }
+        if (creditCompany != null) {
+            sql += " and b.creditCompany=:cc ";
+            m.put("cc", creditCompany);
+        }
+        if (staff != null) {
+            sql += " and b.staff=:s ";
+            m.put("s", staff);
+        }
+        if (webUser != null) {
+            sql += " and b.creater=:wu ";
+            m.put("wu", webUser);
+        }
+        if (sp != null) {
+            sql += " and b.staff.speciality=:sp ";
+            m.put("sp", sp);
+        }
+
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql += " group by FUNC('Date',b.singleBillSession.sessionDate) "
+                            + " order by b.singleBillSession.sessionDate ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql += " group by FUNC('Date',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql += " group by FUNC('Date',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql += " group by FUNC('Date',b.createdAt) "
+                            + " order by b.createdAt ";
+                } else {
+//                    System.err.println("billed");
+                    sql += " group by FUNC('Date',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql += " group by FUNC('Date',b.createdAt) "
+                    + " order by b.createdAt ";
+        } else {
+            sql += " group by FUNC('Date',b.createdAt) "
+                    + " order by b.createdAt ";
+        }
+
+        m.put("fromDate", fd);
+        m.put("toDate", td);
+//        System.err.println("Sql " + sql);
+//        System.out.println("m = " + m);
+        if (count) {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
         }
 
     }

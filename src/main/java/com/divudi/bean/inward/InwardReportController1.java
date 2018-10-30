@@ -2033,6 +2033,43 @@ public class InwardReportController1 implements Serializable {
         }
 
     }
+    
+    public void processPatientRoomsBillDate() {
+        String sql;
+        Map m = new HashMap();
+        sql = "select bf "
+                + " from PatientRoom bf "
+                + " where bf.retired=false"
+                + " and bf.createdAt :fd and :td ";
+
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+        if (admissionType != null) {
+            sql = sql + " and bf.patientEncounter.admissionType=:at ";
+            m.put("at", admissionType);
+
+        }
+
+        if (paymentMethod != null) {
+            sql = sql + " and bf.patientEncounter.paymentMethod=:bt ";
+            m.put("bt", paymentMethod);
+        }
+
+        if (institution != null) {
+            sql = sql + " and bf.patientEncounter.creditCompany=:cc ";
+            m.put("cc", institution);
+        }
+
+        sql += " order by bf.patientEncounter.bhtNo";
+        patientRooms = patientRoomFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+
+//        PatientEncounter pe = new PatientEncounter();
+//        pe.getBhtNo();
+        if (billFees == null) {
+            billFees = new ArrayList<>();
+        }
+
+    }
 
     public void processInwardCharges() {
         processInwardChargesAdmissionFee();
@@ -2042,6 +2079,10 @@ public class InwardReportController1 implements Serializable {
 
     }
 
+    public void processInwardChargesBillDate() {
+        processInwardChargesMediceineBillDate();
+    }
+    
     public void processInwardChargesAdmissionFee() {
         String sql;
         Map m = new HashMap();
@@ -2166,6 +2207,48 @@ public class InwardReportController1 implements Serializable {
         }
 
     }
+    
+    public void processInwardChargesMediceineBillDate() {
+        String sql;
+        Map m = new HashMap();
+        sql = "select bi "
+                + " from BillItem bi "
+                + " where bi.retired=false"
+                + " and bi.bill.createdAt between :fd and :td "
+                + " and bi.bill.billType=:bty"
+                + " and bi.inwardChargeType=:inwty";
+
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+        m.put("bty", BillType.PharmacyBhtPre);
+        m.put("inwty", InwardChargeType.Medicine);
+        if (admissionType != null) {
+            sql = sql + " and bi.bill.patientEncounter.admissionType=:at ";
+            m.put("at", admissionType);
+
+        }
+
+        if (paymentMethod != null) {
+            sql = sql + " and bi.bill.patientEncounter.paymentMethod=:bt ";
+            m.put("bt", paymentMethod);
+        }
+
+        if (institution != null) {
+            sql = sql + " and bi.bill.patientEncounter.creditCompany=:cc ";
+            m.put("cc", institution);
+        }
+
+        sql += " order by bi.bill.patientEncounter.bhtNo";
+        billItemMediciene = BillItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+        totalOfProcessInwardChargesMediceineBillDate();
+
+//        PatientEncounter pe = new PatientEncounter();
+//        pe.getBhtNo();
+        if (billFees == null) {
+            billFees = new ArrayList<>();
+        }
+
+    }
 
     public double totalOfProcessInwardChargesMediceine() {
         String sql;
@@ -2175,6 +2258,44 @@ public class InwardReportController1 implements Serializable {
                 + " where bi.bill.patientEncounter.discharged=true "
                 + " and bi.retired=false"
                 + " and bi.bill.patientEncounter.dateOfDischarge between :fd and :td "
+                + " and bi.bill.billType=:bty"
+                + " and bi.inwardChargeType=:inwty";
+
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+        m.put("bty", BillType.PharmacyBhtPre);
+        m.put("inwty", InwardChargeType.Medicine);
+        if (admissionType != null) {
+            sql = sql + " and bi.bill.patientEncounter.admissionType=:at ";
+            m.put("at", admissionType);
+
+        }
+
+        if (paymentMethod != null) {
+            sql = sql + " and bi.bill.patientEncounter.paymentMethod=:bt ";
+            m.put("bt", paymentMethod);
+        }
+
+        if (institution != null) {
+            sql = sql + " and bi.bill.patientEncounter.creditCompany=:cc ";
+            m.put("cc", institution);
+        }
+
+        sql += " order by bi.bill.patientEncounter.bhtNo";
+
+        inwardMedicieneNetValue = BillItemFacade.findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+
+        return inwardMedicieneNetValue;
+
+    }
+    
+    public double totalOfProcessInwardChargesMediceineBillDate() {
+        String sql;
+        Map m = new HashMap();
+        sql = "select sum(bi.netValue) "
+                + " from BillItem bi "
+                + " where bi.retired=false"
+                + " and bi.bill.createdAt between :fd and :td "
                 + " and bi.bill.billType=:bty"
                 + " and bi.inwardChargeType=:inwty";
 

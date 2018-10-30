@@ -44,6 +44,10 @@
                                                      value="1) Unit Issue by bill" 
                                                      action="pharmacy_report_unit_issue_bill.xhtml" 
                                                      actionListener="#{pharmacySaleReport.makeNull}"/>
+                                    <p:commandButton styleClass="linkButton" ajax="false" style="text-align: left"
+                                                     value="1.1) Unit Issue by bill Item" 
+                                                     action="pharmacy_report_unit_issue_bill_item.xhtml" 
+                                                     actionListener="#{pharmacySaleReport.makeNull}"/>
                                     <!--                            <p:commandButton styleClass="linkButton" ajax="false" 
                                                                                  value="Department Unit by Department" 
                                    action="pharmacy_report_unit_issue_department.xhtml"  rendered="false"/>-->
@@ -175,6 +179,10 @@
                                 <p:panel header="12)Pharmacy Return Without Traising" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <p:commandButton styleClass="linkButton" ajax="false" style="text-align: left"
                                                      value="1) Pharmacy Return Without Traising" action="pharmacy_report_grn_detail_1.xhtml" />
+                                </p:panel>
+                                <p:panel header="15)Pharmacy Stock Summery" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                    <p:commandButton styleClass="linkButton" ajax="false" style="text-align: left"
+                                                     value="1) Pharmacy Cost of Sold" action="pharmacy_report_cost_of_sold.xhtml" />
                                 </p:panel>
                             </h:panelGrid>
 

@@ -16,6 +16,7 @@ import com.divudi.data.FeeType;
 import com.divudi.data.HistoryType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.PersonInstitutionType;
+import com.divudi.data.Title;
 import com.divudi.data.channel.DateEnum;
 import com.divudi.data.channel.PaymentEnum;
 import com.divudi.data.dataStructure.BillsTotals;
@@ -49,6 +50,7 @@ import com.divudi.facade.BillFeeFacade;
 import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.BillSessionFacade;
 import com.divudi.facade.DepartmentFacade;
+import com.divudi.facade.InstitutionFacade;
 import com.divudi.facade.ServiceSessionFacade;
 import com.divudi.facade.StaffFacade;
 import com.divudi.facade.WebUserFacade;
@@ -158,6 +160,8 @@ public class ChannelReportController implements Serializable {
     private BillFacade billFacade;
     @EJB
     AgentHistoryFacade agentHistoryFacade;
+    @EJB
+    InstitutionFacade institutionFacade;
     ///////////
     @EJB
     private ChannelBean channelBean;
@@ -1060,6 +1064,10 @@ public class ChannelReportController implements Serializable {
     List<Bill> cancelBills;
     List<Bill> refundBills;
 
+    List<BillRow> billedBillRows;
+    List<BillRow> canceledBillRows;
+    List<BillRow> refundedBillRows;
+
     public void channelBillClassList() {
         Date startTime = new Date();
 
@@ -1079,6 +1087,179 @@ public class ChannelReportController implements Serializable {
         totalRefundDoc = calTotalDoc(refundBills);
         netTotal = totalBilled + totalCancel + totalRefund;
         netTotalDoc = totalBilledDoc + totalCancelDoc + totalRefundDoc;
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Bill report/Bill detail summery(/faces/channel/channel_report_by_bill_class.xhtml)");
+
+    }
+
+    public void channelBillClassListNew() {
+        Date startTime = new Date();
+        billedBillRows = new ArrayList<>();
+        canceledBillRows = new ArrayList<>();
+        refundedBillRows = new ArrayList<>();
+
+        System.out.println("Time 1 = " + new Date());
+        List<Object[]> objects = channelListByBillClassNew(new BilledBill(), webUser, sessoinDate, institution, agncyOnCall);
+        System.out.println("objects.size(Bill) = " + objects.size());
+        System.out.println("Time 2 = " + new Date());
+        for (Object[] ob : objects) {
+            BillRow row = new BillRow();
+//            System.out.println("ob[0] = " + ob[0]);
+//            System.out.println("ob[1] = " + ob[1]);
+//            System.out.println("ob[2] = " + ob[2]);
+//            System.out.println("ob[3] = " + ob[3]);
+//            System.out.println("ob[4] = " + ob[4]);
+//            System.out.println("ob[5] = " + ob[5]);
+//            System.out.println("ob[6] = " + ob[6]);
+//            System.out.println("ob[7] = " + ob[7]);
+//            System.out.println("ob[8] = " + ob[8]);
+//            System.out.println("ob[9] = " + ob[9]);
+//            System.out.println("ob[10] = " + ob[10]);
+//            System.out.println("ob[11] = " + ob[11]);
+//            System.out.println("ob[12] = " + ob[12]);
+//            System.out.println("ob[13] = " + ob[13]);
+//            System.out.println("ob[14] = " + ob[14]);
+//            System.out.println("ob[15] = " + ob[15]);
+//            System.out.println("ob[16] = " + ob[16]);
+
+            row.setSessionDate((Date) ob[0]);
+            row.setCreatedAt((Date) ob[1]);
+            row.setInsId((String) ob[2]);
+            row.setPaidBillInsId((String) ob[3]);
+            row.setTitle((Title) ob[4]);
+            row.setName((String) ob[5]);
+            row.setHosFee((double) ob[6]);
+            row.setStaffFee((double) ob[7]);
+            row.setVat((double) ob[8]);
+            row.setNetTotal((double) ob[9]);
+            row.setVatPlusNetTotal((double) ob[10]);
+            row.setBillType((BillType) ob[11]);
+            row.setPaymentMethod((PaymentMethod) ob[12]);
+            row.setCreditCompany((Institution) ob[13]);
+            boolean bol = (boolean) ob[14];
+            if (bol) {
+                row.setCancelled("Cancelled");
+            } else {
+                row.setCancelled("");
+            }
+            bol = (boolean) ob[15];
+            if (bol) {
+                row.setRefunded("Refunded");
+            } else {
+                row.setRefunded("");
+            }
+            row.setStaff((Staff) ob[16]);
+            billedBillRows.add(row);
+        }
+        System.out.println("Time 3 = " + new Date());
+
+        objects = channelListByBillClassNewCanRef(new CancelledBill(), webUser, sessoinDate, institution, agncyOnCall);
+        System.out.println("objects.size(Can) = " + objects.size());
+        System.out.println("Time 4 = " + new Date());
+        for (Object[] ob : objects) {
+            BillRow row = new BillRow();
+//            System.out.println("ob[0] = " + ob[0]);
+//            System.out.println("ob[1] = " + ob[1]);
+//            System.out.println("ob[2] = " + ob[2]);
+//            System.out.println("ob[3] = " + ob[3]);
+//            System.out.println("ob[4] = " + ob[4]);
+//            System.out.println("ob[5] = " + ob[5]);
+//            System.out.println("ob[6] = " + ob[6]);
+//            System.out.println("ob[7] = " + ob[7]);
+//            System.out.println("ob[8] = " + ob[8]);
+//            System.out.println("ob[9] = " + ob[9]);
+//            System.out.println("ob[10] = " + ob[10]);
+//            System.out.println("ob[11] = " + ob[11]);
+//            System.out.println("ob[12] = " + ob[12]);
+//            System.out.println("ob[13] = " + ob[13]);
+//            System.out.println("ob[14] = " + ob[14]);
+//            System.out.println("ob[15] = " + ob[15]);
+//            System.out.println("ob[16] = " + ob[16]);
+
+            row.setSessionDate((Date) ob[0]);
+            row.setCreatedAt((Date) ob[1]);
+            row.setInsId((String) ob[2]);
+//            row.setPaidBill((Bill) ob[3]);
+            row.setTitle((Title) ob[3]);
+            row.setName((String) ob[4]);
+            row.setHosFee((double) ob[5]);
+            row.setStaffFee((double) ob[6]);
+            row.setVat((double) ob[7]);
+            row.setNetTotal((double) ob[8]);
+            row.setVatPlusNetTotal((double) ob[9]);
+            row.setBillType((BillType) ob[10]);
+            row.setPaymentMethod((PaymentMethod) ob[11]);
+            row.setCreditCompany((Institution) ob[12]);
+            boolean bol = (boolean) ob[13];
+            if (bol) {
+                row.setCancelled("Cancelled");
+            } else {
+                row.setCancelled("");
+            }
+            bol = (boolean) ob[14];
+            if (bol) {
+                row.setRefunded("Refunded");
+            } else {
+                row.setRefunded("");
+            }
+            row.setStaff((Staff) ob[15]);
+            canceledBillRows.add(row);
+        }
+        System.out.println("Time 5 = " + new Date());
+
+        objects = channelListByBillClassNewCanRef(new RefundBill(), webUser, sessoinDate, institution, agncyOnCall);
+        System.out.println("objects.size(Ref) = " + objects.size());
+        System.out.println("Time 6 = " + new Date());
+        for (Object[] ob : objects) {
+            BillRow row = new BillRow();
+//            System.out.println("ob[0] = " + ob[0]);
+//            System.out.println("ob[1] = " + ob[1]);
+//            System.out.println("ob[2] = " + ob[2]);
+//            System.out.println("ob[3] = " + ob[3]);
+//            System.out.println("ob[4] = " + ob[4]);
+//            System.out.println("ob[5] = " + ob[5]);
+//            System.out.println("ob[6] = " + ob[6]);
+//            System.out.println("ob[7] = " + ob[7]);
+//            System.out.println("ob[8] = " + ob[8]);
+//            System.out.println("ob[9] = " + ob[9]);
+//            System.out.println("ob[10] = " + ob[10]);
+//            System.out.println("ob[11] = " + ob[11]);
+//            System.out.println("ob[12] = " + ob[12]);
+//            System.out.println("ob[13] = " + ob[13]);
+//            System.out.println("ob[14] = " + ob[14]);
+//            System.out.println("ob[15] = " + ob[15]);
+//            System.out.println("ob[16] = " + ob[16]);
+
+            row.setSessionDate((Date) ob[0]);
+            row.setCreatedAt((Date) ob[1]);
+            row.setInsId((String) ob[2]);
+//            row.setPaidBill((Bill) ob[3]);
+            row.setTitle((Title) ob[3]);
+            row.setName((String) ob[4]);
+            row.setHosFee((double) ob[5]);
+            row.setStaffFee((double) ob[6]);
+            row.setVat((double) ob[7]);
+            row.setNetTotal((double) ob[8]);
+            row.setVatPlusNetTotal((double) ob[9]);
+            row.setBillType((BillType) ob[10]);
+            row.setPaymentMethod((PaymentMethod) ob[11]);
+            row.setCreditCompany((Institution) ob[12]);
+            boolean bol = (boolean) ob[13];
+            if (bol) {
+                row.setCancelled("Cancelled");
+            } else {
+                row.setCancelled("");
+            }
+            bol = (boolean) ob[14];
+            if (bol) {
+                row.setRefunded("Refunded");
+            } else {
+                row.setRefunded("");
+            }
+            row.setStaff((Staff) ob[15]);
+            refundedBillRows.add(row);
+        }
+        System.out.println("Time 7 = " + new Date());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Bill report/Bill detail summery(/faces/channel/channel_report_by_bill_class.xhtml)");
 
@@ -1183,6 +1364,113 @@ public class ChannelReportController implements Serializable {
         System.out.println("sql = " + sql);
         System.out.println("hm = " + hm);
         return billFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
+
+    }
+
+    public List<Object[]> channelListByBillClassNew(Bill bill, WebUser webUser, boolean sd, Institution agent, boolean crditAgent) {
+        BillType[] billTypes = {BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelOnCall, BillType.ChannelStaff};
+        List<BillType> bts = Arrays.asList(billTypes);
+        HashMap hm = new HashMap();
+
+        String sql = " select b.singleBillSession.sessionDate,"
+                + " b.createdAt,b.insId, b.paidBill.insId, "
+                + " b.patient.person.title, b.patient.person.name, "
+                + " b.netTotal-b.staffFee,b.staffFee, "
+                + " b.vat,b.netTotal,b.vatPlusNetTotal, "
+                + " b.billType,b.paymentMethod,b.creditCompany, "
+                + " b.cancelled,b.refunded,"
+                + " b.staff "
+                + " from Bill b "
+                + " where b.retired=false "
+                + " and type(b)=:class ";
+
+        if (webUser != null) {
+            sql += " and b.creater=:web ";
+            hm.put("web", webUser);
+        }
+        if (sd) {
+            sql += " and b.singleBillSession.sessionDate between :fd and :td ";
+        } else {
+            sql += " and b.createdAt between :fd and :td ";
+        }
+        if (crditAgent) {
+            if (agent != null) {
+                sql += " and b.creditCompany=:a ";
+                hm.put("a", agent);
+            } else {
+                sql += " and b.creditCompany is not null ";
+            }
+            sql += " and b.billType=:bt ";
+            hm.put("bt", BillType.ChannelOnCall);
+        } else {
+            sql += " and b.billType in :bts ";
+            hm.put("bts", bts);
+        }
+        if (getReportKeyWord().getBillType() != null) {
+            sql += " and b.singleBillSession.serviceSession.originatingSession.forBillType=:bt ";
+            hm.put("bt", getReportKeyWord().getBillType());
+        }
+//        sql += " order by b.singleBillSession.sessionDate ";
+
+        hm.put("class", bill.getClass());
+        hm.put("fd", getFromDate());
+        hm.put("td", getToDate());
+        System.out.println("sql = " + sql);
+        System.out.println("hm = " + hm);
+        return billFacade.findAggregates(sql, hm, TemporalType.TIMESTAMP);
+
+    }
+    public List<Object[]> channelListByBillClassNewCanRef(Bill bill, WebUser webUser, boolean sd, Institution agent, boolean crditAgent) {
+        BillType[] billTypes = {BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelOnCall, BillType.ChannelStaff};
+        List<BillType> bts = Arrays.asList(billTypes);
+        HashMap hm = new HashMap();
+
+        String sql = " select b.singleBillSession.sessionDate,"
+                + " b.createdAt,b.insId, "
+                + " b.patient.person.title, b.patient.person.name, "
+                + " b.netTotal-b.staffFee,b.staffFee, "
+                + " b.vat,b.netTotal,b.vatPlusNetTotal, "
+                + " b.billType,b.paymentMethod,b.creditCompany, "
+                + " b.cancelled,b.refunded,"
+                + " b.staff "
+                + " from Bill b "
+                + " where b.retired=false "
+                + " and type(b)=:class ";
+
+        if (webUser != null) {
+            sql += " and b.creater=:web ";
+            hm.put("web", webUser);
+        }
+        if (sd) {
+            sql += " and b.singleBillSession.sessionDate between :fd and :td ";
+        } else {
+            sql += " and b.createdAt between :fd and :td ";
+        }
+        if (crditAgent) {
+            if (agent != null) {
+                sql += " and b.creditCompany=:a ";
+                hm.put("a", agent);
+            } else {
+                sql += " and b.creditCompany is not null ";
+            }
+            sql += " and b.billType=:bt ";
+            hm.put("bt", BillType.ChannelOnCall);
+        } else {
+            sql += " and b.billType in :bts ";
+            hm.put("bts", bts);
+        }
+        if (getReportKeyWord().getBillType() != null) {
+            sql += " and b.singleBillSession.serviceSession.originatingSession.forBillType=:bt ";
+            hm.put("bt", getReportKeyWord().getBillType());
+        }
+//        sql += " order by b.singleBillSession.sessionDate ";
+
+        hm.put("class", bill.getClass());
+        hm.put("fd", getFromDate());
+        hm.put("td", getToDate());
+        System.out.println("sql = " + sql);
+        System.out.println("hm = " + hm);
+        return billFacade.findAggregates(sql, hm, TemporalType.TIMESTAMP);
 
     }
 
@@ -4599,6 +4887,8 @@ public class ChannelReportController implements Serializable {
     public ReportKeyWord getReportKeyWord() {
         if (reportKeyWord == null) {
             reportKeyWord = new ReportKeyWord();
+            reportKeyWord.setFromDate(new Date());
+            reportKeyWord.setAdditionalDetails(false);
         }
         return reportKeyWord;
     }
@@ -4973,7 +5263,8 @@ public class ChannelReportController implements Serializable {
 
         sql += " order by bs.bill.staff.person.name ";
 
-        m.put("ssDate", Calendar.getInstance().getTime());
+        m.put("ssDate", getReportKeyWord().getFromDate());
+//        m.put("ssDate", Calendar.getInstance().getTime());
         List<Bill> bills = getBillFacade().findBySQL(sql, m, TemporalType.DATE);
         if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
 //            System.out.println("getReportKeyWord().getString() = " + getReportKeyWord().getString());
@@ -5692,6 +5983,28 @@ public class ChannelReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Channeling/Reports/Income report/Agent Reports/Agent statement(/faces/channel/channel_report_agent_history_1.xhtml)");
     }
 
+    public List<AgentHistory> createAgentHistoryDuplicates(Date fd, Date td) {
+        Date startTime = new Date();
+        agentHistorys = new ArrayList<>();
+        long agent = 20385287l;
+        Institution ins = institutionFacade.find(agent);
+        if (ins == null) {
+            System.out.println("ins.getName() = " + ins.getName());
+            return new ArrayList<>();
+        }
+        HistoryType[] ht = {HistoryType.ChannelBooking, HistoryType.ChannelDeposit, HistoryType.ChannelDepositCancel, HistoryType.ChannelDebitNote,
+            HistoryType.ChannelDebitNoteCancel, HistoryType.ChannelCreditNote, HistoryType.ChannelCreditNoteCancel};
+        List<HistoryType> historyTypes = Arrays.asList(ht);
+
+        List<AgentHistory> aHistorys = createAgentHistory(fd, fd, ins, historyTypes);
+        System.out.println("aHistorys.size() = " + aHistorys.size());
+        agentHistorys = checkChannelDuplicateOnly(aHistorys);
+        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+
+        return agentHistorys;
+
+    }
+
     public void createCollectingCenterHistorySubTable() {
         Date startTime = new Date();
 
@@ -6238,7 +6551,8 @@ public class ChannelReportController implements Serializable {
             }
             System.out.println("lastHistory.getReferenceNo() = " + lastHistory.getReferenceNo());
             System.out.println("a.getReferenceNo() = " + a.getReferenceNo());
-            if (lastHistory.getReferenceNo()!=null&& lastHistory.getReferenceNo().equals(a.getReferenceNo())) {
+            if (lastHistory.getReferenceNo() != null && lastHistory.getReferenceNo().equals(a.getReferenceNo())
+                    && !a.getBill().isCancelled()) {
                 ahs.add(lastHistory);
                 ahs.add(a);
                 a.setDuplicateChannel(true);
@@ -6252,6 +6566,14 @@ public class ChannelReportController implements Serializable {
         return ahs;
     }
 
+    public void listnerDateBool() {
+        if (getReportKeyWord().isAdditionalDetails()) {
+
+        } else {
+            getReportKeyWord().setFromDate(new Date());
+        }
+    }
+
     List<DocPage> listOfList = new ArrayList<>();
 
     public List<DateSummery> getDateSummeries() {
@@ -6260,6 +6582,30 @@ public class ChannelReportController implements Serializable {
 
     public void setDateSummeries(List<DateSummery> dateSummeries) {
         this.dateSummeries = dateSummeries;
+    }
+
+    public List<BillRow> getBilledBillRows() {
+        return billedBillRows;
+    }
+
+    public void setBilledBillRows(List<BillRow> billedBillRows) {
+        this.billedBillRows = billedBillRows;
+    }
+
+    public List<BillRow> getCanceledBillRows() {
+        return canceledBillRows;
+    }
+
+    public void setCanceledBillRows(List<BillRow> canceledBillRows) {
+        this.canceledBillRows = canceledBillRows;
+    }
+
+    public List<BillRow> getRefundedBillRows() {
+        return refundedBillRows;
+    }
+
+    public void setRefundedBillRows(List<BillRow> refundedBillRows) {
+        this.refundedBillRows = refundedBillRows;
     }
 
     public class DocPage {
@@ -7688,6 +8034,173 @@ public class ChannelReportController implements Serializable {
         public void setSubTotal(double subTotal) {
             this.subTotal = subTotal;
         }
+    }
+
+    public class BillRow {
+
+        Date sessionDate;
+        Date createdAt;
+        String insId;
+        String paidBillInsId;
+        Title title;
+        String name;
+        double HosFee;
+        double staffFee;
+        double vat;
+        double netTotal;
+        double vatPlusNetTotal;
+        BillType billType;
+        PaymentMethod paymentMethod;
+//        String institutionCode;
+        Institution creditCompany;
+        String cancelled;
+        String refunded;
+        Staff staff;
+
+        public String getPaidBillInsId() {
+            return paidBillInsId;
+        }
+
+        public void setPaidBillInsId(String paidBillInsId) {
+            this.paidBillInsId = paidBillInsId;
+        }
+
+        public Institution getCreditCompany() {
+            return creditCompany;
+        }
+
+        public void setCreditCompany(Institution creditCompany) {
+            this.creditCompany = creditCompany;
+        }
+
+        public Staff getStaff() {
+            return staff;
+        }
+
+        public void setStaff(Staff staff) {
+            this.staff = staff;
+        }
+
+        public Date getSessionDate() {
+            return sessionDate;
+        }
+
+        public void setSessionDate(Date sessionDate) {
+            this.sessionDate = sessionDate;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Date createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public String getInsId() {
+            return insId;
+        }
+
+        public void setInsId(String insId) {
+            this.insId = insId;
+        }
+
+//        public String getPaidBillInsId() {
+//            return paidBillInsId;
+//        }
+//
+//        public void setPaidBillInsId(String paidBillInsId) {
+//            this.paidBillInsId = paidBillInsId;
+//        }
+
+        public Title getTitle() {
+            return title;
+        }
+
+        public void setTitle(Title title) {
+            this.title = title;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getHosFee() {
+            return HosFee;
+        }
+
+        public void setHosFee(double HosFee) {
+            this.HosFee = HosFee;
+        }
+
+        public double getStaffFee() {
+            return staffFee;
+        }
+
+        public void setStaffFee(double staffFee) {
+            this.staffFee = staffFee;
+        }
+
+        public double getVat() {
+            return vat;
+        }
+
+        public void setVat(double vat) {
+            this.vat = vat;
+        }
+
+        public double getNetTotal() {
+            return netTotal;
+        }
+
+        public void setNetTotal(double netTotal) {
+            this.netTotal = netTotal;
+        }
+
+        public double getVatPlusNetTotal() {
+            return vatPlusNetTotal;
+        }
+
+        public void setVatPlusNetTotal(double vatPlusNetTotal) {
+            this.vatPlusNetTotal = vatPlusNetTotal;
+        }
+
+        public BillType getBillType() {
+            return billType;
+        }
+
+        public void setBillType(BillType billType) {
+            this.billType = billType;
+        }
+
+        public PaymentMethod getPaymentMethod() {
+            return paymentMethod;
+        }
+
+        public void setPaymentMethod(PaymentMethod paymentMethod) {
+            this.paymentMethod = paymentMethod;
+        }
+
+        public String getCancelled() {
+            return cancelled;
+        }
+
+        public void setCancelled(String cancelled) {
+            this.cancelled = cancelled;
+        }
+
+        public String getRefunded() {
+            return refunded;
+        }
+
+        public void setRefunded(String refunded) {
+            this.refunded = refunded;
+        }
+
     }
 
     public class DateSummery {

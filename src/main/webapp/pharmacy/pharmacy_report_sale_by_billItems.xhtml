@@ -32,7 +32,7 @@
                     <h:outputLabel value="Item"/>
                     <p:autoComplete value="#{pharmacySaleReport.item}" 
                                     forceSelection="true"
-                                    completeMethod="#{ampController.completeAmpByName}" 
+                                    completeMethod="#{ampController.completeAmp}" 
                                     var="myItem" itemValue="#{myItem}" itemLabel="#{myItem.name}" >
                         <p:column headerText="Item">
                             <h:outputLabel value="#{myItem.name}"></h:outputLabel>
@@ -57,7 +57,8 @@
                 </h:panelGrid>
 
                 <h:panelGrid columns="3">
-                    <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createTableSaleBillItems()}"/>
+                    <p:commandButton ajax="false" value="Process Accept" action="#{pharmacySaleReport.createTableSaleBillItems()}"/>
+                    <p:commandButton ajax="false" value="Process Billed" action="#{pharmacySaleReport.createTableSaleBillItemsBilled()}"/>
                     <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
                         <pe:exporter type="xlsx" target="sum1" fileName="report_grn_detail_by_supplier"  />
                     </p:commandButton>
@@ -133,8 +134,51 @@
                         </f:facet>
                         <h:outputLabel value="#{b.pharmaceuticalBillItem.qty}">                            
                         </h:outputLabel>
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{pharmacySaleReport.grantTotal}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
                     </p:column>
-
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="PR"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.pharmaceuticalBillItem.purchaseRate}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="IBPR"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.pharmaceuticalBillItem.itemBatch.purcahseRate}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="PM"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.paymentMethod}" />
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="cc"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.toInstitution.name}" />
+                    </p:column>
+                    
+                    <p:column styleClass="averageNumericColumn" style="color: red;">
+                        <f:facet name="header">
+                            <h:outputLabel value="s"/>
+                        </f:facet>
+                        <h:outputLabel value="#{b.bill.toStaff.person.name}" />
+                    </p:column>
 
                     <p:column styleClass="averageNumericColumn">
                         <f:facet name="header">
@@ -150,7 +194,12 @@
                         </f:facet>
                         <h:outputLabel value="#{b.discount}">
                             <f:convertNumber pattern="#,##0.00" />
-                        </h:outputLabel>                      
+                        </h:outputLabel>            
+                        <f:facet name="footer">
+                            <h:outputLabel value="#{pharmacySaleReport.grantDiscount}">
+                                <f:convertNumber pattern="#,##0.00" />
+                            </h:outputLabel>
+                        </f:facet>
                     </p:column>
                     <p:column styleClass="averageNumericColumn">
                         <f:facet name="header">
@@ -160,7 +209,7 @@
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                         <f:facet name="footer">
-                            <h:outputLabel value="#{pharmacySaleReport.grantTotal}">
+                            <h:outputLabel value="#{pharmacySaleReport.grantNetTotal}">
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                         </f:facet>

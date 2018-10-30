@@ -8,6 +8,7 @@ package com.divudi.bean.hr;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.data.BillType;
 import com.divudi.data.MonthEndRecord;
 import com.divudi.data.Sex;
 import com.divudi.data.dataStructure.WeekDayWork;
@@ -78,6 +79,7 @@ import jxl.read.biff.BiffException;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
+import org.json.JSONArray;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -152,6 +154,7 @@ public class HrReportController implements Serializable {
     List<Staff> salaryNotGeneratedStaffs;
     List<SalaryAndDeletaedDetail> salaryAndDeletaedDetails;
     List<StaffGratuity> staffGratuitys;
+    List<StaffComponentSummery> staffComponentSummerys;
 
     String backButtonPage;
 
@@ -891,7 +894,7 @@ public class HrReportController implements Serializable {
         System.out.println("i = " + i);
         fetchCheckStaffRetierd(i);
     }
-    
+
     public void createEndOfProbationStaffs() {
         int i = 0;
         if (getReportKeyWord().getString().equals("0")) {
@@ -902,6 +905,11 @@ public class HrReportController implements Serializable {
         }
         System.out.println("i = " + i);
         fetchCheckStaffEndOfProbation(i);
+    }
+
+    public void listnerStaffAdmin() {
+        listnerCheckStaffRetierd();
+        listnerCheckBirthdays();
     }
 
     public void listnerCheckStaffRetierd() {
@@ -916,6 +924,41 @@ public class HrReportController implements Serializable {
         if (!staffs.isEmpty()) {
             JsfUtil.addErrorMessage("This Employes Retierd within " + months + " Months (" + st + ")");
         }
+    }
+
+    public void listnerCheckBirthdays() {
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " and c.person.dob is not null "
+                + " order by c.person.name ";
+        m.put("class", Consultant.class);
+
+        List<Staff> list = staffFacade.findBySQL(sql, m);
+        System.out.println("staffs = " + list.size());
+        String msg = "Today Birthday ";
+        for (Staff s : list) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+                Calendar now = Calendar.getInstance();
+                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+                    msg += s.getPerson().getName() + "-" + s.getCode() + ",";
+                }
+            }
+        }
+        JsfUtil.addSuccessMessage("Birthday Reminder..");
+        JsfUtil.addSuccessMessage(msg);
+
     }
 
     public List<Staff> fetchCheckStaffRetierd(int months) {
@@ -944,9 +987,11 @@ public class HrReportController implements Serializable {
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
                 + " and ss.dateRetired between :fd and :td "
+                + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
+        m.put("cd", new Date());
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
@@ -961,13 +1006,13 @@ public class HrReportController implements Serializable {
         Calendar t = Calendar.getInstance();
         if (months == 3) {
             f.setTime(new Date());
-            f.add(Calendar.YEAR,-1);
+            f.add(Calendar.YEAR, -1);
             f.set(Calendar.HOUR, 0);
             f.set(Calendar.MINUTE, 0);
             f.set(Calendar.SECOND, 0);
             System.out.println("f.getTime() = " + f.getTime());
             t.setTime(new Date());
-            t.add(Calendar.YEAR,-1);
+            t.add(Calendar.YEAR, -1);
             t.add(Calendar.MONTH, months);
             t.set(Calendar.HOUR, 23);
             t.set(Calendar.MINUTE, 59);
@@ -975,14 +1020,14 @@ public class HrReportController implements Serializable {
             System.out.println("t.getTime() = " + t.getTime());
         } else {
             f.setTime(new Date());
-            f.add(Calendar.YEAR,-1);
+            f.add(Calendar.YEAR, -1);
             f.add(Calendar.MONTH, months);
             f.set(Calendar.HOUR, 0);
             f.set(Calendar.MINUTE, 0);
             f.set(Calendar.SECOND, 0);
             System.out.println("f.getTime() = " + f.getTime());
             t.setTime(new Date());
-            t.add(Calendar.YEAR,-1);
+            t.add(Calendar.YEAR, -1);
             t.set(Calendar.HOUR, 23);
             t.set(Calendar.MINUTE, 59);
             t.set(Calendar.SECOND, 59);
@@ -995,14 +1040,17 @@ public class HrReportController implements Serializable {
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
                 + " and ss.dateJoined between :fd and :td "
+                + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
+        m.put("cd",new Date());
+        
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("staffs.size() = " + staffs.size());
-        
+
         return staffs;
     }
 
@@ -1391,6 +1439,68 @@ public class HrReportController implements Serializable {
             sql += " and ss.lastEditedAt is not null "
                     + " and ss.lastEditor is not null ";
         }
+
+        return sql;
+    }
+
+    public String createStaffSalaryComponentQuaryNew(HashMap hm, Staff s) {
+        String sql = "";
+        sql = "select ss from StaffSalaryComponant ss "
+                + " where ss.retired=false "
+                + " and ss.salaryCycle.salaryFromDate >=:sclF "
+                + " and ss.salaryCycle.salaryToDate <=:sclT "
+                + " and ss.staffSalary.blocked=false "
+                + " and ss.staffSalary.staff=:stf ";
+        hm.put("stf", s);
+        hm.put("sclF", getReportKeyWord().getSalaryCycleFrom().getSalaryFromDate());
+        hm.put("sclT", getReportKeyWord().getSalaryCycleTo().getSalaryToDate());
+
+        if (getReportKeyWord().getPaysheetComponent() != null) {
+            sql += " and ss.staffPaysheetComponent.paysheetComponent=:pt ";
+            hm.put("pt", getReportKeyWord().getPaysheetComponent());
+        }
+
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and ss.staffSalary.institution=:ins ";
+            hm.put("ins", getReportKeyWord().getInstitution());
+        }
+
+        if (getReportKeyWord().getBank() != null) {
+            sql += " and ss.staffSalary.staff.bankBranch=:bk ";
+            hm.put("bk", getReportKeyWord().getBank());
+        }
+
+        if (getReportKeyWord().getInstitutionBank() != null) {
+            sql += " and ss.staffPaysheetComponent.bankBranch.institution=:ibk ";
+            hm.put("ibk", getReportKeyWord().getInstitutionBank());
+        }
+
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and ss.staffSalary.department=:dep ";
+            hm.put("dep", getReportKeyWord().getDepartment());
+        }
+
+        if (getReportKeyWord().getStaffCategory() != null) {
+            sql += " and ss.staffSalary.staff.staffCategory=:stfCat";
+            hm.put("stfCat", getReportKeyWord().getStaffCategory());
+        }
+
+        if (getReportKeyWord().getDesignation() != null) {
+            sql += " and ss.staffSalary.staff.designation=:des";
+            hm.put("des", getReportKeyWord().getDesignation());
+        }
+
+        if (getReportKeyWord().getRoster() != null) {
+            sql += " and ss.staffSalary.staff.roster=:rs ";
+            hm.put("rs", getReportKeyWord().getRoster());
+        }
+
+        if (getReportKeyWord().isBool1()) {
+            sql += " and ss.lastEditedAt is not null "
+                    + " and ss.lastEditor is not null ";
+        }
+
+        sql += " order by ss.salaryCycle.salaryFromDate ";
 
         return sql;
     }
@@ -4511,7 +4621,7 @@ public class HrReportController implements Serializable {
         String sql = "";
         HashMap hm = new HashMap();
         sql = createStaffSalaryComponentQuary(hm);
-        sql += " order by ss.staffSalary.staff.codeInterger ";
+        sql += " order by ss.staffSalary.sa ";
         staffSalaryComponants = staffSalaryComponantFacade.findBySQL(sql, hm, TemporalType.DATE);
         total = 0.0;
         for (StaffSalaryComponant ssc : staffSalaryComponants) {
@@ -4543,6 +4653,81 @@ public class HrReportController implements Serializable {
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Salary Report/Staff salary component(/faces/hr/hr_report_staff_salary_component.xhtml)");
+    }
+
+    public void createStaffSalaryComponentSpecialAll() {
+        if (getReportKeyWord().getSalaryCycleFrom() == null) {
+            JsfUtil.addErrorMessage("Please Select From Salary Cycle");
+            return;
+        }
+        if (getReportKeyWord().getSalaryCycleTo() == null) {
+            JsfUtil.addErrorMessage("Please Select To Salary Cycle");
+            return;
+        }
+        if (getReportKeyWord().getPaysheetComponent() == null) {
+            JsfUtil.addErrorMessage("Please Select Component");
+            return;
+        }
+
+        String sql;
+        HashMap m = new HashMap();
+        staffComponentSummerys = new ArrayList<>();
+
+        for (Staff s : getAllStaffs()) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getCode() = " + s.getCode());
+
+            sql = createStaffSalaryComponentQuaryNew(m, s);
+            staffSalaryComponants = staffSalaryComponantFacade.findBySQL(sql, m, TemporalType.DATE);
+            System.out.println("staffSalaryComponants.size() = " + staffSalaryComponants.size());
+            if (staffSalaryComponants.size() == 0) {
+
+                continue;
+            }
+            boolean start = true;
+            StaffComponentSummery scs = new StaffComponentSummery();
+            for (StaffSalaryComponant ssc : staffSalaryComponants) {
+                if (start) {
+                    System.out.println("ssc.getSalaryCycle().getName() = " + ssc.getSalaryCycle().getName());
+                    System.out.println("ssc.getStaffSalary().getBasicValue() = " + ssc.getStaffSalary().getBasicVal());
+                    System.out.println("ssc.getStaffSalary().getTraVal() = " + ssc.getStaffSalary().getTraVal());
+                    System.out.println("ssc.getStaffSalary().getPerVal() = " + ssc.getStaffSalary().getPerVal());
+                    scs.setS(s);
+                    double per = 0.0;
+                    double tra = 0.0;
+                    double bas = 0.0;
+                    for (StaffSalaryComponant p : ssc.getStaffSalary().getStaffSalaryComponants()) {
+                        System.out.println("p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() = " + p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType());
+                        System.out.println("p.getStaffPaysheetComponent().getPaysheetComponent().getComponentValue() = " + p.getStaffPaysheetComponent().getPaysheetComponent().getComponentValue());
+                        System.out.println("p.getComponantValue() = " + p.getComponantValue());
+                        System.out.println("p.getComponantValue() = " + p.getStaffPaysheetComponent().getStaffPaySheetComponentValue());
+
+                        if (p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() == PaysheetComponentType.BasicSalary) {
+                            bas = p.getStaffPaysheetComponent().getStaffPaySheetComponentValue();
+                        }
+
+                        if (p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() == PaysheetComponentType.PerformanceAllowance) {
+                            per = p.getStaffPaysheetComponent().getStaffPaySheetComponentValue();
+                        }
+                        if (p.getStaffPaysheetComponent().getPaysheetComponent().getComponentType() == PaysheetComponentType.FixedAllowance
+                                && p.getStaffPaysheetComponent().getPaysheetComponent().getName().equals("Traveling Allowence")) {
+                            tra = p.getStaffPaysheetComponent().getStaffPaySheetComponentValue();
+                        }
+
+                    }
+                    scs.setBasicSalary(bas);
+                    scs.setTravellingAllownce(tra);
+                    scs.setPerformanceAllowance(per);
+//                    scs.setTotalCompValue(ssc.getComponantValue());
+                    start = false;
+                }
+                System.out.println("ssc.getComponantValue() = " + ssc.getComponantValue());
+                scs.setTotalCompValue(scs.getTotalCompValue() + ssc.getComponantValue());
+            }
+            staffComponentSummerys.add(scs);
+        }
+        System.out.println("staffComponentSummerys.size() = " + staffComponentSummerys.size());
+
     }
 
     public void createStaffSalaryComponentSummeryBankVise() {
@@ -5225,6 +5410,238 @@ public class HrReportController implements Serializable {
         this.staffGratuitys = staffGratuitys;
     }
 
+    private List<Staff> getAllStaffs() {
+        String sql;
+        Map m = new HashMap();
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " order by c.codeInterger ";
+        m.put("class", Consultant.class);
+        List<Staff> staffs = getStaffFacade().findBySQL(sql, m);
+        System.out.println("staffs.size() = " + staffs.size());
+
+        return staffs;
+    }
+
+    // Dashboard
+    public String drawPiechartStaffCount() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Gender");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select s.person.sex,count(s.person.sex) "
+                + " from Staff s "
+                + " where s.retired=false "
+                + " and type(s)!=:class "
+                + " and s.person.sex is not null "
+                + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " group by s.person.sex "
+                + " order by s.person.sex ";
+
+        m.put("d", new Date());
+        m.put("class", Consultant.class);
+
+        List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
+        for (Object[] ob : objects) {
+            Sex s = (Sex) ob[0];
+            System.out.println("s = " + s);
+            long d = (long) ob[1];
+            System.out.println("d = " + d);
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+
+//        subArray.put(0, "Male");
+//        subArray.put(1, 150);
+//        mainJSONArray.put(subArray);
+//        subArray = new JSONArray();
+//        subArray.put(0, "Female");
+//        subArray.put(1, 80);
+//        mainJSONArray.put(subArray);
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawTableRetrired() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+        List<Staff> list = fetchCheckStaffRetierd(3);
+        for (Staff s : list) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+            subArray = new JSONArray();
+            subArray.put(0, s.getCode());
+            subArray.put(1, s.getPerson().getName());
+            subArray.put(2, format.format(s.getDateRetired()));
+            subArray.put(3, s.getSpeciality().getName());
+            if (s.getWorkingDepartment() == null) {
+                subArray.put(4, "No Department");
+            } else {
+                subArray.put(4, s.getWorkingDepartment().getName());
+            }
+            mainJSONArray.put(subArray);
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+    
+    public String drawTableEndOfProbation() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+//        subArray = new JSONArray();
+//        subArray.put(0, "Code");
+//        subArray.put(1, "Name");
+//        subArray.put(2, "Date of Join");
+//        subArray.put(3, "Specility");
+//        subArray.put(4, "Department");
+//        mainJSONArray.put(subArray);
+        List<Staff> list = fetchCheckStaffEndOfProbation(-3);
+        for (Staff s : list) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+            subArray = new JSONArray();
+            subArray.put(0, s.getCode());
+            subArray.put(1, s.getPerson().getName());
+            subArray.put(2, format.format(s.getDateJoined()));
+            subArray.put(3, s.getSpeciality().getName());
+            if (s.getWorkingDepartment() == null) {
+                subArray.put(4, "No Department");
+            } else {
+                subArray.put(4, s.getWorkingDepartment().getName());
+            }
+            mainJSONArray.put(subArray);
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawTableBirthdayReminder() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " and (c.dateLeft is null or c.dateLeft>:cd)"
+                + " and c.person.dob is not null "
+                + " order by c.person.name ";
+        m.put("class", Consultant.class);
+        m.put("cd", new Date());
+
+        List<Staff> list = staffFacade.findBySQL(sql, m);
+        System.out.println("staffs = " + list.size());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+        for (Staff s : list) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+                Calendar now = Calendar.getInstance();
+                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+                    subArray = new JSONArray();
+                    subArray.put(0, s.getCode());
+                    subArray.put(1, s.getPerson().getName());
+                    subArray.put(2, s.getSpeciality().getName());
+                    if (s.getWorkingDepartment() == null) {
+                        subArray.put(3, "No Department");
+                    } else {
+                        subArray.put(3, s.getWorkingDepartment().getName());
+                    }
+                    mainJSONArray.put(subArray);
+                }
+            }
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawPiechartStaffCountDepartment() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Department");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select s.workingDepartment,count(s.workingDepartment) "
+                + " from Staff s "
+                + " where s.retired=false "
+                + " and type(s)!=:class "
+                + " and s.workingDepartment is not null "
+                + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " group by s.workingDepartment "
+                + " order by s.workingDepartment.name ";
+
+        m.put("d", new Date());
+        m.put("class", Consultant.class);
+
+        List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
+        for (Object[] ob : objects) {
+            Department d = (Department) ob[0];
+            System.out.println("d.getName() = " + d.getName());
+            long count = (long) ob[1];
+            System.out.println("d = " + count);
+            subArray = new JSONArray();
+            subArray.put(0, d.getName());
+            subArray.put(1, count);
+            mainJSONArray.put(subArray);
+        }
+
+//        subArray.put(0, "Male");
+//        subArray.put(1, 150);
+//        mainJSONArray.put(subArray);
+//        subArray = new JSONArray();
+//        subArray.put(0, "Female");
+//        subArray.put(1, 80);
+//        mainJSONArray.put(subArray);
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public List<StaffComponentSummery> getStaffComponentSummerys() {
+        return staffComponentSummerys;
+    }
+
+    public void setStaffComponentSummerys(List<StaffComponentSummery> staffComponentSummerys) {
+        this.staffComponentSummerys = staffComponentSummerys;
+    }
+
     public class OverTimeAllMonth {
 
         String dateRange;
@@ -5458,6 +5875,56 @@ public class HrReportController implements Serializable {
         public void setComment(String Comment) {
             this.Comment = Comment;
         }
+    }
+
+    public class StaffComponentSummery {
+
+        Staff s;
+        double basicSalary;
+        double performanceAllowance;
+        double travellingAllownce;
+        double totalCompValue;
+
+        public Staff getS() {
+            return s;
+        }
+
+        public void setS(Staff s) {
+            this.s = s;
+        }
+
+        public double getBasicSalary() {
+            return basicSalary;
+        }
+
+        public void setBasicSalary(double basicSalary) {
+            this.basicSalary = basicSalary;
+        }
+
+        public double getPerformanceAllowance() {
+            return performanceAllowance;
+        }
+
+        public void setPerformanceAllowance(double performanceAllowance) {
+            this.performanceAllowance = performanceAllowance;
+        }
+
+        public double getTravellingAllownce() {
+            return travellingAllownce;
+        }
+
+        public void setTravellingAllownce(double travellingAllownce) {
+            this.travellingAllownce = travellingAllownce;
+        }
+
+        public double getTotalCompValue() {
+            return totalCompValue;
+        }
+
+        public void setTotalCompValue(double totalCompValue) {
+            this.totalCompValue = totalCompValue;
+        }
+
     }
 
     public void makeNull() {
