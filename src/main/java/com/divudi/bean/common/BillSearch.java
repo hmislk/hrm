@@ -700,7 +700,7 @@ public class BillSearch implements Serializable {
                     }
                 }
 
-                collectingCentreBillController.updateBallance(getBill().getInstitution(), Math.abs(feeTotalExceptCcfs), HistoryType.CollectingCentreBilling, getBill().getRefundedBill(), getBill().getReferralNumber());
+                collectingCentreBillController.updateBallance(getBill().getFromInstitution(), Math.abs(feeTotalExceptCcfs), HistoryType.CollectingCentreBilling, getBill().getRefundedBill(), getBill().getReferralNumber());
             }
 
             if (getBill().getPaymentMethod() == PaymentMethod.Credit) {
@@ -1159,7 +1159,7 @@ public class BillSearch implements Serializable {
                         }
                     }
 
-                    collectingCentreBillController.updateBallance(getBill().getInstitution(), Math.abs(feeTotalExceptCcfs), HistoryType.CollectingCentreBilling, getBill().getCancelledBill(), getBill().getReferralNumber());
+                    collectingCentreBillController.updateBallance(getBill().getFromInstitution(), Math.abs(feeTotalExceptCcfs), HistoryType.CollectingCentreBilling, getBill().getCancelledBill(), getBill().getReferralNumber());
                 }
 
                 if (getBill().getPaymentMethod() == PaymentMethod.Credit) {
