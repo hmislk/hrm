@@ -202,7 +202,6 @@ public class StoreAmpController implements Serializable {
 
         Amp amp = getFacade().findFirstBySQL(sql, m);
 
-        System.out.println("amp.getCode() = " + amp.getCode());
         System.out.println("getCurrent().getCategory().getCode() = " + getCurrent().getCategory().getCode());
 
         DecimalFormat df = new DecimalFormat("0000");
