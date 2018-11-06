@@ -6015,38 +6015,38 @@ public class SearchController implements Serializable {
     public void createChannelAgencyPaymentTable() {
         Date startTime = new Date();
 
-        createAgentPaymentTable(BillType.AgentPaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.AgentPaymentReceiveBill, getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Agent/Agent payment bill search(/faces/agent_bill_search_own.xhtml)");
     }
 
     public void createChannelAgencyCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentCreditNoteBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.AgentCreditNoteBill, getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createChannelAgencyDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.AgentDebitNoteBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.AgentDebitNoteBill, getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterCreditNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.CollectingCentreCreditNoteBill, getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCenterDebitNoteTable() {
 
-        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.CollectingCentreDebitNoteBill, getReportKeyWord().isAdditionalDetails());
 
     }
 
     public void createCollectingCentrePaymentTable() {
         Date startTime = new Date();
-        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill,getReportKeyWord().isAdditionalDetails());
+        createAgentPaymentTable(BillType.CollectingCentrePaymentReceiveBill, getReportKeyWord().isAdditionalDetails());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Collecting center/Collecting center bill serach(/faces/lab/collecting_centre_bill_search_own.xhtml)");
     }
@@ -6881,17 +6881,18 @@ public class SearchController implements Serializable {
     }
 
     public void createAllBillContacts() {
+        Date startTime = new Date();
         String sql;
         Map temMap = new HashMap();
         telephoneNumbers = new ArrayList<>();
 
-        if (getReportKeyWord().getString1().equals("0")) {
-            sql = "select b.patient.person.phone from Bill b where ";
-        } else {
-            sql = "select b from Bill b where ";
-        }
-
-        sql += " b.retired = false "
+//        if (getReportKeyWord().getString1().equals("0")) {
+//            sql = "select b.patient.person.phone from Bill b where ";
+//        } else {
+//            sql = "select b from Bill b where ";
+//        }
+        sql = "select b.patient.person.phone from Bill b where "
+                + " b.retired = false "
                 + " and b.cancelled=false "
                 + " and b.refunded=false "
                 + " and (b.patient.person.phone is not null "
@@ -6920,78 +6921,97 @@ public class SearchController implements Serializable {
             temMap.put("a", getReportKeyWord().getArea());
         }
 
-        if (getReportKeyWord().getString1().equals("0")) {
-            sql += " group by b.patient.person.phone ";
-        }
-        sql += " order by b.patient.person.phone ";
+//        if (getReportKeyWord().getString1().equals("0")) {
+//            sql += " group by b.patient.person.phone ";
+//        }
+        sql += " group by b.patient.person.phone "
+                + " order by b.patient.person.phone ";
 
         temMap.put("em", "");
         temMap.put("fd", fromDate);
         temMap.put("td", toDate);
 
         System.out.println("temMap = " + temMap);
-        if (getReportKeyWord().getString1().equals("0")) {
-            List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
-            System.out.println("sql = " + sql);
-            System.out.println("objs.size() = " + objs.size());
+        List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        System.out.println("sql = " + sql);
+        System.out.println("objs.size() = " + objs.size());
 
-            for (Object o : objs) {
-                String s = (String) o;
-                if (s != null && !"".equals(s)) {
-                    String ss = s.substring(0, 3);
+        for (Object o : objs) {
+            String s = (String) o;
+            if (s != null && !"".equals(s)) {
+                String ss = s.substring(0, 3);
 //                System.out.println("ss = " + ss);
-                    if (ss.equals("077") || ss.equals("076")
-                            || ss.equals("071") || ss.equals("072")
-                            || ss.equals("075") || ss.equals("078")) {
-                        telephoneNumbers.add(s);
-                    }
+                if (ss.equals("077") || ss.equals("076")
+                        || ss.equals("071") || ss.equals("072")
+                        || ss.equals("075") || ss.equals("078")) {
+                    telephoneNumbers.add(s);
+                }
 
-                }
-            }
-        } else {
-            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
-            System.out.println("bills.size() = " + bills.size());
-            for (Bill b : bills) {
-                if (b.getPatient().getPerson().getPhone() != null && !"".equals(b.getPatient().getPerson().getPhone())) {
-                    System.out.println("b.getPatient().getPerson().getPhone() = " + b.getPatient().getPerson().getPhone());
-                    String ss = b.getPatient().getPerson().getPhone().substring(0, 3);
-                    if (getReportKeyWord().getString1().equals("1")) {
-                        if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-                            if (ss.equals("077") || ss.equals("076")
-                                    || ss.equals("071") || ss.equals("072")
-                                    || ss.equals("075") || ss.equals("078")) {
-                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-                            }
-                        }
-                    }
-                    if (getReportKeyWord().getString1().equals("2")) {
-                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getTo()) {
-                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-                                if (ss.equals("077") || ss.equals("076")
-                                        || ss.equals("071") || ss.equals("072")
-                                        || ss.equals("075") || ss.equals("078")) {
-                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-                                }
-                            }
-                        }
-                    }
-                    if (getReportKeyWord().getString1().equals("3")) {
-                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getFrom()
-                                && b.getPatient().getAgeYears() <= getReportKeyWord().getTo()) {
-                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-                                if (ss.equals("077") || ss.equals("076")
-                                        || ss.equals("071") || ss.equals("072")
-                                        || ss.equals("075") || ss.equals("078")) {
-                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
+//        if (getReportKeyWord().getString1().equals("0")) {
+//            List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
+//            System.out.println("sql = " + sql);
+//            System.out.println("objs.size() = " + objs.size());
+//
+//            for (Object o : objs) {
+//                String s = (String) o;
+//                if (s != null && !"".equals(s)) {
+//                    String ss = s.substring(0, 3);
+////                System.out.println("ss = " + ss);
+//                    if (ss.equals("077") || ss.equals("076")
+//                            || ss.equals("071") || ss.equals("072")
+//                            || ss.equals("075") || ss.equals("078")) {
+//                        telephoneNumbers.add(s);
+//                    }
+//
+//                }
+//            }
+//        } else {
+//            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+//            System.out.println("bills.size() = " + bills.size());
+//            for (Bill b : bills) {
+//                if (b.getPatient().getPerson().getPhone() != null && !"".equals(b.getPatient().getPerson().getPhone())) {
+//                    System.out.println("b.getPatient().getPerson().getPhone() = " + b.getPatient().getPerson().getPhone());
+//                    String ss = b.getPatient().getPerson().getPhone().substring(0, 3);
+//                    if (getReportKeyWord().getString1().equals("1")) {
+//                        if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+//                            if (ss.equals("077") || ss.equals("076")
+//                                    || ss.equals("071") || ss.equals("072")
+//                                    || ss.equals("075") || ss.equals("078")) {
+//                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+//                            }
+//                        }
+//                    }
+//                    if (getReportKeyWord().getString1().equals("2")) {
+//                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getTo()) {
+//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+//                                if (ss.equals("077") || ss.equals("076")
+//                                        || ss.equals("071") || ss.equals("072")
+//                                        || ss.equals("075") || ss.equals("078")) {
+//                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (getReportKeyWord().getString1().equals("3")) {
+//                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getFrom()
+//                                && b.getPatient().getAgeYears() <= getReportKeyWord().getTo()) {
+//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+//                                if (ss.equals("077") || ss.equals("076")
+//                                        || ss.equals("071") || ss.equals("072")
+//                                        || ss.equals("075") || ss.equals("078")) {
+//                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         System.out.println("telephoneNumbers.size() = " + telephoneNumbers.size());
+        commonController.printReportDetails(fromDate, toDate, startTime, "Bulk SMS");
 
     }
 

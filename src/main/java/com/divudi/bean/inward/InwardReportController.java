@@ -569,7 +569,7 @@ public class InwardReportController implements Serializable {
         m.put("td", toDate);
         patientEncounters = getPeFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
 
-        calTotalDischargedNoChanges();
+//        calTotalDischargedNoChanges();
 
         List<PatientEncounter> list = patientEncounters;
         patientEncounters = null;
@@ -580,6 +580,8 @@ public class InwardReportController implements Serializable {
         creditPaid = 0;
         creditUsed = 0;
         for (PatientEncounter p : list) {
+            System.out.println("p.getBhtNo() = " + p.getBhtNo());
+            System.out.println("p.getFinalBill() = " + p.getFinalBill());
             if (p.getFinalBill()==null) {
                 continue;
             }

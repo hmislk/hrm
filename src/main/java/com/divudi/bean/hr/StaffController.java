@@ -1181,10 +1181,10 @@ public class StaffController implements Serializable {
                 System.out.println("dor.getTime = " + dor.getTime());
                 System.out.println("getCurrent().getDateRetired() = " + getCurrent().getDateRetired());
                 if (getCurrent().getDateRetired() != null) {
-//                    if (dor.getTime().after(getCurrent().getDateRetired())) {
-//                        getCurrent().setDateRetired(dor.getTime());
-//                    }
-                    getCurrent().setDateRetired(dor.getTime());
+                    if (dor.getTime().after(getCurrent().getDateRetired())) {
+                        getCurrent().setDateRetired(dor.getTime());
+                    }
+//                    getCurrent().setDateRetired(dor.getTime());
                 } else {
                     getCurrent().setDateRetired(dor.getTime());
                 }
