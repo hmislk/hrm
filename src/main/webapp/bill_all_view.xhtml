@@ -265,6 +265,9 @@
 
                                         <h:outputLabel value="Retired :" ></h:outputLabel>
                                         <p:selectBooleanCheckbox value="#{billSearch.billSearch.retired}" ></p:selectBooleanCheckbox>
+                                        
+                                        <h:outputLabel value="Paid :" ></h:outputLabel>
+                                        <p:selectBooleanCheckbox value="#{billSearch.billSearch.paid}" ></p:selectBooleanCheckbox>
 
                                         <h:outputLabel value="Update Bill :" ></h:outputLabel>
                                         <p:commandButton value="Update" action="#{billSearch.updateBill()}" ajax="false" rendered="#{webUserController.hasPrivilege('Developers')}"></p:commandButton>

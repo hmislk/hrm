@@ -1542,11 +1542,16 @@ public class PharmacyController implements Serializable {
 //        return getPharmaceuticalBillItemFacade().findFirstBySQL(sql, hm);
 //    }
     private double getGrnQty(BillItem b) {
-        String sql = "Select sum(b.pharmaceuticalBillItem.qty) From BillItem b where b.retired=false and b.creater is not null"
-                + " and b.bill.cancelled=false and b.bill.billType=:btp and "
-                + " b.referanceBillItem=:ref";
+        String sql = " Select sum(b.pharmaceuticalBillItem.qty) From BillItem b where "
+                + " b.retired=false "
+                + " and b.creater is not null "
+                + " and b.bill.cancelled=false "
+                + " and b.bill.billType=:btp "
+                + " and b.referanceBillItem=:ref "
+                + " and type(b.bill)=:class ";
         HashMap hm = new HashMap();
         hm.put("ref", b);
+        hm.put("class", BilledBill.class);
         hm.put("btp", BillType.PharmacyGrnBill);
         double value = getBillFacade().findDoubleByJpql(sql, hm);
 

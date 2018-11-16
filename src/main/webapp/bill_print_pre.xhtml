@@ -31,11 +31,11 @@
                                                  ajax="false">
                                     <p:printer target="gpBillPreview" ></p:printer>
                                 </p:commandButton>
-                                <p:commandButton value="Cancel" ajax="false" action="/opd_bill_batch_cancel" style="color: red;" disabled="#{opdPreSettleController.bill.cancelled}" >
+                                <p:commandButton value="Cancel" ajax="false" action="/opd_bill_batch_pre_cancel" style="color: red;" disabled="#{opdPreSettleController.bill.cancelled}" >
                                     <f:setPropertyActionListener value="#{opdPreSettleController.bill}" 
                                                                  target="#{opdPreSettleController.preBill}" />
                                 </p:commandButton>
-                                <p:commandButton value="Back To Search" ajax="false" action="/opd_search_pre_batch_bill" >
+                                <p:commandButton value="Back To Search" ajax="false" action="/opd_search_pre_batch_bill_to_cancel" >
                                 </p:commandButton>
 <!--                                <p:commandButton ajax="false" value="Batch Cancel" action="#{opdPreBillController.cancellAll}" style="float: right;"
                                                  onclick="if (!confirm('Are you sure you want to Cancel This Bill ?'))

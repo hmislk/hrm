@@ -169,7 +169,11 @@
                             </p:column>
 
                             <p:column  headerText="C.C." styleClass="alignTop" >
-                                <p:outputLabel value="#{pi.billItem.bill.collectingCentre.name} (#{pi.billItem.bill.collectingCentre.institutionCode})" />
+                                <p:outputLabel value="#{pi.billItem.bill.collectingCentre.name} (#{pi.billItem.bill.collectingCentre.institutionCode})" rendered="#{pi.billItem.bill.collectingCentre ne null}" />
+                            </p:column>
+                            
+                            <p:column  headerText="aa" styleClass="alignTop" >
+                                <p:outputLabel value="#{pi.billItem.bill.billType}" />
                             </p:column>
 
 

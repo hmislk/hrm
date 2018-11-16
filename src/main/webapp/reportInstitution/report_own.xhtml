@@ -50,6 +50,7 @@
                                 <p:panel header="13) WHT Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Details) (5%)" action="/reportInstitution/report_with_holding_tax" actionListener="#{billController.clearTotals}"/> 
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Details)(Bill Item) (5%)" action="/reportInstitution/report_with_holding_tax_1" actionListener="#{billController.clearTotals}"/> 
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Summary) (5%)" action="/reportInstitution/report_with_holding_tax_summary" actionListener="#{billController.clearTotals}"/> 
                                     </h:panelGrid>
                                 </p:panel>

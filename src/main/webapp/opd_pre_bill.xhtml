@@ -31,7 +31,7 @@
                         <h:panelGrid columns="20"  >
                             <h:panelGrid columns="1">                                
                                 <p:selectOneMenu   id="pay" value="#{opdPreBillController.paymentMethod}">     
-                                    <f:selectItems value="#{enumController.paymentMethods}"  />
+                                    <f:selectItems value="#{enumController.paymentMethodsOPDPre}"  />
                                     <p:ajax process="@this cmbPs" 
                                             update=":#{p:component('pBillDetails')}  tblBillItem creditCard cheque slip"
                                             event="change"
@@ -65,7 +65,7 @@
                                 <pa:slip paymentMethodData="#{opdPreBillController.paymentMethodData}"/>
                             </h:panelGroup>
 
-                            <p:commandButton  value="Create Bill" action="#{opdPreBillController.settleBill}" ajax="false"  style="width: 200px; padding: 1px;border: 1px solid ; margin: auto;">
+                            <p:commandButton  value="For Cashier" action="#{opdPreBillController.settleBill}" ajax="false"  style="width: 200px; padding: 1px;border: 1px solid ; margin: auto;color: red;">
                             </p:commandButton>
                             <p:commandButton value="New Bill" ajax="false" action="#{opdPreBillController.prepareNewBill()}" >
                             </p:commandButton>
@@ -187,13 +187,18 @@
 
                                                 <h:panelGrid columns="1" >
 
-                                                    <p:autoComplete styleClass="mediuminput"
+                                                    <p:selectBooleanCheckbox value="#{patientController.reportKeyWord.additionalDetails}" 
+                                                                             itemLabel="Serch Only Registed Patient" >
+                                                        <f:ajax execute="@this" render="acPt" />
+                                                    </p:selectBooleanCheckbox>
+                                                    <p:autoComplete styleClass="mediuminput" converter="patientConverter"
                                                                     disabled="#{opdPreBillController.fromOpdEncounter}"
                                                                     widgetVar="aPt" id="acPt" forceSelection="true" 
                                                                     value="#{opdPreBillController.searchedPatient}" 
                                                                     completeMethod="#{patientController.completePatientByNameOrCode}" 
                                                                     var="apt" itemLabel="#{apt.person.name}" 
-                                                                    itemValue="#{apt}" size="30"  style="width: 400px;" >
+                                                                    itemValue="#{apt}" size="30"  style="width: 400px;"
+                                                                    minQueryLength="4">
 
 
                                                         <p:column headerText="Name">
@@ -220,14 +225,14 @@
                                                         <f:ajax event="itemSelect" execute=":#{p:component('cmbPs')} @this" 
                                                                 render="panSearch :#{p:component('tblBillItem')} :#{p:component('pBillDetails')}" 
                                                                 listener="#{opdPreBillController.calTotals()}" />
-                                                    </p:autoComplete>   
+                                                    </p:autoComplete>  
 
                                                     <h:panelGroup id="panSearch">
                                                         <pat:searchPatientDetail patient="#{opdPreBillController.searchedPatient}"  />
                                                     </h:panelGroup>
 
                                                     <div style="padding: 2px; margin: 2px; border: 1px solid;">
-                                                        <p:outputLabel value="#{pharmacySaleController.opdEncounterComments}" ></p:outputLabel>
+                                                        <p:outputLabel value="#{opdPreBillController.opdEncounterComments}" ></p:outputLabel>
                                                     </div>
 
                                                 </h:panelGrid>
@@ -246,7 +251,7 @@
                                     <p:panel id='pIxAdd' header="Items / Services" style="min-height: 350px;"  >
                                         <p:focus  context="acIx"/>
                                         <p:autoComplete widgetVar="aIx" id="acIx" forceSelection="true"
-                                                        value="#{opdPreBillController.currentBillItem.item}" 
+                                                        value="#{opdPreBillController.currentBillItem.item}" minQueryLength="2"
                                                         completeMethod="#{itemController.completeOpdItemsByNamesAndCode}"
                                                         var="ix" itemLabel="#{ix.name}" itemValue="#{ix}"
                                                         size="30"  style="width: 400px;" >
@@ -537,6 +542,19 @@
                                                 <h:outputLabel id="netTotal" value="#{opdPreBillController.netTotal}" >
                                                     <f:convertNumber pattern="#,##0.00" />
                                                 </h:outputLabel>
+                                                <h:outputLabel value="Hos. Sup. Ser." ></h:outputLabel>
+                                                <h:outputLabel id="netTotalVat" value="#{opdPreBillController.vat}" >
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputLabel>
+                                                <h:outputLabel value="Tendered" ></h:outputLabel>
+                                                <p:inputText autocomplete="off"  id="paid" value="#{opdPreBillController.strTenderedValue}" >
+                                                    <!--<p:ajax process="netTotal paid" update="balance" event="change"/>-->
+                                                    <p:ajax event="keyup" process="netTotal paid" update="balance netTotal" listener="#{opdPreBillController.calTotals()}"/>
+                                                </p:inputText>
+                                                <h:outputLabel  value="Balance " ></h:outputLabel>
+                                                <h:outputLabel id="balance" value="#{opdPreBillController.cashBalance}" >
+                                                    <f:convertNumber pattern="#,##0.00" />
+                                                </h:outputLabel>
                                             </p:panelGrid>
 
                                         </p:panel>
@@ -554,28 +572,35 @@
 
                 <h:panelGroup rendered="#{opdPreBillController.printPreview}" >
 
+                    <h:panelGroup rendered="#{sessionController.institutionPreference.opdBillPaperType eq 'FiveFivePaper'}">
 
+                        <h:panelGroup rendered="#{sessionController.institutionPreference.printLabelForOPdBill eq false 
+                                                  and sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'
+                                                  and sessionController.institutionPreference.fiveFivePaperWithHeadings eq false}">
+                            <div class="nonPrintBlock">
+                                <p:commandButton value="Print" 
+                                                 process="@this" 
+                                                 update="@all" 
+                                                 type="button"  
+                                                 ajax="false">
+                                    <p:printer target="gpBillPreview" ></p:printer>
+                                </p:commandButton>
 
-                    <h:panelGrid>
-
-                        <h:panelGrid columns="2" styleClass="nonPrintBlock">
-                            <p:commandButton value="Print" ajax="false" action="#"  >
-                                <p:printer target="gpPosBill" ></p:printer>
-                            </p:commandButton>
-
-                            <p:commandButton value="New Bill" ajax="false" action="#{opdPreBillController.prepareNewBill()}" >
-                            </p:commandButton>
-                        </h:panelGrid>
-
-                        <h:panelGroup id="gpPosBill">
-                            <div>
-                                <bi:posOpdBillPre bill="#{opdPreBillController.bills.get(0)}" duplicate="false"/>                        
+                                <p:commandButton value="New Bill" ajax="false" action="#{opdPreBillController.prepareNewBill()}" >
+                                </p:commandButton>
+<!--                                <p:commandButton ajax="false" value="Batch Cancel" action="#{opdPreBillController.cancellAll}" style="float: right;"
+                                                 onclick="if (!confirm('Are you sure you want to Cancel This Bill ?'))
+                                                             return false;"/>-->
                             </div>
+                            <p:outputLabel value="Balance = #{opdPreBillController.cashBalance}" style="font-weight: bold;font-size: 20pt;color: red;"/>
+                            <h:panelGroup id="gpBillPreview">
+                                <ui:repeat value="#{opdPreBillController.bills}" var="bill">
+                                    <bi:opdBillPrintRuhunu bill="#{bill}" dup="false"/>
+                                </ui:repeat>
+                            </h:panelGroup>
                         </h:panelGroup>
 
-                    </h:panelGrid>
-
-
+                    </h:panelGroup>
 
                 </h:panelGroup>
 
