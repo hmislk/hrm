@@ -46,7 +46,7 @@
 //                                title: 'Employee End of Probation',
                                 showRowNumber: true,
                                 width: '100%',
-                                height: '100%',
+//                                height: '100%',
                                 pageSize: 15,
                                 pagingButtons: 'both',
                                 sort: 'enable',
@@ -75,6 +75,33 @@
                                 width: '100%',
                             };
                             var table = new google.visualization.Table(document.getElementById('table_div_birthday_reminder'));
+
+                            table.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['table']});
+                        google.charts.setOnLoadCallback(drawTable);
+                        function drawTable() {
+                            var data = new google.visualization.DataTable();
+                            var rowdata =#{hrReportController.drawTableBirthdayReminderWithInSevenDays()}
+                            data.addColumn('string', 'Code');
+                            data.addColumn('string', 'Name');
+                            data.addColumn('string', 'Specility');
+                            data.addColumn('string', 'Department');
+                            data.addColumn('string', 'Date of Birth');
+                            data.addRows(rowdata);
+
+                            var options = {
+//                                title: 'Employee Birthday Reminder',
+                                showRowNumber: true,
+                                width: '100%',
+                                pageSize: 15,
+                                pagingButtons: 'both',
+                                sort: 'enable',
+                                alternatingRowStyle: false,
+                            };
+                            var table = new google.visualization.Table(document.getElementById('table_div_birthday_reminder_7'));
 
                             table.draw(data, options);
                         }
@@ -130,21 +157,26 @@
                                 <p:panel header="Department wise Head Count" >
                                     <div id="piechart_staff_count_department" style="width: 950px; height: 500px;"></div>
                                 </p:panel>
-<!--                                <p:panel>
-                                    <div id="piechart_staff_count" style="width: 500px; height: 500px;"></div>
-                                </p:panel>
-                                <p:panel>
-                                    <div id="piechart_staff_count" style="width: 500px; height: 500px;"></div>
-                                </p:panel>-->
+                                <!--                                <p:panel>
+                                                                    <div id="piechart_staff_count" style="width: 500px; height: 500px;"></div>
+                                                                </p:panel>
+                                                                <p:panel>
+                                                                    <div id="piechart_staff_count" style="width: 500px; height: 500px;"></div>
+                                                                </p:panel>-->
                             </h:panelGrid>
-<!--                            <h:panelGrid columns="1">
-                                <p:panel header="Department wise Head Count" >
-                                    <div id="piechart_staff_count_department" style="width: 1500px; height: 400px;"></div>
-                                </p:panel>
-                            </h:panelGrid>-->
+                            <!--                            <h:panelGrid columns="1">
+                                                            <p:panel header="Department wise Head Count" >
+                                                                <div id="piechart_staff_count_department" style="width: 1500px; height: 400px;"></div>
+                                                            </p:panel>
+                                                        </h:panelGrid>-->
                             <h:panelGrid columns="1">
                                 <p:panel header="Employee Birthday Reminder">
                                     <div id="table_div_birthday_reminder" style="width: 1500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1">
+                                <p:panel header="Employee Birthday Reminder Next 7 Days">
+                                    <div id="table_div_birthday_reminder_7" style="width: 1500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid columns="1">

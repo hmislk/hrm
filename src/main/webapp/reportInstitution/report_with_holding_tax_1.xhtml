@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ez="http://java.sun.com/jsf/composite/ezcomp"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:au="http://java.sun.com/jsf/composite/autocomplete"
+                xmlns:ca="http://java.sun.com/jsf/composite/cashier">
+
+
+    <ui:define name="content">
+
+        <h:panelGroup rendered="true" >
+            <h:form>
+                <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
+                <p:panel  header="OPD Bill List With VAT 15%">
+                    <h:panelGrid columns="2" styleClass="noPrintButton"> 
+                        <h:outputLabel value="From Date"/>
+                        <p:calendar id="frmDate" value="#{billController.reportKeyWord.fromDate}" navigator="true"  pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
+
+                        <h:outputLabel value="To Date"/>
+                        <p:calendar id="toDate" value="#{billController.reportKeyWord.toDate}" navigator="true" pattern="dd MMMM yyyy HH:mm:ss" ></p:calendar>
+                        <h:outputLabel value="Search By"/>
+                        <p:selectOneRadio value="#{billController.reportKeyWord.string}" >
+                            <f:selectItem itemLabel="All" itemValue="0" />
+                            <f:selectItem itemLabel="OPD Only" itemValue="1" />
+                            <f:selectItem itemLabel="Inward Only" itemValue="2" />
+                        </p:selectOneRadio>
+                        <h:outputLabel value="Without Zero"/>
+                        <p:selectBooleanCheckbox value="#{billController.reportKeyWord.bool1}" />
+                        <h:outputLabel value="Sepecility"/>
+                        <au:completeSpeciality value="#{billController.reportKeyWord.speciality}" />
+                        <h:outputLabel value="Consultant"/>
+                        <au:completeDoctor value="#{billController.reportKeyWord.staff}" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="3"> 
+                        <p:commandButton ajax="false" id="btnRefresh" value="Process" action="#{billController.createWithHoldingTaxBillDetails()}">
+                        </p:commandButton>
+                        <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" style="float: right;" >
+                            <p:printer target="billFeeReport"  />
+                        </p:commandButton>
+                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" actionListener="#{billController.createWithHoldingTaxBillDetails()}" >
+                            <pe:exporter type="xlsx" target="tbl1" fileName="report_opd_bills_for_vat" subTable="true"  />
+                        </p:commandButton>
+                    </h:panelGrid>
+
+                </p:panel>
+                <p:panel id="billFeeReport" styleClass="noBorder summeryBorder" header="Channel Bill List">
+
+
+                    <p:dataTable value="#{billController.bills}" var="b" id="tbl1" >
+                        <f:facet name="header" >
+                            <p:outputLabel value="With Holding Tax 5%" />
+                            <h:outputLabel value="From : " style=" white-space:pre-line;"/>
+                            <h:outputLabel  value="#{channelReportController.fromDate}" >
+                                <f:convertDateTime pattern="dd MMM yyyy HH:mm a"/>
+                            </h:outputLabel>                          
+                            <h:outputLabel value="&emsp;&emsp;To :"/>
+                            <h:outputLabel  value="#{channelReportController.toDate}" >
+                                <f:convertDateTime pattern="dd MMM yyyy HH:mm a"/>
+                            </h:outputLabel>
+                        </f:facet>
+                        <p:columnGroup  type="header">
+                            <p:row>
+                                <p:column headerText="Bill No"/>
+                                <p:column headerText="ref. Bill No" style="text-align: left;"/>
+                                <p:column headerText="BHT No" rendered="#{billController.reportKeyWord.string eq '2'}"/>
+                                <p:column headerText="Bill Type" style="text-align: left;" rendered="#{billController.reportKeyWord.string eq '0'}"/>
+                                <p:column headerText="Date" style="text-align: left;"/>
+                                <p:column headerText="Doctor Specility" style="text-align: left;" rendered="#{billController.reportKeyWord.speciality eq null}"/>
+                                <p:column headerText="Doctor Name"/>
+                                <p:column headerText="Doctor Name(For)"/>
+                                <p:column headerText="WHT"/>
+                                <p:column headerText="Total"/>
+                            </p:row>
+                        </p:columnGroup>
+
+                        <p:subTable value="#{b.billItems}" var="bi" >
+                            <f:facet name="header" >
+                                <p:outputLabel value="With Holding Tax Value = " />
+                                <p:outputLabel value="#{b.tax}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel><br></br>
+                                <p:outputLabel value="Net Total = " />
+                                <p:outputLabel value="#{b.netTotal}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel>
+                            </f:facet>
+
+                            <p:column style="text-align: left;" >
+                                <p:outputLabel value="#{bi.bill.insId}" />                                    
+                            </p:column>
+                            <p:column style="text-align: left;" >
+                                <p:outputLabel value="#{bi.bill.forwardReferenceBill.insId}" />                                    
+                            </p:column>
+
+                            <p:column style="text-align: left;" rendered="#{billController.reportKeyWord.string eq '2'}" >
+                                <p:outputLabel value="#{bi.referanceBillItem.bill.patientEncounter.bhtNo}" />                                    
+                            </p:column>
+                            
+                            <p:column rendered="#{billController.reportKeyWord.string eq '0'}">
+                                <p:outputLabel value="#{bi.bill.billType.label}" />                                    
+                            </p:column>
+
+                            <p:column style="text-align: left;" >
+                                <p:outputLabel value="#{bi.bill.createdAt}" >
+                                    <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                </p:outputLabel>                                    
+                            </p:column>
+
+                            <p:column rendered="#{billController.reportKeyWord.speciality eq null}" >
+                                <p:outputLabel value="#{bi.bill.staff.speciality.name}" />                           
+                            </p:column>
+
+                            <p:column >
+                                <p:outputLabel value="#{bi.bill.staff.person.nameWithTitle}" />                                    
+                            </p:column>
+
+                            <p:column >
+                                <p:outputLabel value="#{bi.bill.fromStaff.person.nameWithTitle}" />                                    
+                            </p:column>
+
+                            <p:column style="text-align: right;" >
+                                <p:outputLabel value="0.0" rendered="#{b.tax eq 0.0}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel>                                  
+                                <p:outputLabel value="#{bi.netValue*0.05}" rendered="#{b.tax ne 0.0}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel>                                  
+                            </p:column>
+                            <p:column style="text-align: right;" >
+                                <p:outputLabel value="#{bi.netValue}" rendered="#{b.tax eq 0.0}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel>                                  
+                                <p:outputLabel value="#{bi.netValue*0.95}" rendered="#{b.tax ne 0.0}" >
+                                    <f:convertNumber pattern="#,##0.00" />
+                                </p:outputLabel>                                  
+                            </p:column>
+                        </p:subTable>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+
+</ui:composition>

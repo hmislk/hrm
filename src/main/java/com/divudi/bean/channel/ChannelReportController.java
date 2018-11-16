@@ -3704,7 +3704,7 @@ public class ChannelReportController implements Serializable {
         }
 
         if (s != null) {
-            sql += " and b.toStaff-:s ";
+            sql += " and b.toStaff=:s ";
             hm.put("s", s);
         }
 
