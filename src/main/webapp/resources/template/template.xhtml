@@ -73,8 +73,11 @@
                                         </p:menuitem>
                                     </p:submenu>
 
+                                    <p:submenu label="OPD For Cashier">
+                                        <p:menuitem ajax="false" action="/opd_pre_bill"  actionListener="#{opdPreBillController.prepareNewBill}" value="Bills For Cashier" rendered="#{webUserController.hasPrivilege('OpdPreBilling')}" ></p:menuitem>
+                                        <p:menuitem ajax="false" action="/opd_search_pre_batch_bill_to_cancel" value="Bill Search For Cancel" rendered="#{webUserController.hasPrivilege('OpdPreBillSearch')}" actionListener="#{searchController.makeListNull}" ></p:menuitem>
+                                    </p:submenu>
 
-                                    <p:menuitem ajax="false" action="/opd_pre_bill"  actionListener="#{opdPreBillController.prepareNewBill}" value="Bills For Cashier" rendered="#{webUserController.hasPrivilege('OpdPreBilling')}" ></p:menuitem>
 
                                     <p:submenu label="Packages">
                                         <p:menuitem ajax="false" action="/opd_bill_package" actionListener="#{billPackageController.clearBillValues}" value="Packages" rendered="#{webUserController.hasPrivilege('OpdBilling')}" ></p:menuitem>
@@ -86,8 +89,8 @@
                                     </p:submenu>
                                     <p:submenu label="OPD" rendered="#{webUserController.hasPrivilege('OpdPreBilling')}">
                                         <p:menuitem ajax="false" action="/opd_search_pre_bill" actionListener="#{searchController.makeListNull}"  value="Accept Payment(OPD)" rendered="false" ></p:menuitem>
-                                        <p:menuitem ajax="false" action="/opd_search_pre_batch_bill" actionListener="#{searchController.makeListNull}"  value="Accept Payment(OPD Batch Bill)" ></p:menuitem>
-                                        <p:menuitem ajax="false" action="/opd_search_bill_fee_payment" value="Payment BillFees Fot test" ></p:menuitem>
+                                        <p:menuitem ajax="false" action="/opd_search_pre_batch_bill" actionListener="#{searchController.makeListNull}"  value="Accept Payment(OPD Batch Bill)" rendered="#{webUserController.hasPrivilege('OpdPreBillAccept')}" ></p:menuitem>
+                                        <p:menuitem ajax="false" action="/opd_search_bill_fee_payment" value="Payment BillFees Fot test" rendered="false" ></p:menuitem>
 
                                     </p:submenu>
                                     <p:menuitem ajax="false" action="/opd_search_bill_own" actionListener="#{searchController.makeListNull}"  value="Bill Search" rendered="#{webUserController.hasPrivilege('OpdBillSearch')}" ></p:menuitem>
@@ -765,7 +768,7 @@
 
                                     </p:submenu>
                                     <p:menuitem ajax="false" action="/dataAdmin/admin_data_administration" value="Data Administration" rendered="#{webUserController.hasPrivilege('AdminItems')}" ></p:menuitem>
-                                    <p:menuitem ajax="false" action="/admin/bill_contact_numbers.xhtml" value="Send Bulk SMS" rendered="#{webUserController.hasPrivilege('SendBulkSMS')}" ></p:menuitem>
+                                    <p:menuitem ajax="false" action="/admin/bill_contact_numbers.xhtml" value="Send Bulk SMS" rendered="#{webUserController.hasPrivilege('SendBulkSMS') or webUserController.hasPrivilege('Developers')}" ></p:menuitem>
 
                                 </p:submenu>
 
@@ -926,40 +929,40 @@
             <div style="position: fixed; bottom: 10px; right: 10px; " class="nonPrintBlock" >
                 <p:clock pattern="hh:mm:ss a - EEEE - dd MMMM yyyy" mode="server"  />  
             </div>
-<!--            <div class="nonPrintBlock" >
-                <h:form>
-                    <p:dock position="bottom" itemWidth="35"   proximity="50"  
-                            rendered="#{webUserController.hasPrivilege('Developers') 
-                                        and (sessionController.loggedUser.id eq 3151
-                                        or  sessionController.loggedUser.id eq 1101795)
-                                        and sessionController.logged
-                                        and !sessionController.firstLogin 
-                                        and sessionController.department ne null}">
-                        <p:menuitem value="Channel Booking" 
-                                    icon="/resources/image/ico/doc.png" action="/channel/channel_booking"/>
-                        <p:menuitem value="Doctor Arrival" 
-                                    icon="/resources/image/ico/arrival.png" action="/channel/channel_doctor_view_today_1"/>
-                        <p:menuitem value="Opd Summery" 
-                                    icon="/resources/image/ico/analytics_1.png" action="/reportCashier/report_cashier"/>
-                        <p:menuitem value="Lab Summery" 
-                                    icon="/resources/image/ico/syringe.png" action="/reportLab/lab_summeries_index"/>
-                        <p:menuitem value="Channel Reports" 
-                                    icon="/resources/image/ico/stethoscope.png" action="/channel/channel_reports"/>
-                        <p:menuitem value="Institution Reports" 
-                                    icon="/resources/image/ico/analytics_2.png" action="/reportInstitution/report_own"/>
-                        <p:menuitem value="Bill Edit" 
-                                    icon="/resources/image/ico/search.png" action="/search_bill"/>
-                        <p:menuitem value="BHT Edit" 
-                                    icon="/resources/image/ico/edit.png" action="/developers/edit_bht"/>
-                        <p:menuitem value="Pharmacy History" 
-                                    icon="/resources/image/ico/antibiotic.png" action="/pharmacy/pharmacy_error_checking_date"/>
-                        <p:menuitem value="Bulk Sms" 
-                                    icon="/resources/image/ico/sms.png" action="/admin/bill_contact_numbers"/>
-                        <p:menuitem value="Sms Report" 
-                                    icon="/resources/image/ico/send.png" action="/sms_report"/>
-                    </p:dock>
-                </h:form>
-            </div>-->
+            <!--            <div class="nonPrintBlock" >
+                            <h:form>
+                                <p:dock position="bottom" itemWidth="35"   proximity="50"  
+                                        rendered="#{webUserController.hasPrivilege('Developers') 
+                        and (sessionController.loggedUser.id eq 3151
+                        or  sessionController.loggedUser.id eq 1101795)
+                        and sessionController.logged
+                        and !sessionController.firstLogin 
+                        and sessionController.department ne null}">
+        <p:menuitem value="Channel Booking" 
+                    icon="/resources/image/ico/doc.png" action="/channel/channel_booking"/>
+        <p:menuitem value="Doctor Arrival" 
+                    icon="/resources/image/ico/arrival.png" action="/channel/channel_doctor_view_today_1"/>
+        <p:menuitem value="Opd Summery" 
+                    icon="/resources/image/ico/analytics_1.png" action="/reportCashier/report_cashier"/>
+        <p:menuitem value="Lab Summery" 
+                    icon="/resources/image/ico/syringe.png" action="/reportLab/lab_summeries_index"/>
+        <p:menuitem value="Channel Reports" 
+                    icon="/resources/image/ico/stethoscope.png" action="/channel/channel_reports"/>
+        <p:menuitem value="Institution Reports" 
+                    icon="/resources/image/ico/analytics_2.png" action="/reportInstitution/report_own"/>
+        <p:menuitem value="Bill Edit" 
+                    icon="/resources/image/ico/search.png" action="/search_bill"/>
+        <p:menuitem value="BHT Edit" 
+                    icon="/resources/image/ico/edit.png" action="/developers/edit_bht"/>
+        <p:menuitem value="Pharmacy History" 
+                    icon="/resources/image/ico/antibiotic.png" action="/pharmacy/pharmacy_error_checking_date"/>
+        <p:menuitem value="Bulk Sms" 
+                    icon="/resources/image/ico/sms.png" action="/admin/bill_contact_numbers"/>
+        <p:menuitem value="Sms Report" 
+                    icon="/resources/image/ico/send.png" action="/sms_report"/>
+    </p:dock>
+</h:form>
+</div>-->
 
         </div>
 

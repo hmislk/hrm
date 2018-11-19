@@ -63,6 +63,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1044,8 +1046,8 @@ public class HrReportController implements Serializable {
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
-        m.put("cd",new Date());
-        
+        m.put("cd", new Date());
+
         System.out.println("m = " + m);
         System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
@@ -5499,7 +5501,7 @@ public class HrReportController implements Serializable {
         return mainJSONArray.toString();
 
     }
-    
+
     public String drawTableEndOfProbation() {
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
@@ -5551,19 +5553,19 @@ public class HrReportController implements Serializable {
         m.put("cd", new Date());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
-        System.out.println("staffs = " + list.size());
+//        System.out.println("staffs = " + list.size());
         SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
         for (Staff s : list) {
-            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+//            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
             Calendar dob = Calendar.getInstance();
             if (s.getPerson() != null && s.getPerson().getDob() != null) {
                 dob.setTime(s.getPerson().getDob());
-                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
-                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+//                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+//                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
                 Calendar now = Calendar.getInstance();
-                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
-                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+//                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+//                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
                 if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
                     subArray = new JSONArray();
                     subArray.put(0, s.getCode());
@@ -5574,6 +5576,72 @@ public class HrReportController implements Serializable {
                     } else {
                         subArray.put(3, s.getWorkingDepartment().getName());
                     }
+                    mainJSONArray.put(subArray);
+                }
+            }
+        }
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawTableBirthdayReminderWithInSevenDays() {
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " and (c.dateLeft is null or c.dateLeft>:cd)"
+                + " and c.person.dob is not null "
+                + " order by c.person.name ";
+        m.put("class", Consultant.class);
+        m.put("cd", new Date());
+
+        List<Staff> list = staffFacade.findBySQL(sql, m);
+//        System.out.println("staffs = " + list.size());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
+        for (Staff s : list) {
+            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+                Calendar now = Calendar.getInstance();
+                now.setTime(getCommonFunctions().getStartOfDay());
+                dob.set(Calendar.YEAR, now.get(Calendar.YEAR));
+                System.out.println("dob.getTime() = " + dob.getTime());
+                now.add(Calendar.DATE, 1);
+                Date fd = now.getTime();
+                System.out.println("fd = " + fd);
+                now.add(Calendar.DATE, 7);
+                Date td = commonFunctions.getEndOfDay(now.getTime());
+                System.out.println("td = " + td);
+                
+                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
+                System.out.println("fd.getTime() == dob.getTime().getTime() = " + (fd.getTime() == dob.getTime().getTime()));
+                System.out.println("dob.getTime().before(td) = " + dob.getTime().before(td));
+                System.out.println("td.getTime() == dob.getTime().getTime() = " + (td.getTime() == dob.getTime().getTime()));
+                
+                if ((dob.getTime().after(fd) || fd.getTime() == dob.getTime().getTime())
+                        && (dob.getTime().before(td) || td.getTime() == dob.getTime().getTime())) {
+                    subArray = new JSONArray();
+                    subArray.put(0, s.getCode());
+                    subArray.put(1, s.getPerson().getName());
+                    subArray.put(2, s.getSpeciality().getName());
+                    if (s.getWorkingDepartment() == null) {
+                        subArray.put(3, "No Department");
+                    } else {
+                        subArray.put(3, s.getWorkingDepartment().getName());
+                    }
+                    DateFormat df = new SimpleDateFormat("MM dd");
+                    subArray.put(4, df.format(s.getPerson().getDob()));
                     mainJSONArray.put(subArray);
                 }
             }

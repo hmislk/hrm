@@ -6,6 +6,7 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ph="http://java.sun.com/jsf/composite/pharmacy"
+      xmlns:bi="http://java.sun.com/jsf/composite/bill"
       xmlns:pa="http://java.sun.com/jsf/composite/paymentMethod">
 
     <h:body>
@@ -17,7 +18,7 @@
 
                     <p:panel rendered="#{!opdPreSettleController.billPreview}">
                         <f:facet name="header" >
-                            <h:outputLabel value="OPD Bill Accept Payment" ></h:outputLabel>                        
+                            <h:outputLabel value="OPD Bill Accept Payment Cancel" ></h:outputLabel>                        
                         </f:facet>
 
                         <h:panelGrid columns="20"  >
@@ -40,12 +41,12 @@
                                 <pa:slip paymentMethodData="#{opdPreSettleController.paymentMethodData}"/>
                             </h:panelGroup>
 
-                            <p:commandButton ajax="false                                                                                                                                                                                                                                                                                                                                                    "  
-                                             value="Settle and Accept Payment" 
+                            <p:commandButton update="@all"  
+                                             value="Cancel Payment" 
                                              id="settle"
-                                             action="#{opdPreSettleController.settle()}" 
-                                             disabled="#{opdPreSettleController.preBill.paid or opdPreSettleController.preBill.cancelled}" >
-                                <p:confirm header="Confirmation" message="Are you sure to pay this Bill?" icon="ui-icon-alert" />
+                                             action="#{opdPreSettleController.cancelPaid()}" 
+                                             disabled="#{opdPreSettleController.preBill.referenceBill.cancelled}" >
+                                <p:confirm header="Confirmation" message="Are you sure to Cancel this Bill?" icon="ui-icon-alert" />
                             </p:commandButton>
                             <p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
                                 <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
@@ -56,6 +57,9 @@
                                              action="opd_search_pre_batch_bill"/>
                             <p:defaultCommand target="settle"/>
                         </h:panelGrid>
+                        <p:panel>
+                            <p:outputLabel value="#{opdPreSettleController.errorMsg}" style="color: red; font-weight: bold;" />
+                        </p:panel>
 
                         <p:panel>
                             <p:panelGrid columns="3" style="width: 100%;">
@@ -115,7 +119,7 @@
                             <p:panel header="Bill Details (Pre Bill)">
                                 <p:dataTable value="#{opdPreSettleController.preBill.forwardReferenceBills}" var="rb">
                                     <p:column  headerText="Bill No" >                                                               
-                                        <h:outputLabel  value="#{rb.deptId}"/>                                   
+                                        <h:outputLabel  value="#{rb.insId}"/>                                   
                                     </p:column>
                                     <p:column  headerText="Bill Raised At">
                                         <h:outputLabel value="#{rb.createdAt}" >
@@ -173,32 +177,12 @@
                             <p:panel header="Bill Details (Billed Bill)" rendered="#{opdPreSettleController.preBill.referenceBill ne null}">
                                 <p:dataTable value="#{opdPreSettleController.preBill.referenceBill.forwardReferenceBills}" var="rb">
                                     <p:column  headerText="Bill No" >                                                               
-                                        <h:outputLabel  value="#{rb.deptId}"/>                                   
+                                        <h:outputLabel  value="#{rb.insId}"/>                                   
                                     </p:column>
                                     <p:column  headerText="Bill Raised At">
                                         <h:outputLabel value="#{rb.createdAt}" >
                                             <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
                                         </h:outputLabel>
-                                        <br></br>
-                                        <h:panelGroup rendered="#{rb.cancelled}" >
-                                            <h:outputLabel style="color: red;" value="Cancelled at " />
-                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
-                                                           value="#{rb.cancelledBill.createdAt}" >
-                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
-                                            </h:outputLabel>
-                                            <br></br>
-                                            <h:outputLabel style="color: red;" value=" by " />
-                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
-                                                           value="#{rb.cancelledBill.creater.webUserPerson.name}" >                                       
-                                            </h:outputLabel>
-                                        </h:panelGroup> 
-                                        <h:panelGroup rendered="#{rb.refunded}" >
-                                            <h:outputLabel style="color: red;" value="Refunded at " />
-                                            <h:outputLabel style="color: red;" rendered="#{rb.refunded}"
-                                                           value="#{rb.referenceBill.createdAt}" >
-                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
-                                            </h:outputLabel>
-                                        </h:panelGroup>
                                     </p:column>
 
                                     <p:column headerText="User" >                               
@@ -227,12 +211,62 @@
                                         </h:outputLabel>                                  
                                     </p:column>
                                     <p:column  headerText="Comments">
-                                        <h:outputLabel  value="#{rb.cancelledBill.comments}"/> 
+                                        <h:panelGroup rendered="#{rb.cancelled}" >
+                                            <h:outputLabel style="color: red;" value="Cancelled at " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
+                                                           value="#{rb.cancelledBill.createdAt}" >
+                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                            </h:outputLabel>
+                                            <h:outputLabel style="color: red;" value=" by " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
+                                                           value="#{rb.cancelledBill.creater.webUserPerson.name}" >                                       
+                                            </h:outputLabel>
+                                        </h:panelGroup> 
+                                        <h:panelGroup rendered="#{rb.refunded}" >
+                                            <h:outputLabel style="color: red;" value="Refunded at " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.refunded}"
+                                                           value="#{rb.referenceBill.createdAt}" >
+                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                            </h:outputLabel>
+                                        </h:panelGroup> 
                                     </p:column> 
                                 </p:dataTable>
                             </p:panel>
                         </p:panel>
                     </p:panel>
+
+                    <h:panelGroup rendered="#{opdPreSettleController.billPreview}" >
+
+                        <h:panelGroup rendered="#{sessionController.institutionPreference.opdBillPaperType eq 'FiveFivePaper'}">
+
+                            <h:panelGroup rendered="#{sessionController.institutionPreference.printLabelForOPdBill eq false 
+                                                      and sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'
+                                                      and sessionController.institutionPreference.fiveFivePaperWithHeadings eq false}">
+                                <div class="nonPrintBlock">
+                                    <p:commandButton value="Print" 
+                                                     process="@this" 
+                                                     update="@all" 
+                                                     type="button"  
+                                                     ajax="false">
+                                        <p:printer target="gpBillPreview" ></p:printer>
+                                    </p:commandButton>
+
+                                    <p:commandButton value="Go to Search" ajax="false" action="/opd_search_pre_batch_bill" >
+                                    </p:commandButton>
+    <!--                                <p:commandButton ajax="false" value="Batch Cancel" action="#{opdPreBillController.cancellAll}" style="float: right;"
+                                                     onclick="if (!confirm('Are you sure you want to Cancel This Bill ?'))
+                                                                 return false;"/>-->
+                                </div>
+                                <h:panelGroup id="gpBillPreview">
+                                    <ui:repeat value="#{opdPreSettleController.preBill.forwardReferenceBills}" var="bill">
+                                        <bi:opdBillPrintRuhunu bill="#{bill}" dup="false"/>
+                                    </ui:repeat>
+                                </h:panelGroup>
+                            </h:panelGroup>
+
+                        </h:panelGroup>
+
+                    </h:panelGroup>
 
 
 

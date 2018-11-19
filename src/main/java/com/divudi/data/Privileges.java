@@ -32,6 +32,8 @@ public enum Privileges {
     OpdCollectingCentreBilling,
     OpdCollectingCentreBillSearch,
     OpdPreBilling,
+    OpdPreBillSearch,
+    OpdPreBillAccept,
     OpdBillSearch,
     OpdBillItemSearch,
     OpdReprint,

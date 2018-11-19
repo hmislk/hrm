@@ -169,7 +169,11 @@
                             </p:column>
 
                             <p:column  headerText="C.C." styleClass="alignTop" >
-                                <p:outputLabel value="#{pi.billItem.bill.collectingCentre.name} (#{pi.billItem.bill.collectingCentre.institutionCode})" />
+                                <p:outputLabel value="#{pi.billItem.bill.collectingCentre.name} (#{pi.billItem.bill.collectingCentre.institutionCode})" rendered="#{pi.billItem.bill.collectingCentre ne null}" />
+                            </p:column>
+                            
+                            <p:column  headerText="aa" styleClass="alignTop" >
+                                <p:outputLabel value="#{pi.billItem.bill.billType}" />
                             </p:column>
 
 
@@ -324,6 +328,11 @@
                                                 <p:graphicImage library="image" name="print.jpg" styleClass="standedicon" ></p:graphicImage>
                                                 <f:setPropertyActionListener value="#{dpr}" target="#{patientReportController.currentPatientReport}"></f:setPropertyActionListener>
                                             </p:commandLink>
+                                            
+                                            <p:commandLink id="cmdOldReportPrintOut" ajax="false" action="/lab/lab_patient_report_print_out">
+                                                <p:graphicImage library="image" name="print.png" styleClass="standedicon" style="border: red;" ></p:graphicImage>
+                                                <f:setPropertyActionListener value="#{dpr}" target="#{patientReportController.currentPatientReport}"></f:setPropertyActionListener>
+                                            </p:commandLink>
 
                                             <p:graphicImage id="imgApproved" library="image" name="approved_icon.png" 
                                                             style="height: 30px; width: 30px; #{dpr.approved ? '':'opacity: 0.1;'}" ></p:graphicImage>
@@ -336,15 +345,19 @@
                                             <h:outputLabel value="Approved" styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
                                             </h:outputLabel>
                                         </pu:tooltip>
-                                        <p:tooltip for="imgPrinted" >
+                                        <pu:tooltip for="imgPrinted" >
                                             <h:outputLabel value="Printed" styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
                                             </h:outputLabel>
-                                        </p:tooltip>
-                                        <p:tooltip for="cmdOldReportPrint" >
-                                            <h:outputLabel value="To Print" styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
+                                        </pu:tooltip>
+                                        <pu:tooltip for="cmdOldReportPrint" >
+                                            <h:outputLabel value="Print B&amp;W " styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
                                             </h:outputLabel>
-                                        </p:tooltip>
-                                        <p:tooltip for="cmdOldReport cmdOldReportEdit" >
+                                        </pu:tooltip>
+                                        <pu:tooltip for="cmdOldReportPrintOut" >
+                                            <h:outputLabel value="Print Colour" styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
+                                            </h:outputLabel>
+                                        </pu:tooltip>
+                                        <pu:tooltip for="cmdOldReport cmdOldReportEdit" >
                                             <h:outputLabel value="To Edit, Approve or Print" styleClass="#{dpr.approved ? 'greentext':'yellowtext'}" >
                                             </h:outputLabel>
                                             <br/>
@@ -365,7 +378,7 @@
                                             <h:outputLabel value="#{dpr.printingAt}"  rendered="#{dpr.printed}" >
                                                 <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm a"/>
                                             </h:outputLabel>
-                                        </p:tooltip>
+                                        </pu:tooltip>
 
 
                                     </p:column>

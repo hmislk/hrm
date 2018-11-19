@@ -10,6 +10,7 @@ import com.divudi.bean.report.CommonReport;
 import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
+import com.divudi.data.table.String1Value1;
 import com.divudi.data.table.String3Value2;
 import com.divudi.ejb.CommonFunctions;
 import com.divudi.entity.Bill;
@@ -35,6 +36,8 @@ import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -454,7 +457,7 @@ public class GoogleChartController implements Serializable {
     }
 
     public String drawChannelCountChart() {
-        System.out.println("1.Time = " + new Date());
+        System.out.println("1.Time(Channel) = " + new Date());
         Calendar cal = Calendar.getInstance();
         Date toDate = cal.getTime();
 
@@ -490,11 +493,11 @@ public class GoogleChartController implements Serializable {
 //        System.out.println("objectsCan.size() = " + objectsCan.size());
         for (Object[] obj : objects) {
 //            System.out.println("objects[0] = " + obj[0]);
-            Date d=(Date) obj[0];
+            Date d = (Date) obj[0];
             long tot = 0l;
             for (Object[] ob1 : objects) {
 //                System.out.println("ob1[0] = " + ob1[0]);
-                if (d.equals((Date)ob1[0])) {
+                if (d.equals((Date) ob1[0])) {
 //                    System.out.println("ob1[1] = " + ob1[1]);
                     tot += (long) ob1[1];
                     break;
@@ -502,7 +505,7 @@ public class GoogleChartController implements Serializable {
             }
             for (Object[] ob2 : objectsCan) {
 //                System.out.println("ob2[0] = " + ob2[0]);
-                if (d.equals((Date)ob2[0])) {
+                if (d.equals((Date) ob2[0])) {
 //                    System.out.println("ob2[1] = " + ob2[1]);
                     tot -= (long) ob2[1];
                     break;
@@ -517,9 +520,115 @@ public class GoogleChartController implements Serializable {
         }
 //        System.out.println("2.objects.size() = " + objects.size());
 
-        System.out.println("2.Time = " + new Date());
+        System.out.println("2.Time(Channel) = " + new Date());
         return jSONArray1.toString();
 
+    }
+
+    public String drawPharmacyChart() {
+        System.out.println("1.Time(Pharmacy) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        cal.add(Calendar.DATE, -7);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+//        System.out.println("fd = " + fd);
+//        System.out.println("td = " + td);
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        int i = 0;
+        subArray.put(i, "Date");
+        i++;
+        List<Object[]> objects = fetchSaleValue(fd, td);
+        List<String> depStrings = new ArrayList<>();
+        for (Object[] ob : objects) {
+//            System.out.println("ob[0] = " + ob[0]);
+            if (depStrings.isEmpty()) {
+//                System.out.println("ob[0] = " + ob[0]);
+                depStrings.add((String) ob[0]);
+                subArray.put(i, (String) ob[0]);
+                i++;
+            }
+            if (!depStrings.contains((String) ob[0])) {
+//                System.out.println("ob[0] = " + ob[0]);
+                depStrings.add((String) ob[0]);
+                subArray.put(i, (String) ob[0]);
+                i++;
+            }
+        }
+//        System.out.println("depStrings = " + depStrings);
+        mainJSONArray.put(subArray);
+        subArray = new JSONArray();
+//        for (Object[] ob : objects) {
+//            System.out.println("ob[1] = " + ob[1]);
+//
+//            System.out.println("ob[0] = " + ob[0]);
+//            System.out.println("ob[2] = " + ob[2]);
+//        }
+        Date nowDate = fd;
+        DateFormat df = new SimpleDateFormat("yyyy MM dd");
+        NumberFormat nf = new DecimalFormat("#,##0.00");
+        while (nowDate.before(td) || nowDate.equals(td)) {
+            i = 0;
+            String date = df.format(nowDate);
+//            System.out.println("*****date = " + date);
+            subArray.put(i, date);
+            i++;
+            for (String s : depStrings) {
+//                System.out.println("*****s = " + s);
+                double d = 0;
+                for (Object[] ob : objects) {
+                    if (s.equals((String) ob[0]) && date.equals(df.format((Date) ob[1]))) {
+//                        System.out.println("ob[0] = " + ob[0]);
+//                        System.out.println("ob[1] = " + ob[1]);
+//                        System.out.println("ob[2] = " + ob[2]);
+//                        System.err.println("**in");
+                        d = 0 - (double) ob[2];
+                        break;
+                    }
+                }
+                subArray.put(i, d);
+                i++;
+            }
+            mainJSONArray.put(subArray);
+            subArray = new JSONArray();
+            cal = Calendar.getInstance();
+            cal.setTime(nowDate);
+            cal.add(Calendar.DATE, 1);
+            nowDate = cal.getTime();
+//            System.out.println("nowDate = " + nowDate);
+        }
+//        System.out.println("mainJSONArray = " + mainJSONArray);
+        System.out.println("2.Time(Pharmacy) = " + new Date());
+        return mainJSONArray.toString();
+
+    }
+
+    private List<Object[]> fetchSaleValue(Date fd, Date td) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select bi.bill.department.name,"
+                + " FUNC('Date',bi.bill.createdAt),"
+                + " sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
+                + " from BillItem bi "
+                + " where bi.bill.retired=false "
+                + " and bi.bill.billType=:btp "
+                + " and type(bi.bill)=:cl "
+                + " and bi.bill.createdAt between :fd and :td "
+                + " group by bi.bill.department, FUNC('Date',bi.bill.createdAt) "
+                + " order by bi.bill.department.name, bi.bill.createdAt ";
+
+        m.put("fd", fd);
+        m.put("td", td);
+        m.put("cl", PreBill.class);
+        m.put("btp", BillType.PharmacyPre);
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("objects.size() = " + objects.size());
+
+        return objects;
     }
 
     public double countBillByBillTypeAndFeeType(Bill bill, FeeType ft, BillType bt, Date fd, Date td, boolean sessoinDate) {

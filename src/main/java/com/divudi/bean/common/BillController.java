@@ -810,6 +810,72 @@ public class BillController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
     }
 
+    public void createWithHoldingTaxBillDetails() {
+        Date startTime = new Date();
+
+        BillType[] billTypes;
+
+        if (getReportKeyWord().getString().equals("0")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill, BillType.WithHoldingTaxBillInward};
+        } else if (getReportKeyWord().getString().equals("1")) {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBill};
+        } else {
+            billTypes = new BillType[]{BillType.WithHoldingTaxBillInward};
+        }
+
+        String sql;
+        Map m = new HashMap();
+        sql = "Select b From Bill b where "
+                + " b.retired=false "
+                + " and b.billType=:bt "
+                + " and b.createdAt between :frm and :to"
+                + " and b.forwardReferenceBill.billType in :bts ";
+
+        if (getReportKeyWord().getStaff() != null) {
+            sql += " and (b.staff=:s or b.toStaff=:s) ";
+            m.put("s", getReportKeyWord().getStaff());
+        }
+
+        if (getReportKeyWord().getSpeciality() != null) {
+            sql += " and (b.staff.speciality=:spe or b.toStaff.speciality=:spe) ";
+            m.put("spe", getReportKeyWord().getSpeciality());
+        }
+
+        if (getReportKeyWord().isBool1()) {
+            sql += " and b.forwardReferenceBill.netTotal!=:b ";
+            m.put("b", 0.0);
+        }
+
+        sql += " order by b.createdAt ";
+        m.put("frm", getReportKeyWord().getFromDate());
+        m.put("to", getReportKeyWord().getToDate());
+        m.put("bts", Arrays.asList(billTypes));
+        m.put("bt", BillType.PaymentBill);
+
+        bills = getBillFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("bills.size() = " + bills.size());
+        for (Bill b : bills) {
+            System.out.println("b.getBillItems().size() = " + b.getBillItems().size());
+            if (b.getBillItems().isEmpty()) {
+                sql = " select bi from BillItem bi where bi.retired and bi.bill.id" + b.getId();
+                b.setBillItems(getBillItemFacade().findBySQL(sql));
+                System.out.println("**b.getBillItems().size() = " + b.getBillItems().size());
+            }
+        }
+//        total = 0.0;
+//        netTotal = 0.0;
+//        vat = 0.0;
+//        for (Bill b : bills) {
+//            if (b.getBackwardReferenceBill() != null) {
+//                total += b.getBackwardReferenceBill().getTotal();
+//                vat += b.getBackwardReferenceBill().getTax();
+//                netTotal += b.getBackwardReferenceBill().getNetTotal();
+//            }
+//        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
+    }
+
     public void createWithHoldingTaxBills() {
         Date startTime = new Date();
 
@@ -1249,8 +1315,6 @@ public class BillController implements Serializable {
             List<BillItem> list = new ArrayList<>();
             for (BillEntry billEntry : getLstBillEntries()) {
                 list.add(getBillBean().saveBillItem(b, billEntry, getSessionController().getLoggedUser()));
-                //for Create Bill Fee Payments
-//                list.add(getBillBean().saveBillItem(b, billEntry, getSessionController().getLoggedUser(),p));
             }
 
             b.setBillItems(list);
@@ -2081,10 +2145,10 @@ public class BillController implements Serializable {
         printPreview = false;
 
     }
-    
+
     public void clearTotals() {
-        bills=new ArrayList<>();
-        doctorTotalRows=new ArrayList<>();
+        bills = new ArrayList<>();
+        doctorTotalRows = new ArrayList<>();
         total = 0.0;
         netTotal = 0.0;
         vat = 0.0;
@@ -2299,7 +2363,7 @@ public class BillController implements Serializable {
         public void setS(Staff s) {
             this.s = s;
         }
-        
+
         public Staff getForStaff() {
             return forStaff;
         }
