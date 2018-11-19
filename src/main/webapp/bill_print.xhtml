@@ -16,6 +16,97 @@
                         <f:facet name="header" >
                             <h:outputLabel value="Print" ></h:outputLabel>
                         </f:facet>
+                        <p:panel>
+                            <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panel header="Patient Detail">
+                                    <p:panelGrid columns="2">
+                                        <h:outputLabel value="Patient ​Name:" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.patient.person.nameWithTitle }" ></h:outputLabel>
+                                        <h:outputLabel value="Age" />
+                                        <h:outputLabel value="#{opdPreSettleController.bill.patient.age}"  />
+                                        <h:outputLabel value="Sex" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.patient.person.sex}" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="Phone" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.patient.person.phone}" >
+                                        </h:outputLabel>
+                                    </p:panelGrid>
+                                </p:panel>
+                                <p:panel header="Bill Detail">
+                                    <p:panelGrid columns="2">
+                                        <h:outputLabel value="Bill No :" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.insId}" ></h:outputLabel>
+                                        <h:outputLabel value="Payment Type : " ></h:outputLabel>
+                                        <h:panelGroup>
+                                            <h:outputLabel value="#{opdPreSettleController.bill.paymentMethod}" />
+                                            <h:outputLabel value=" : "/>
+                                            <h:outputLabel value="#{opdPreSettleController.bill.chequeRefNo}" />
+                                        </h:panelGroup>
+                                        <h:outputLabel value="Total :" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.total}" ></h:outputLabel>
+                                        <h:outputLabel value="Discount :" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.discount}" ></h:outputLabel>
+                                        <h:outputLabel value="Net Total :" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.bill.netTotal}" ></h:outputLabel>
+                                    </p:panelGrid>
+                                </p:panel>
+                            </p:panelGrid>
+                            <p:panel header="Bill Item Detail">
+                                <p:dataTable rowIndexVar="rowIndex"
+                                             editable="true" value="#{opdPreSettleController.billFees}" var="bip" >
+                                    <p:ajax event="rowEdit" listener="#{opdPreSettleController.onEdit}" />  
+                                    <p:ajax event="rowEditCancel" listener="#{opdPreSettleController.onEdit}" />  
+                                    <p:column>
+                                        <f:facet name="header">No</f:facet>
+                                        <h:outputLabel value="#{rowIndex+1}"/>
+                                    </p:column>
+                                    <p:column>
+                                        <f:facet name="header">Item</f:facet>
+                                        <h:outputLabel value="#{bip.billItem.item.name}"/>
+                                    </p:column>
+                                    <p:column>
+                                        <f:facet name="header">Gross Fee Value</f:facet>
+                                        <h:outputLabel value="#{bip.feeGrossValue}"/>
+                                    </p:column>
+                                    <p:column>
+                                        <f:facet name="header">Discount Fee Value</f:facet>
+                                        <h:outputLabel value="#{bip.feeDiscount}"/>
+                                    </p:column>
+                                    <p:column>
+                                        <f:facet name="header">Net Fee Value</f:facet>
+                                        <h:outputLabel value="#{bip.feeValue}"/>
+                                    </p:column>  
+                                    <p:column>
+                                        <f:facet name="header">Fee Name</f:facet>
+                                        <h:outputLabel value="#{bip.fee.name}"/>
+                                    </p:column> 
+                                    <p:column>
+                                        <f:facet name="header">Speciality</f:facet>
+                                        <h:outputLabel value="#{bip.fee.speciality.name}"/>
+                                    </p:column> 
+                                    <p:column headerText="Payee">
+                                        <p:cellEditor>  
+                                            <f:facet name="output"> 
+                                                <h:outputLabel value="#{bip.staff.person.name}"  ></h:outputLabel>
+                                            </f:facet>  
+                                            <f:facet name="input">  
+                                                <p:selectOneMenu value="#{bip.staff}" rendered="#{bip.fee.speciality!=null}" disabled="#{bip.paidValue!=0 or !webUserController.hasPrivilege('ChangeProfessionalFee')}" >
+                                                    <f:selectItem itemLabel="Select Staff" />
+                                                    <f:selectItems  value="#{staffController.getSpecialityStaff(bip.fee.speciality)}" var="bifs" itemLabel="#{bifs.person.name}" itemValue="#{bifs}" />
+                                                </p:selectOneMenu>
+                                            </f:facet>  
+                                        </p:cellEditor>  
+
+                                    </p:column>
+                                    <p:column style="width:6%">  
+                                        <p:rowEditor > 
+                                        </p:rowEditor>
+                                    </p:column>  
+                                </p:dataTable>
+                            </p:panel>
+                        </p:panel>
 
                     </p:panel>
 

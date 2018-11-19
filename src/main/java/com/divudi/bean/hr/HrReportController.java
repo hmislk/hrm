@@ -5553,19 +5553,19 @@ public class HrReportController implements Serializable {
         m.put("cd", new Date());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
-        System.out.println("staffs = " + list.size());
+//        System.out.println("staffs = " + list.size());
         SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
         for (Staff s : list) {
-            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+//            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
             Calendar dob = Calendar.getInstance();
             if (s.getPerson() != null && s.getPerson().getDob() != null) {
                 dob.setTime(s.getPerson().getDob());
-                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
-                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+//                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+//                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
                 Calendar now = Calendar.getInstance();
-                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
-                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+//                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+//                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
                 if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
                     subArray = new JSONArray();
                     subArray.put(0, s.getCode());
@@ -5605,7 +5605,7 @@ public class HrReportController implements Serializable {
         m.put("cd", new Date());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
-        System.out.println("staffs = " + list.size());
+//        System.out.println("staffs = " + list.size());
         SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
         for (Staff s : list) {
             System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
@@ -5613,8 +5613,6 @@ public class HrReportController implements Serializable {
             Calendar dob = Calendar.getInstance();
             if (s.getPerson() != null && s.getPerson().getDob() != null) {
                 dob.setTime(s.getPerson().getDob());
-                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
-                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
                 Calendar now = Calendar.getInstance();
                 now.setTime(getCommonFunctions().getStartOfDay());
                 dob.set(Calendar.YEAR, now.get(Calendar.YEAR));
@@ -5625,6 +5623,12 @@ public class HrReportController implements Serializable {
                 now.add(Calendar.DATE, 7);
                 Date td = commonFunctions.getEndOfDay(now.getTime());
                 System.out.println("td = " + td);
+                
+                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
+                System.out.println("fd.getTime() == dob.getTime().getTime() = " + (fd.getTime() == dob.getTime().getTime()));
+                System.out.println("dob.getTime().before(td) = " + dob.getTime().before(td));
+                System.out.println("td.getTime() == dob.getTime().getTime() = " + (td.getTime() == dob.getTime().getTime()));
+                
                 if ((dob.getTime().after(fd) || fd.getTime() == dob.getTime().getTime())
                         && (dob.getTime().before(td) || td.getTime() == dob.getTime().getTime())) {
                     subArray = new JSONArray();
