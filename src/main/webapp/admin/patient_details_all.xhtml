@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <h:body>
+
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+                <h:form>
+
+                    <p:panel header="Dischrge Book" >
+
+                        <h:panelGrid columns="2" id="panMain">
+
+                            <h:outputLabel value="From" />
+                            <p:calendar value="#{dataAdministrationController.fromDate}" 
+                                        pattern="dd/MMM/yyyy - hh:mm:ss a" />
+
+                            <h:outputLabel value="To" />
+                            <p:calendar value="#{dataAdministrationController.toDate}" 
+                                        pattern="dd/MMM/yyyy - hh:mm:ss a" />
+
+                            <p:outputLabel value="Without Duplicate(By Phone No)" />
+                            <p:selectBooleanCheckbox value="#{dataAdministrationController.reportKeyWord.additionalDetails}" />
+
+                            <p:outputLabel value="Bill Type" />
+                            <p:selectOneRadio id="console" value="#{dataAdministrationController.reportKeyWord.string}" >
+                                <f:selectItem itemLabel="Inward Admission" itemValue="0" />
+                                <f:selectItem itemLabel="Channel Only" itemValue="1" />
+                                <f:selectItem itemLabel="OPD Only" itemValue="2" />
+                                <f:selectItem itemLabel="Pharmacy Only" itemValue="3" />
+                                <f:selectItem itemLabel="Inward Payment Only" itemValue="4" />
+                                <f:ajax event="change" execute="@this" render="acnp panMain" listener="#{dataAdministrationController.listnerBillTypeChange()}" />
+                            </p:selectOneRadio>
+
+                            <p:outputLabel value="Area" />
+                            <p:autoComplete styleClass="mediuminput" widgetVar="np" id="acnp" forceSelection="true" 
+                                            value="#{dataAdministrationController.reportKeyWord.area}" 
+                                            completeMethod="#{areaController.completeArea}" 
+                                            var="npt" itemLabel="#{npt.name}"
+                                            disabled="#{dataAdministrationController.reportKeyWord.string ne '1'}"
+                                            itemValue="#{npt}" size="30"  style="width: 40px;"></p:autoComplete>
+
+                            <p:outputLabel value="Admission Type" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}"/>
+                            <p:selectOneMenu value="#{dataAdministrationController.reportKeyWord.admissionType}" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}">
+                                <f:selectItem itemLabel="All Admission Type"/>
+                                <f:selectItems  value="#{admissionTypeController.items}" var="myItem" 
+                                                itemValue="#{myItem}" itemLabel="#{myItem.name}"></f:selectItems>
+                            </p:selectOneMenu>
+
+                            <h:outputLabel value="BHT Type" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}"></h:outputLabel>
+                            <p:selectOneMenu   id="cmbBhtType" value="#{dataAdministrationController.reportKeyWord.paymentMethod}" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                <f:selectItem itemLabel="All BHT Types" />                           
+                                <f:selectItems value="#{enumController.paymentMethodForAdmission}" />
+                            </p:selectOneMenu>
+                            <h:outputLabel value="Payment Method" rendered="#{dataAdministrationController.reportKeyWord.string ne '0'}"></h:outputLabel>
+                            <p:selectOneMenu   id="cmbBhtType_1" value="#{dataAdministrationController.reportKeyWord.paymentMethod}" rendered="#{dataAdministrationController.reportKeyWord.string ne '0'}" >
+                                <f:selectItem itemLabel="All Payment Methods" />                           
+                                <f:selectItems value="#{enumController.paymentMethods}" />
+                            </p:selectOneMenu>
+
+
+                            <h:outputLabel value="Company Name" style="min-width: 100px;" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" />  
+                            <p:autoComplete id="acCreditCompany" forceSelection="true" style="text-align: right;"
+                                            value="#{dataAdministrationController.reportKeyWord.institution}"  
+                                            completeMethod="#{creditCompanyController.completeCredit}" 
+                                            var="ix" itemLabel="#{ix.name}" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}"
+                                            itemValue="#{ix}" size="30" >  
+                                <f:ajax event="itemSelect" execute="@this"  ></f:ajax>
+                            </p:autoComplete>
+                            <h:outputLabel value="Referring Doctor" style="min-width: 100px;" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" />
+                            <p:autoComplete id="acRefDoc" 
+                                            forceSelection="true" 
+                                            value="#{dataAdministrationController.reportKeyWord.staff}"
+                                            completeMethod="#{inwardStaffPaymentBillController.completeReferringDoctor}" 
+                                            var="ix" rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}"
+                                            itemLabel="#{ix.person.name}" 
+                                            itemValue="#{ix}" 
+                                            converter="stfcon" >
+                            </p:autoComplete>
+
+
+                        </h:panelGrid>
+
+                        <h:panelGrid columns="6">
+                            <p:commandButton ajax="false" value="Process" 
+                                             action="#{dataAdministrationController.fillPatientDetails()}" />
+                            <p:commandButton value="Print" ajax="false" action="#" >
+                                <p:printer target="gpBillPreview" ></p:printer>
+                            </p:commandButton>
+
+                            <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" onclick="onSubmitButton();" >
+                                <pe:exporter type="xlsx" target="tbl" fileName="Detailed_Transfer_Listing"  />
+                            </p:commandButton>  
+                        </h:panelGrid>
+
+
+                        <h:panelGroup id="gpBillPreview">
+                            <p:dataTable id="tbl" styleClass="noBorder normalFont" 
+                                         value="#{dataAdministrationController.patientDetailsRows}" var="i" rowIndexVar="in" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Inward Discharge Details "/>
+                                    <h:panelGrid columns="4">
+                                        <h:outputLabel value="From  "/>
+                                        <h:outputLabel value="#{inwardReportController.fromDate}">
+                                            <f:convertDateTime pattern="dd/MM/yy &nbsp; hh:mm:ss a" ></f:convertDateTime>
+                                        </h:outputLabel>
+                                        <h:outputLabel value="To  "/>
+                                        <h:outputLabel value="#{inwardReportController.toDate}">
+                                            <f:convertDateTime pattern="dd/MM/yy &nbsp; hh:mm:ss a" ></f:convertDateTime>
+                                        </h:outputLabel>
+                                    </h:panelGrid>
+                                </f:facet>
+
+
+                                <p:column>
+                                    #{in+1}
+                                </p:column>
+
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Name"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.name}" ></h:outputLabel>
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Phone"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.phone}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0' 
+                                                      or dataAdministrationController.reportKeyWord.string eq '4'}">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Mobile"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.mobile}" ></h:outputLabel>
+                                </p:column>
+                                <p:column sortBy="#{i.area.name}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Area"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.area.name}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string ne '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Payment Method"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.paymentMethod}" ></h:outputLabel>
+                                </p:column>
+
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="BHT No"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.bhtNo}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Date Of Admission"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.dateOfAdmission}" >
+                                        <h:outputLabel value=""/>
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Date Of Discharge"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.dateOfDischarge}" >
+                                        <f:convertDateTime pattern="yyyy MM dd" />
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="BHT Type"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.paymentMethod}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Credit Company"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.creditCompany.name}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Ref. Doctor"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.refDocName}" ></h:outputLabel>
+                                </p:column>
+                                <p:column rendered="#{dataAdministrationController.reportKeyWord.string eq '0'}" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Admission Type"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{i.admissionType.name}" ></h:outputLabel>
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGroup>
+                    </p:panel>
+                </h:form>
+
+
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
