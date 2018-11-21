@@ -854,6 +854,14 @@ public class BillController implements Serializable {
 
         bills = getBillFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("bills.size() = " + bills.size());
+        for (Bill b : bills) {
+            System.out.println("b.getBillItems().size() = " + b.getBillItems().size());
+            if (b.getBillItems().isEmpty()) {
+                sql = " select bi from BillItem bi where bi.retired and bi.bill.id" + b.getId();
+                b.setBillItems(getBillItemFacade().findBySQL(sql));
+                System.out.println("**b.getBillItems().size() = " + b.getBillItems().size());
+            }
+        }
 //        total = 0.0;
 //        netTotal = 0.0;
 //        vat = 0.0;
@@ -867,7 +875,7 @@ public class BillController implements Serializable {
 
         commonController.printReportDetails(fromDate, toDate, startTime, "List of bills raised(/opd_bill_report.xhtml)");
     }
-    
+
     public void createWithHoldingTaxBills() {
         Date startTime = new Date();
 
@@ -2137,10 +2145,10 @@ public class BillController implements Serializable {
         printPreview = false;
 
     }
-    
+
     public void clearTotals() {
-        bills=new ArrayList<>();
-        doctorTotalRows=new ArrayList<>();
+        bills = new ArrayList<>();
+        doctorTotalRows = new ArrayList<>();
         total = 0.0;
         netTotal = 0.0;
         vat = 0.0;
@@ -2355,7 +2363,7 @@ public class BillController implements Serializable {
         public void setS(Staff s) {
             this.s = s;
         }
-        
+
         public Staff getForStaff() {
             return forStaff;
         }

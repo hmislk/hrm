@@ -58,6 +58,7 @@ import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.primefaces.event.RowEditEvent;
 import org.primefaces.event.TabChangeEvent;
 
 /**
@@ -128,6 +129,7 @@ public class OpdPreSettleController implements Serializable {
     List<Stock> replaceableStocks;
     List<BillItem> billItems;
     List<Item> itemsWithoutStocks;
+    List<BillFee> billFees;
     /////////////////////////
     //   PaymentScheme paymentScheme;
     private PaymentMethodData paymentMethodData;
@@ -137,7 +139,7 @@ public class OpdPreSettleController implements Serializable {
     double netTotal;
     double balance;
     Double editingQty;
-    String errorMsg="";
+    String errorMsg = "";
 
     public void makeNull() {
         selectedAlternative = null;
@@ -291,7 +293,7 @@ public class OpdPreSettleController implements Serializable {
 
         getSaleBill().setDepartment(getSessionController().getLoggedUser().getDepartment());
         getSaleBill().setInstitution(getSessionController().getLoggedUser().getDepartment().getInstitution());
-        
+
         getBillBean().setPaymentMethodData(getSaleBill(), getSaleBill().getPaymentMethod(), getPaymentMethodData());
 
         getSaleBill().setBillDate(new Date());
@@ -676,7 +678,7 @@ public class OpdPreSettleController implements Serializable {
 
     public void cancelPaid() {
         if (checkPaid(getPreBill())) {
-            errorMsg="Doctor Payment Already Paid So Cant Cancel Bill";
+            errorMsg = "Doctor Payment Already Paid So Cant Cancel Bill";
             UtilityController.addErrorMessage("Doctor Payment Already Paid So Cant Cancel Bill");
             return;
         }
@@ -1291,6 +1293,32 @@ public class OpdPreSettleController implements Serializable {
         return p;
     }
 
+    public void fetchBillFees(Bill b) {
+        billFees = new ArrayList<>();
+        if (b != null) {
+            for (Bill bb : b.getForwardReferenceBills()) {
+                String sql = "SELECT b FROM BillFee b WHERE b.retired=false and b.bill.id=" + bb.getId();
+                billFees.addAll(getBillFeeFacade().findBySQL(sql));
+            }
+        }
+        System.out.println("billFees.size() = " + billFees.size());
+    }
+
+    public void onEdit(RowEditEvent event) {
+
+        BillFee tmp = (BillFee) event.getObject();
+
+        tmp.setEditedAt(new Date());
+        tmp.setEditor(sessionController.getLoggedUser());
+
+        if (tmp.getPaidValue() != 0.0) {
+            UtilityController.addErrorMessage("Already Staff FeePaid");
+            return;
+        }
+        getBillFeeFacade().edit(tmp);
+
+    }
+
     public Bill getPreBill() {
         if (preBill == null) {
             preBill = new PreBill();
@@ -1405,7 +1433,8 @@ public class OpdPreSettleController implements Serializable {
     }
 
     public void setBill(Bill bill) {
-        errorMsg="";
+        errorMsg = "";
+        fetchBillFees(bill);
         this.bill = bill;
     }
 
@@ -1517,6 +1546,14 @@ public class OpdPreSettleController implements Serializable {
 
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
+    }
+
+    public List<BillFee> getBillFees() {
+        return billFees;
+    }
+
+    public void setBillFees(List<BillFee> billFees) {
+        this.billFees = billFees;
     }
 
 }

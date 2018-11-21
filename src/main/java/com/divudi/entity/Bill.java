@@ -456,6 +456,7 @@ public class Bill implements Serializable {
         hospitalFee = 0 - bill.getHospitalFee();
         margin = 0 - bill.getMargin();
         grnNetTotal = 0 - bill.getGrnNetTotal();
+        tax=0-bill.getTax();
 
     }
 
