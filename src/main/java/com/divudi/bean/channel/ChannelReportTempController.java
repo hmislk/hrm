@@ -24,7 +24,6 @@ import com.divudi.entity.AgentHistory;
 import com.divudi.entity.Bill;
 import com.divudi.entity.BilledBill;
 import com.divudi.entity.CancelledBill;
-import com.divudi.entity.Consultant;
 import com.divudi.entity.Institution;
 import com.divudi.entity.ItemFee;
 import com.divudi.entity.RefundBill;
@@ -136,6 +135,7 @@ public class ChannelReportTempController implements Serializable {
     List<ColumnModel> columnModels;
     private List<PaymentMethod> paymentMethods;
     List<ChannelUserSummeryRow> channelUserSummeryRows;
+    List<BttRow> bttRows;
     private String dept = "1";
     private String billtype = "1";
     //
@@ -247,7 +247,7 @@ public class ChannelReportTempController implements Serializable {
 
     }
 
-    public double fetchBillsTotal(BillType[] billTypes, BillType bt, Class[] bills, Class[] nbills, Bill b, Date fd, Date td, Institution billedInstitution, Institution creditCompany, boolean withOutDocFee, boolean count, Staff staff, Speciality sp, WebUser webUser) {
+    public double fetchBillsTotal(BillType[] billTypes, BillType bt, Class[] bills, Class[] nbills, Bill b, Date fd, Date td, Institution billedInstitution, Institution creditCompany, boolean withOutDocFee, boolean count, Staff staff, Speciality sp, WebUser webUser, boolean sessionDate) {
 
         String sql;
         Map m = new HashMap();
@@ -262,14 +262,26 @@ public class ChannelReportTempController implements Serializable {
         sql += " from Bill b "
                 + " where b.retired=false ";
 
-        if (b.getClass().equals(BilledBill.class)) {
-            sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
-        }
-        if (b.getClass().equals(CancelledBill.class)) {
-            sql += " and b.createdAt between :fromDate and :toDate ";
-        }
-        if (b.getClass().equals(RefundBill.class)) {
-            sql += " and b.createdAt between :fromDate and :toDate ";
+        if (sessionDate) {
+            if (b.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+        } else {
+            if (b.getClass().equals(BilledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
         }
 
         if (billTypes != null) {
@@ -325,9 +337,15 @@ public class ChannelReportTempController implements Serializable {
         System.err.println("Sql " + sql);
         System.out.println("m = " + m);
         if (count) {
-            return getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
+            long l = getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
+            System.out.println("l = " + l);
+            return l;
+//            return getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
         } else {
-            return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+            double d = getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+            System.out.println("d = " + d);
+            return d;
+//            return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
         }
 
     }
@@ -404,9 +422,15 @@ public class ChannelReportTempController implements Serializable {
         System.err.println("Sql " + sql);
         System.out.println("m = " + m);
         if (count) {
-            return getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
+            long l = getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
+            System.out.println("l = " + l);
+            return l;
+//            return getBillFacade().findLongByJpql(sql, m, TemporalType.TIMESTAMP);
         } else {
-            return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+            double d = getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+            System.out.println("d = " + d);
+            return d;
+//            return getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
         }
 
     }
@@ -1574,7 +1598,7 @@ public class ChannelReportTempController implements Serializable {
 
             } else {
                 fd = commonFunctions.getStartOfMonth(nowDate);
-                td = commonFunctions.getEndOfMonth(nowDate);
+                td = commonFunctions.getEndOfMonth(commonFunctions.getStartOfMonth(nowDate));
                 System.out.println("td = " + td);
                 System.out.println("fd = " + fd);
                 System.out.println("nowDate = " + nowDate);
@@ -1587,11 +1611,11 @@ public class ChannelReportTempController implements Serializable {
             ChannelSummeryDateRangeBillTotalRow acsr = new ChannelSummeryDateRangeBillTotalRow();
             acsr.setDate(formatedDate);
 
-            acsr.setCanceledTotal(fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+            acsr.setCanceledTotal(fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true));
             ctot += acsr.getCanceledTotal();
-            acsr.setRefundTotal(fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+            acsr.setRefundTotal(fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true));
             rtot += acsr.getRefundTotal();
-            acsr.setBillTotal(fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+            acsr.setBillTotal(fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true));
             btot += acsr.getBillTotal();
 
             acsrs.add(acsr);
@@ -1643,9 +1667,9 @@ public class ChannelReportTempController implements Serializable {
 //            System.out.println("fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
 //            System.out.println("fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
 //            System.out.println("fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
-            double tmpTot = fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null)
-                    - (fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null)
-                    + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+            double tmpTot = fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true)
+                    - (fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true)
+                    + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true));
 
             ls.add((long) tmpTot);
             netTot += tmpTot;
@@ -1920,15 +1944,15 @@ public class ChannelReportTempController implements Serializable {
         for (WebUser webUser : fetchCashiers(bts)) {
             ChannelSummeryUserRow row = new ChannelSummeryUserRow();
             row.setUser(webUser);
-            row.setBillCount(fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, false, true, null, null, webUser));
-            row.setCanceledCount(fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, false, true, null, null, webUser));
-            row.setRefundCount(fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, false, true, null, null, webUser));
-            double netTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, false, false, null, null, webUser)
-                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, false, false, null, null, webUser)
-                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, false, false, null, null, webUser));
-            double hosTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, true, false, null, null, webUser)
-                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, true, false, null, null, webUser)
-                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, true, false, null, null, webUser));
+            row.setBillCount(fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, false, true, null, null, webUser, true));
+            row.setCanceledCount(fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, false, true, null, null, webUser, true));
+            row.setRefundCount(fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, false, true, null, null, webUser, true));
+            double netTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, false, false, null, null, webUser, true)
+                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, false, false, null, null, webUser, true)
+                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, false, false, null, null, webUser, true));
+            double hosTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fDate, tDate, null, null, true, false, null, null, webUser, true)
+                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fDate, tDate, null, null, true, false, null, null, webUser, true)
+                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fDate, tDate, null, null, true, false, null, null, webUser, true));
             row.setTotalHosFee(hosTotal);
             row.setTotalDocFee(netTotal - hosTotal);
             row.setBold(false);
@@ -1981,15 +2005,15 @@ public class ChannelReportTempController implements Serializable {
             formatedDate = df.format(fd);
             System.out.println("formatedDate = " + formatedDate);
             row.setDate(formatedDate);
-            row.setBillCount(fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, false, true, null, null, webUser));
-            row.setCanceledCount(fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, false, true, null, null, webUser));
-            row.setRefundCount(fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, false, true, null, null, webUser));
-            double netTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, false, false, null, null, webUser)
-                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, false, false, null, null, webUser)
-                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, false, false, null, null, webUser));
-            double hosTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, true, false, null, null, webUser)
-                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, true, false, null, null, webUser)
-                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, true, false, null, null, webUser));
+            row.setBillCount(fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, false, true, null, null, webUser, true));
+            row.setCanceledCount(fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, false, true, null, null, webUser, true));
+            row.setRefundCount(fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, false, true, null, null, webUser, true));
+            double netTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, false, false, null, null, webUser, true)
+                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, false, false, null, null, webUser, true)
+                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, false, false, null, null, webUser, true));
+            double hosTotal = fetchBillsTotal(bts, null, null, null, new BilledBill(), fd, td, null, null, true, false, null, null, webUser, true)
+                    + (fetchBillsTotal(bts, null, null, null, new CancelledBill(), fd, td, null, null, true, false, null, null, webUser, true)
+                    + fetchBillsTotal(bts, null, null, null, new RefundBill(), fd, td, null, null, true, false, null, null, webUser, true));
             row.setTotalHosFee(hosTotal);
             row.setTotalDocFee(netTotal - hosTotal);
             row.setBold(false);
@@ -2146,9 +2170,9 @@ public class ChannelReportTempController implements Serializable {
         for (Institution a : institutions) {
             ChannelSummeryDateRangeBillTotalTable aws = new ChannelSummeryDateRangeBillTotalTable();
             aws.setAgency(a);
-            aws.setNetCount(fetchBillsTotal(null, BillType.ChannelAgent, null, null, new BilledBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null)
-                    - (fetchBillsTotal(null, BillType.ChannelAgent, null, null, new CancelledBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null)
-                    + fetchBillsTotal(null, BillType.ChannelAgent, null, null, new RefundBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null)));
+            aws.setNetCount(fetchBillsTotal(null, BillType.ChannelAgent, null, null, new BilledBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null, getReportKeyWord().isAdditionalDetails())
+                    - (fetchBillsTotal(null, BillType.ChannelAgent, null, null, new CancelledBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null, getReportKeyWord().isAdditionalDetails())
+                    + fetchBillsTotal(null, BillType.ChannelAgent, null, null, new RefundBill(), getFromDate(), getToDate(), null, a, false, true, null, null, null, getReportKeyWord().isAdditionalDetails())));
             if (aws.getNetCount() > 0) {
                 channelSummeryDateRangeBillTotalTables.add(aws);
                 channelTotal.setNetTotal(channelTotal.getNetTotal() + aws.getNetCount());
@@ -2230,6 +2254,105 @@ public class ChannelReportTempController implements Serializable {
 
     public void createSpecilityWiseAppoinmentCount() {
         fetchSpecilityWiseChannelTotalOrCount();
+    }
+
+    public void createDoctorBTT() {
+        if (getReportKeyWord().getStaff() == null) {
+            JsfUtil.addErrorMessage("Please Select Consultant");
+            return;
+        }
+        bttRows = new ArrayList<>();
+        String sql = "";
+        Map m = new HashMap();
+
+        if (isByDate()) {
+            sql = " select FUNC('Date',b.createdAt), count(bi.netValue), sum(bi.netValue), bi.netValue ";
+        } else {
+            sql = " select FUNC('Month',b.createdAt), count(bi.netValue), sum(bi.netValue), bi.netValue ";
+        }
+
+        sql += "  from BillItem bi join bi.bill b "
+                + " where bi.retired=false "
+                + " and b.createdAt between :fd and :td "
+                + " and b.toStaff=:s "
+                + " and b.billType=:bt ";
+
+        if (isByDate()) {
+            sql += " group by FUNC('Date',b.createdAt), bi.netValue ";
+        } else {
+            sql += " group by FUNC('Month',b.createdAt), bi.netValue ";
+        }
+
+        sql += " order by b.createdAt, bi.netValue ";
+
+        m.put("bt", BillType.ChannelProPayment);
+        m.put("s", getReportKeyWord().getStaff());
+        m.put("fd", getReportKeyWord().getFromDate());
+        m.put("td", getReportKeyWord().getToDate());
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+//        System.out.println("m = " + m);
+//        System.out.println("sql = " + sql);
+//        System.out.println("objects.size() = " + objects.size());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getReportKeyWord().getFromDate());
+//        System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.YEAR));
+        int year = cal.get(Calendar.YEAR);
+//        System.out.println("year = " + year);
+        BttRow rowTotal = new BttRow();
+        rowTotal.setDate("Total");
+        int lastMonth = 0;
+        for (Object[] ob : objects) {
+            BttRow row = new BttRow();
+//            System.out.println("ob[0] = " + ob[0]);
+//            System.out.println("ob[1] = " + ob[1]);
+//            System.out.println("ob[2] = " + ob[2]);
+//            System.out.println("ob[3] = " + ob[3]);
+            String date;
+            if (isByDate()) {
+                Date d = (Date) ob[0];
+                date = d.toString();
+            } else {
+                if (lastMonth == 12 && (int) ob[0] == 1) {
+                    year++;
+                }
+                date = year + " " + getCommonFunctions().getMonthString((int) ob[0]);
+                lastMonth = (int) ob[0];
+            }
+            row.setDate(date);
+            double unit = (double) ob[3];
+            row.setUnit(unit);
+            long count = (long) ob[1];
+            if (unit < 0) {
+                row.setCount(0 - count);
+            } else {
+                row.setCount(count);
+            }
+            rowTotal.setCount(rowTotal.getCount() + row.getCount());
+            double total = (double) ob[2];
+            row.setTotal(total);
+            rowTotal.setTotal(rowTotal.getTotal() + row.getTotal());
+            row.setTotalCalculated(total * (getReportKeyWord().getFrom() / 100));
+            rowTotal.setTotalCalculated(rowTotal.getTotalCalculated() + row.getTotalCalculated());
+            if (getReportKeyWord().isAdditionalDetails()) {
+                if (bttRows.isEmpty()) {
+                    bttRows.add(row);
+                } else {
+                    if (bttRows.get(bttRows.size() - 1).getDate().equals(date)) {
+                        bttRows.get(bttRows.size() - 1).setCount(bttRows.get(bttRows.size() - 1).getCount() + row.getCount());
+                        bttRows.get(bttRows.size() - 1).setTotal(bttRows.get(bttRows.size() - 1).getTotal() + row.getTotal());
+                        bttRows.get(bttRows.size() - 1).setTotalCalculated(bttRows.get(bttRows.size() - 1).getTotalCalculated() + row.getTotalCalculated());
+                    } else {
+                        bttRows.add(row);
+                    }
+                }
+            } else {
+                bttRows.add(row);
+            }
+        }
+        bttRows.add(rowTotal);
+//        System.out.println("bttRows.size() = " + bttRows.size());
+
     }
 
     public List<ChannelReportSpecialityWiseSummeryRow> createChannelReportDoctorWise() {
@@ -2321,9 +2444,9 @@ public class ChannelReportTempController implements Serializable {
             System.out.println("formatedDate = " + formatedDate);
 
 //           
-            double ctot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new CancelledBill(), fd, td, null, null, false, true, s, null, null);
-            double rtot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new RefundBill(), fd, td, null, null, false, true, s, null, null);
-            double btot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new BilledBill(), fd, td, null, null, false, true, s, null, null);
+            double ctot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new CancelledBill(), fd, td, null, null, false, true, s, null, null, true);
+            double rtot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new RefundBill(), fd, td, null, null, false, true, s, null, null, true);
+            double btot1 = fetchBillsTotal(new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, null, null, null, new BilledBill(), fd, td, null, null, false, true, s, null, null, true);
             ctot += ctot1;
             rtot += rtot1;
             btot += btot1;
@@ -2762,6 +2885,14 @@ public class ChannelReportTempController implements Serializable {
 
     public void setGrantTot(double grantTot) {
         this.grantTot = grantTot;
+    }
+
+    public List<BttRow> getBttRows() {
+        return bttRows;
+    }
+
+    public void setBttRows(List<BttRow> bttRows) {
+        this.bttRows = bttRows;
     }
 
     //inner Classes(Data Structures)
@@ -3496,6 +3627,55 @@ public class ChannelReportTempController implements Serializable {
 
     }
 
+    public class BttRow {
+
+        String date;
+        long count;
+        double unit;
+        double total;
+        double totalCalculated;
+
+        public double getTotalCalculated() {
+            return totalCalculated;
+        }
+
+        public void setTotalCalculated(double totalCalculated) {
+            this.totalCalculated = totalCalculated;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public long getCount() {
+            return count;
+        }
+
+        public void setCount(long count) {
+            this.count = count;
+        }
+
+        public double getUnit() {
+            return unit;
+        }
+
+        public void setUnit(double unit) {
+            this.unit = unit;
+        }
+
+        public double getTotal() {
+            return total;
+        }
+
+        public void setTotal(double total) {
+            this.total = total;
+        }
+    }
+
     //Getters and Setters
     public Date getFromDate() {
         if (fromDate == null) {
@@ -3629,6 +3809,7 @@ public class ChannelReportTempController implements Serializable {
     public ReportKeyWord getReportKeyWord() {
         if (reportKeyWord == null) {
             reportKeyWord = new ReportKeyWord();
+            reportKeyWord.setFrom(60.0);
         }
         return reportKeyWord;
     }

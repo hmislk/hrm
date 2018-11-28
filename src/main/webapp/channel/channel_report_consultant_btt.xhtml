@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ch="http://java.sun.com/jsf/composite/channel"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:au="http://java.sun.com/jsf/composite/autocomplete"
+                xmlns:autocomplete="http://java.sun.com/jsf/composite/autocomplete">
+
+    <ui:define name="content">
+
+        <h:form>
+
+            <p:panel>
+                <f:facet name="header">
+                    <p:outputLabel value="Consultant Channel Payments by Persentage" />
+                    <p:commandButton id="btnBack" value="Back" 
+                                     action="/channel/channel_reports" style="float: right;"
+                                     ajax="false">
+                    </p:commandButton>
+                </f:facet>
+
+                <p:panel id="pan1">
+                    <h:panelGrid columns="2" >
+                        <h:outputLabel value="From Date"/>
+                        <p:calendar value="#{channelReportTempController.reportKeyWord.fromDate}" navigator="true" pattern="dd MMM yyyy hh:mm:ss a" styleClass="dateTimePicker"  >
+                        </p:calendar>
+                        <h:outputLabel value="To Date"/>
+                        <p:calendar value="#{channelReportTempController.reportKeyWord.toDate}" navigator="true" pattern="dd MMM yyyy hh:mm:ss a" styleClass="dateTimePicker" >
+                        </p:calendar>
+                        <h:outputLabel value="Staff" />
+                        <autocomplete:completeConsultant value="#{channelReportTempController.reportKeyWord.staff}" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="2" id="pg1" >
+                        <h:outputLabel value="By Date"/> 
+                        <p:selectBooleanCheckbox value="#{channelReportTempController.byDate}" />
+                        <h:outputLabel value="Summery"/> 
+                        <p:selectBooleanCheckbox value="#{channelReportTempController.reportKeyWord.additionalDetails}" />
+                        <h:panelGrid columns="2" >
+                            <h:outputText id="output" value="Percentage #{channelReportTempController.reportKeyWord.from} % " />
+                            <h:inputHidden id="txt2" value="#{channelReportTempController.reportKeyWord.from}" />
+                        </h:panelGrid>
+                        <p:slider for="txt2" display="output" style="width: 200px" displayTemplate="Percentage {value} % " rendered="#{webUserController.hasPrivilege('Developers')}" />
+                    </h:panelGrid> 
+                    <h:panelGrid columns="3">
+                        <p:commandButton action="#{channelReportTempController.createDoctorBTT}" value="fill" ajax="false" />
+                        <p:commandButton ajax="false" value="Print" styleClass="noPrintButton">
+                            <p:printer target="reportPrint"  />
+                        </p:commandButton>
+                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" onclick="onSubmitButton();" >
+                            <pe:exporter type="xlsx" target="tbl1" fileName="Channel_Count"  />
+                        </p:commandButton>
+                    </h:panelGrid>
+                </p:panel>
+                <p:panel id="reportPrint" >
+                    <p:dataTable id="tbl1" value="#{channelReportTempController.bttRows}" var="r">
+                        <p:column >
+                            <f:facet name="header" >
+                                <p:outputLabel value="Date" />
+                            </f:facet>
+                            <p:outputLabel value="#{r.date}" rendered="#{r.date ne 'Total'}" />
+                            <p:outputLabel value="#{r.date}" rendered="#{r.date eq 'Total'}" style="float: right;font-weight: bold;"/>
+                        </p:column>
+                        <p:column >
+                            <f:facet name="header" >
+                                <p:outputLabel value="Count"  />
+                            </f:facet>
+                            <p:outputLabel value="#{r.count}" rendered="#{r.date ne 'Total'}" style="float: right" >
+                                <f:convertNumber pattern="#,##0" />
+                            </p:outputLabel>
+                            <p:outputLabel value="#{r.count}" rendered="#{r.date eq 'Total'}" style="float: right;font-weight: bold;" >
+                                <f:convertNumber pattern="#,##0" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column rendered="#{!channelReportTempController.reportKeyWord.additionalDetails}" >
+                            <f:facet name="header" >
+                                <p:outputLabel value="Unit Value" />
+                            </f:facet>
+                            <p:outputLabel value="#{r.unit}" rendered="#{r.date ne 'Total'}" style="float: right" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                            <p:outputLabel value="#{r.unit}" rendered="#{r.date eq 'Total'}" style="float: right;font-weight: bold;" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column  >
+                            <f:facet name="header" >
+                                <p:outputLabel value="Total" />
+                            </f:facet>
+                            <p:outputLabel value="#{r.total}" rendered="#{r.date ne 'Total'}" style="float: right" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                            <p:outputLabel value="#{r.total}" rendered="#{r.date eq 'Total'}" style="float: right;font-weight: bold;" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column  >
+                            <f:facet name="header" >
+                                <p:outputLabel value="Total Calculated" />
+                            </f:facet>
+                            <p:outputLabel value="#{r.totalCalculated}" rendered="#{r.date ne 'Total'}" style="float: right" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                            <p:outputLabel value="#{r.totalCalculated}" rendered="#{r.date eq 'Total'}" style="float: right;font-weight: bold;" >
+                                <f:convertNumber pattern="#,##0.00" />
+                            </p:outputLabel>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+
+            </p:panel>
+
+        </h:form>
+    </ui:define>
+
+
+</ui:composition>

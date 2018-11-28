@@ -1420,6 +1420,7 @@ public class ChannelReportController implements Serializable {
         return billFacade.findAggregates(sql, hm, TemporalType.TIMESTAMP);
 
     }
+
     public List<Object[]> channelListByBillClassNewCanRef(Bill bill, WebUser webUser, boolean sd, Institution agent, boolean crditAgent) {
         BillType[] billTypes = {BillType.ChannelAgent, BillType.ChannelCash, BillType.ChannelOnCall, BillType.ChannelStaff};
         List<BillType> bts = Arrays.asList(billTypes);
@@ -4497,8 +4498,13 @@ public class ChannelReportController implements Serializable {
                 + " and type(b)=:class ";
 
         if (paid) {
-            sql += " and b.paidBill is not null "
+            if (bill.getClass().equals(BilledBill.class)) {
+                sql += " and b.paidBill is not null "
                     + " and b.paidAmount!=0 ";
+            } else {
+                sql += " and b.billedBill.paidBill is not null "
+                    + " and b.billedBill.paidAmount!=0 ";
+            }
         }
 
         if (!createdDate) {
@@ -4506,20 +4512,20 @@ public class ChannelReportController implements Serializable {
                 sql += " and b.singleBillSession.sessionDate between :fd and :td ";
             }
             if (bill.getClass().equals(CancelledBill.class)) {
-                sql += " and b.cancelledBill.createdAt between :fd and :td ";
+                sql += " and b.createdAt between :fd and :td ";
             }
             if (bill.getClass().equals(RefundBill.class)) {
-                sql += " and b.refundedBill.createdAt between :fd and :td ";
+                sql += " and b.createdAt between :fd and :td ";
             }
         } else {
             if (bill.getClass().equals(BilledBill.class)) {
                 sql += " and b.createdAt between :fd and :td ";
             }
             if (bill.getClass().equals(CancelledBill.class)) {
-                sql += " and b.cancelledBill.createdAt between :fd and :td ";
+                sql += " and b.createdAt between :fd and :td ";
             }
             if (bill.getClass().equals(RefundBill.class)) {
-                sql += " and b.refundedBill.createdAt between :fd and :td ";
+                sql += " and b.createdAt between :fd and :td ";
             }
 
         }
@@ -4548,36 +4554,40 @@ public class ChannelReportController implements Serializable {
 
         if (!createdDate) {
             List<Bill> bills = billFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
-            List<Bill> rangeBills = new ArrayList<>();
-            for (Bill b : bills) {
+            if (bill.getClass().equals(BilledBill.class)) {
+                List<Bill> rangeBills = new ArrayList<>();
+                for (Bill b : bills) {
 //                System.out.println("b.getSingleBillSession().getSessionDate() = " + b.getSingleBillSession().getSessionDate());
 //                System.out.println("b.getSingleBillSession().getSessionTime() = " + b.getSingleBillSession().getSessionTime());
-                Calendar d = Calendar.getInstance();
-                d.setTime(b.getSingleBillSession().getSessionDate());
-                Calendar t = Calendar.getInstance();
-                t.setTime(b.getSingleBillSession().getSessionTime());
+                    Calendar d = Calendar.getInstance();
+                    d.setTime(b.getSingleBillSession().getSessionDate());
+                    Calendar t = Calendar.getInstance();
+                    t.setTime(b.getSingleBillSession().getSessionTime());
 //                System.out.println("t.get(Calendar.HOUR) = " + t.get(Calendar.HOUR));
 //                System.out.println("t.get(Calendar.HOUR_OF_DAY) = " + t.get(Calendar.HOUR_OF_DAY));
 //                System.out.println("t.get(Calendar.MINUTE) = " + t.get(Calendar.MINUTE));
 //                System.out.println("t.get(Calendar.SECOND) = " + t.get(Calendar.SECOND));
 //                Calendar cal = Calendar.getInstance();
 
-                t.set(Calendar.YEAR, d.get(Calendar.YEAR));
-                t.set(Calendar.MONTH, d.get(Calendar.MONTH));
-                t.set(Calendar.DATE, d.get(Calendar.DATE));
+                    t.set(Calendar.YEAR, d.get(Calendar.YEAR));
+                    t.set(Calendar.MONTH, d.get(Calendar.MONTH));
+                    t.set(Calendar.DATE, d.get(Calendar.DATE));
 //                cal.set(Calendar.HOUR, 00);
-                System.out.println("t.getTime() = " + t.getTime());
+                    System.out.println("t.getTime() = " + t.getTime());
 //                cal.add(Calendar.HOUR, t.get(Calendar.HOUR));
 //                cal.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
 //                cal.set(Calendar.SECOND, t.get(Calendar.SECOND));
 //                System.out.println("cal.getTime() = " + cal.getTime());
-                if (getFromDate().getTime() <= t.getTime().getTime()
-                        && t.getTime().getTime() <= getToDate().getTime()) {
-                    rangeBills.add(b);
-                    System.err.println("added*************************************************");
+                    if (getFromDate().getTime() <= t.getTime().getTime()
+                            && t.getTime().getTime() <= getToDate().getTime()) {
+                        rangeBills.add(b);
+                        System.err.println("added*************************************************" + bill.getClass());
+                    }
                 }
+                return rangeBills;
+            } else {
+                return bills;
             }
-            return rangeBills;
         } else {
             return billFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
         }
@@ -8112,7 +8122,6 @@ public class ChannelReportController implements Serializable {
 //        public void setPaidBillInsId(String paidBillInsId) {
 //            this.paidBillInsId = paidBillInsId;
 //        }
-
         public Title getTitle() {
             return title;
         }
