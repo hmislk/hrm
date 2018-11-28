@@ -242,6 +242,13 @@
                                     </h:outputLabel>
                                 </p:column>
 
+                                <p:column headerText="Comment" >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Comment"/>
+                                    </f:facet>                                    
+                                    <h:outputLabel  value="#{i.commentslab_report_format}" >
+                                    </h:outputLabel>
+                                </p:column>
 
                                 <p:column styleClass="averageNumericColumn"  headerText="Total" rendered="#{inwardReportController.finalBillTotal}">
                                     <h:outputLabel value="#{i.finalBill.netTotal}">

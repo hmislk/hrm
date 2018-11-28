@@ -48,7 +48,7 @@ public enum ReportItemType {
     Department,
     DepartmentCollectedUser,
     DateTime,
-    
+    BHTNo,
     
     
     DataEntered,
