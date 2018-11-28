@@ -133,6 +133,9 @@ public enum Privileges {
     LabCCBilling,
     LabCCBillingSearch,
     LabReportSearch,
+    LabReportSearchOut,
+    LabReportSearchOutPrintColor,
+    LabReportSearchOutPrintBNW,
     LabReporting,
     //dont remove
     LabSearchBillLoggedInstitution,
