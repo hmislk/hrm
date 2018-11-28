@@ -136,7 +136,7 @@
                             </p:commandButton>
                         </div>
 
-                        <p:panel id="gpBillPreview" >
+                        <h:panelGroup id="gpBillPreview"  >
 
 
                             <h:panelGroup rendered="#{sessionController.institutionPreference.printLabelForOPdBill eq false and sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}">
@@ -158,7 +158,7 @@
                                     <bill:inwardBillPrintFiveFive bill="#{b}" dup="false"/>                        
                                 </ui:repeat>  
                             </h:panelGroup>
-                        </p:panel>
+                        </h:panelGroup>
                         <p:panel id="gpBillPreview2">
                             <h:panelGroup rendered="#{sessionController.institutionPreference.printLabelForOPdBill eq false and sessionController.institutionPreference.applicationInstitution eq 'Ruhuna'}">
                                 <ui:repeat value="#{inwardSearch.bill.refundBills}" var="bill" rendered="#{!inwardSearch.bill.cancelled}">

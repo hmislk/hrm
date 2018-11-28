@@ -167,6 +167,7 @@ public class SearchController implements Serializable {
     List<String> telephoneNumbers;
     List<String> selectedTelephoneNumbers;
     List<PharmacyAdjustmentRow> pharmacyAdjustmentRows;
+    List<pharmacyAddToStockRow> addToStockRows;
 
     BillSession selectedBillSession;
     UploadedFile file;
@@ -536,6 +537,14 @@ public class SearchController implements Serializable {
 
     public void setPatientReportFacade(PatientReportFacade patientReportFacade) {
         this.patientReportFacade = patientReportFacade;
+    }
+
+    public List<pharmacyAddToStockRow> getAddToStockRows() {
+        return addToStockRows;
+    }
+
+    public void setAddToStockRows(List<pharmacyAddToStockRow> addToStockRows) {
+        this.addToStockRows = addToStockRows;
     }
 
     public class billsWithbill {
@@ -4530,6 +4539,46 @@ public class SearchController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Sale Bills/Add to stock/refresh(/faces/pharmacy/pharmacy_search_pre_bill_not_paid.xhtml)");
 
     }
+    
+    public void createPreBillsNotPaidBill() {
+        Date startTime = new Date();
+        Date fromDate = null;
+        Date toDate = null;
+
+         addToStockRows= billsForTheDayNotPaid(BillType.PharmacyPre, getSessionController().getDepartment());
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Sale Bills/Add to stock/refresh(/faces/pharmacy/pharmacy_search_pre_bill_not_paid.xhtml)");
+
+    }
+    
+    private List<pharmacyAddToStockRow> billsForTheDayNotPaid(BillType type, Department department) {
+        List<pharmacyAddToStockRow>stockRows=new ArrayList<>();
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select b.deptId,b.createdAt from PreBill b "
+                + " where b.billType = :billType "
+                + " and b.department=:dep "
+                + " and b.referenceBill is null "
+                + " and b.backwardReferenceBill is null "
+                + " and b.forwardReferenceBill is null "
+                + " and b.billedBill is null "
+                + " and b.retired=false "
+                + " and b.netTotal!=0 "
+                + " order by b.id desc ";
+
+        temMap.put("billType", type);
+        temMap.put("dep", department);
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, temMap);
+
+        for (Object[] ob : objects) {
+            pharmacyAddToStockRow row=new pharmacyAddToStockRow();
+            row.setBillNo((String) ob[0]);
+            row.setDate((Date) ob[1]);
+            stockRows.add(row);
+        }
+        return stockRows;
+    }
 
     public void createWholePreBillsNotPaid() {
 
@@ -7654,6 +7703,27 @@ public class SearchController implements Serializable {
 
         public void setAdjusetedVal(double adjusetedVal) {
             this.adjusetedVal = adjusetedVal;
+        }
+    }
+    
+    public class pharmacyAddToStockRow{
+        String billNo;
+        Date date;
+
+        public String getBillNo() {
+            return billNo;
+        }
+
+        public void setBillNo(String billNo) {
+            this.billNo = billNo;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
         }
     }
 

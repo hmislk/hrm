@@ -123,8 +123,8 @@ public class TransferRequestController implements Serializable {
             return true;
         }
         
-        if (getBillItems().size()>=10) {
-            UtilityController.addErrorMessage("You Can Only Add 10 Items For this Request.");
+        if (getBillItems().size()>=15) {
+            UtilityController.addErrorMessage("You Can Only Add 15 Items For this Request.");
             return true;
         }
 

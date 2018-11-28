@@ -500,7 +500,7 @@ public class PharmacySaleController implements Serializable {
         userStockController.retiredAllUserStockContainer(getSessionController().getLoggedUser());
         clearBill();
         clearBillItem();
-        searchController.createPreBillsNotPaid();
+        searchController.createPreBillsNotPaidBill();
         billPreview = false;
     }
 
