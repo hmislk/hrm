@@ -33,6 +33,7 @@
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Report By Item " action="report_opd_daily_summery_credit_department" /> 
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Report By Bill" action="report_opd_daily_summery_credit_department_by_bill" />
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="Report By Bill Item" action="report_opd_credit_bill_item" />
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Report By Bill(With Letter)" action="report_opd_credit_bill_by_credit_company_with_letter" />
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Credit Company Break Down" action="report_credit_category" /> 
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Report Credit Bill(OPD/Pharmacy/Inward)" action="/credit/credit_bill_all" /> 
@@ -49,6 +50,7 @@
                                 <p:panel header="13) WHT Report" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Details) (5%)" action="/reportInstitution/report_with_holding_tax" actionListener="#{billController.clearTotals}"/> 
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Details)(Bill Item) (5%)" action="/reportInstitution/report_with_holding_tax_1" actionListener="#{billController.clearTotals}"/> 
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Summary) (5%)" action="/reportInstitution/report_with_holding_tax_summary" actionListener="#{billController.clearTotals}"/> 
                                     </h:panelGrid>
                                 </p:panel>

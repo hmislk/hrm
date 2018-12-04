@@ -33,6 +33,7 @@
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Bill Summary()" action="/channel/channel_report_all_booking" actionListener="#{channelReportController.clearAll}"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Bill Summary(Special)" action="/channel/channel_report_all_booking_special" actionListener="#{channelReportController.clearAll}" />
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Bill Detail Summary()" action="/channel/channel_report_by_bill_class"/>
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="Bill Detail Summary(New)" action="/channel/channel_report_by_bill_class_1" style="color: red;"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="All Department Bill Summary" action="/channel/channel_report_department_wise_bills"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="All Channel Bills" action="/channel/channel_report_all_bills"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="All Channel Bill With Hos. Sup. Ser." action="/channel/channel_report_all_bills_for_vat" style="color: red;"/>
@@ -87,6 +88,7 @@
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Doctor Wise Patient Count()" action="/channel/channel_report_staff_wise_patient_count"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="BTT" action="/channel/channel_doctor_view_today_all"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="BTT By Percentage" action="/channel/channel_doctor_view_today_all_1" actionListener="#{channelReportController.clearWithDefultValue}"/>
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="BTT By Percentage(New)" action="/channel/channel_report_consultant_btt" actionListener="#{channelReportController.clearWithDefultValue}"/>
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Specility Wise Channel Appoinment count" action="/channel/channel_report_speciality_wise" />
 
                                     </h:panelGrid>

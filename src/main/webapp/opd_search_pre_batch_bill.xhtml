@@ -14,17 +14,21 @@
                         <f:facet name="header" >
                             <h:outputLabel value="OPD BILL SEARCH TO PAY "/>
 
-                            <h:panelGrid columns="7" >
-                                <p:calendar id="fromDate" value="#{searchController.fromDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >      
-                                </p:calendar>
-                                <p:calendar id="toDate" value="#{searchController.toDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >                                                                              
-                                </p:calendar>
+                            <h:panelGrid columns="2" >
+                                <p:calendar id="fromDate" value="#{searchController.fromDate}" navigator="true" 
+                                            pattern="dd MMMM yyyy hh mm ss a" styleClass="dateTimePicker" />
+                                <p:calendar id="toDate" value="#{searchController.toDate}" navigator="true" 
+                                            pattern="dd MMMM yyyy hh mm ss a" styleClass="dateTimePicker" />
+                            </h:panelGrid>
+                            <p:commandButton ajax="false" value="Pharmacy Payment" action="/pharmacy/pharmacy_search_pre_bill.xhtml" style="float: right;"/>
+                            <h:panelGrid columns="4" >
                                 <p:commandButton id="btnSearch" ajax="false" value="Search All" action="#{searchController.createOpdBathcBillPreTable}"/>
                                 <p:commandButton id="btnSearch2" ajax="false" value="Search Paid Only" action="#{searchController.createOpdBathcBillPreTablePaidOnly}"/>
                                 <p:commandButton id="btnSearch3" ajax="false" value="Search Not Paid Only" action="#{searchController.createOpdBathcBillPreTableNotPaidOly}"/>
-                                <h:outputLabel />
-                                <p:commandButton  ajax="false" value="Pharmacy Payment" action="/pharmacy/pharmacy_search_pre_bill.xhtml"/>
-                                
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="7" >
+
                                 <p:spacer height="30"/><h:outputLabel/><h:outputLabel/><h:outputLabel/><h:outputLabel/><h:outputLabel/><h:outputLabel/>
 
                                 <h:outputLabel value="Bill No"/>
@@ -49,6 +53,7 @@
                             rowIndexVar="i"
                             id="tblBills" 
                             value="#{searchController.aceptPaymentBills}" 
+                            rowStyleClass="#{bill.cancelled eq true ? 'redText':''}"
                             var="bill"   
                             paginator="true"
                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -59,11 +64,22 @@
                                 <h:outputLabel value="#{i+1}"/>
                             </p:column>
 
-                            <p:column headerText="Bill No" >
+<!--                            <p:column headerText="Bill No" >
                                 <h:outputLabel value="#{bill.deptId}"  ></h:outputLabel>
+                            </p:column>   -->
+                            <p:column headerText="Batch Bill No" >
+                                <h:outputLabel value="#{bill.insId}"  ></h:outputLabel>
                             </p:column>   
-                             <p:column headerText="Name" >
-                                 <h:outputLabel value="#{bill.patient.person.nameWithTitle}"  ></h:outputLabel>
+                            <p:column headerText="Bill No" >
+                                <ui:repeat value="#{bill.forwardReferenceBills}" var="b">
+                                    <h:outputLabel value="#{b.insId}"  ></h:outputLabel><br></br>
+                                </ui:repeat>
+                            </p:column>   
+                            <p:column headerText="Payment Method" >
+                                <h:outputLabel value="#{bill.paymentMethod}"  ></h:outputLabel>
+                            </p:column>   
+                            <p:column headerText="Name" >
+                                <h:outputLabel value="#{bill.patient.person.nameWithTitle}"  ></h:outputLabel>
                             </p:column>   
                             <p:column headerText="Billed at"  >
                                 <h:outputLabel value="#{bill.createdAt}" >
@@ -97,19 +113,17 @@
                             </p:column>
 
                             <p:column headerText="Accept">
-                                #{bill.referenceBill.balance}
                                 <p:commandButton ajax="false"  value="Accept Payment" 
-                                                 action="#{opdPreSettleController.toSettleBatch(bill)}" 
-                                                 disabled="#{(bill.referenceBill.balance le 0.0 )or bill.cancelled}" >
+                                                 action="#{opdPreSettleController.toSettleBatchBill(bill)}" 
+                                                 disabled="#{bill.paid or bill.cancelled}" >
                                 </p:commandButton>
                             </p:column>
-                            
                             <p:column headerText="Reprint">
                                 <p:commandButton ajax="false"  
                                                  value="Reprint" 
                                                  action="bill_print" 
-                                                 disabled="#{bill.referenceBill.balance ge 0.0}" >
-                                    <f:setPropertyActionListener value="#{bill.referenceBill.forwardReferenceBills}" target="#{opdPreBillController.bills}" />
+                                                 disabled="#{(bill.paid eq false and bill.referenceBill eq null)or bill.cancelled}" >
+                                    <f:setPropertyActionListener value="#{bill.referenceBill}" target="#{opdPreSettleController.bill}" />
                                 </p:commandButton>
                             </p:column>
 

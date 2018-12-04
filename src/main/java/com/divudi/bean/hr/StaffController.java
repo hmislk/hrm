@@ -1078,6 +1078,10 @@ public class StaffController implements Serializable {
             UtilityController.addErrorMessage("Name With Initials Requied To Save");
             return;
         }
+        if (current.getCode() == null || current.getCode().trim().equals("")) {
+            UtilityController.addErrorMessage("Code Requied To Save");
+            return;
+        }
 
         if (removeResign) {
             current.setDateLeft(null);
@@ -1104,62 +1108,9 @@ public class StaffController implements Serializable {
 //        }
         getCurrent().chageCodeToInteger();
 
-        String sql;
-        Map m = new HashMap();
-        if (getCurrent().getId() == null || getCurrent().getId() == 0.0) {
-            sql = "select s from Staff s where s.retired=false "
-                    + " and type(s) not in :classes"
-                    + " and s.code=:c ";
-            m.put("c", getCurrent().getCode());
-            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
-            Staff s = getFacade().findFirstBySQL(sql, m);
-            if (s != null) {
-                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-                System.out.println("s.getCode() = " + s.getCode());
-                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
-                return;
-            }
-            sql = "select s from Staff s where s.retired=false "
-                    + " and type(s) not in :classes"
-                    + " and s.epfNo=:c ";
-            m.put("c", getCurrent().getEpfNo());
-            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
-            s = getFacade().findFirstBySQL(sql, m);
-            if (s != null) {
-                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-                System.out.println("s.getEpfNo() = " + s.getEpfNo());
-                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
-                return;
-            }
-        } else {
-            sql = "select s from Staff s where s.retired=false "
-                    + " and type(s) not in :classes"
-                    + " and s.code=:c "
-                    + " and s.id!=:staff ";
-            m.put("staff", getCurrent().getId());
-            m.put("c", getCurrent().getCode());
-            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
-            Staff s = getFacade().findFirstBySQL(sql, m);
-            if (s != null) {
-                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-                System.out.println("s.getCode() = " + s.getCode());
-                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
-                return;
-            }
-            sql = "select s from Staff s where s.retired=false "
-                    + " and type(s) not in :classes"
-                    + " and s.epfNo=:c "
-                    + " and s.id!=:staff ";
-            m.put("staff", getCurrent().getId());
-            m.put("c", getCurrent().getEpfNo());
-            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
-            s = getFacade().findFirstBySQL(sql, m);
-            if (s != null) {
-                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-                System.out.println("s.getEpfNo() = " + s.getEpfNo());
-                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
-                return;
-            }
+        if (errorCheckEPFAndCode(getCurrent())) {
+//            UtilityController.addErrorMessage("Name With Initials Requied To Save");
+            return;
         }
 
         if (getCurrent().getPerson().getDob() != null && getCurrent().getPerson().getSex() != null) {
@@ -1181,10 +1132,10 @@ public class StaffController implements Serializable {
                 System.out.println("dor.getTime = " + dor.getTime());
                 System.out.println("getCurrent().getDateRetired() = " + getCurrent().getDateRetired());
                 if (getCurrent().getDateRetired() != null) {
-//                    if (dor.getTime().after(getCurrent().getDateRetired())) {
-//                        getCurrent().setDateRetired(dor.getTime());
-//                    }
-                    getCurrent().setDateRetired(dor.getTime());
+                    if (dor.getTime().after(getCurrent().getDateRetired())) {
+                        getCurrent().setDateRetired(dor.getTime());
+                    }
+//                    getCurrent().setDateRetired(dor.getTime());
                 } else {
                     getCurrent().setDateRetired(dor.getTime());
                 }
@@ -1217,6 +1168,79 @@ public class StaffController implements Serializable {
 
         recreateModel();
         getItems();
+    }
+    
+    private boolean errorCheckEPFAndCode(Staff staff){
+        String sql;
+        Map m = new HashMap();
+        if (getCurrent().getId() == null || getCurrent().getId() == 0.0) {
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes "
+                    + " and s.code is not null "
+                    + " and s.code!=:cd "
+                    + " and s.code=:c ";
+            m.put("c", getCurrent().getCode());
+            m.put("cd", "");
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            Staff s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getCode() = " + s.getCode());
+                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return true;
+            }
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes "
+                    + " and s.epfNo!=:cd "
+                    + " and s.epfNo is not null "
+                    + " and s.epfNo=:c ";
+            m.put("c", getCurrent().getEpfNo());
+            m.put("cd", "");
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getEpfNo() = " + s.getEpfNo());
+                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return true;
+            }
+        } else {
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes "
+                    + " and s.code is not null "
+                    + " and s.code!=:cd "
+                    + " and s.code=:c "
+                    + " and s.id!=:staff ";
+            m.put("staff", getCurrent().getId());
+            m.put("c", getCurrent().getCode());
+            m.put("cd", "");
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            Staff s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getCode() = " + s.getCode());
+                JsfUtil.addErrorMessage("This Code Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return true;
+            }
+            sql = "select s from Staff s where s.retired=false "
+                    + " and type(s) not in :classes "
+                    + " and s.epfNo!=:cd "
+                    + " and s.epfNo is not null "
+                    + " and s.epfNo=:c "
+                    + " and s.id!=:staff ";
+            m.put("staff", getCurrent().getId());
+            m.put("c", getCurrent().getEpfNo());
+            m.put("cd", "");
+            m.put("classes", Arrays.asList(new Class[]{Doctor.class, Consultant.class}));
+            s = getFacade().findFirstBySQL(sql, m);
+            if (s != null) {
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                System.out.println("s.getEpfNo() = " + s.getEpfNo());
+                JsfUtil.addErrorMessage("This EPF No Already exsist \" " + s.getPerson().getName() + " \" . Please Enter Correct Staff Code.");
+                return true;
+            }
+        }
+        return false;
     }
 
     public void updateFormItem(FormItemValue fi) {

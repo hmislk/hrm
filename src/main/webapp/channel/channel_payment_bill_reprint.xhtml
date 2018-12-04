@@ -44,12 +44,31 @@
                             </p:panelGrid>
 
                             <p:panel header="Bill Fee Detail">
-                                <p:dataTable value="#{channelSearchController.billItems}" var="bip21" emptyMessage="No Items" >
+                                <p:dataTable value="#{channelSearchController.billItems}" var="bip21" emptyMessage="No Items" rowIndexVar="i" >
+                                    <p:column headerText="No">
+                                        <h:outputLabel value="#{i+1}" />
+                                    </p:column>
                                     <p:column headerText="Bill No">
                                         <h:outputLabel value="#{bip21.referenceBill.insId}" />
                                     </p:column>
+                                    <p:column headerText="Session Date">
+                                        <h:outputLabel value="#{bip21.referenceBill.singleBillSession.sessionDate}" >
+                                            <f:convertDateTime pattern="yyyy MM dd" />
+                                        </h:outputLabel>
+                                    </p:column>
+                                    <p:column headerText="Session Time">
+                                        <h:outputLabel value="#{bip21.referenceBill.singleBillSession.serviceSession.startingTime}" >
+                                            <f:convertDateTime pattern="hh:mm a" />
+                                        </h:outputLabel>
+                                    </p:column>
+                                    <p:column headerText="App No">
+                                        <h:outputLabel value="#{bip21.referenceBill.singleBillSession.serialNo}" >
+                                        </h:outputLabel>
+                                    </p:column>
                                     <p:column headerText="Date">
-                                        <h:outputLabel value="#{bip21.referenceBill.createdAt}" />
+                                        <h:outputLabel value="#{bip21.referenceBill.createdAt}" >
+                                            <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                        </h:outputLabel>
                                     </p:column>
                                     <p:column headerText="Test/Service">
                                         <h:outputLabel value="#{bip21.paidForBillFee.billItem.item.name}" />
@@ -90,7 +109,7 @@
 
 <!--                    <bi:staffBill  bill="#{channelSearchController.bill}" dup="true" controller="#{channelSearchController}" >
                     </bi:staffBill>-->
-                    
+
                 </h:form>
 
             </ui:define>

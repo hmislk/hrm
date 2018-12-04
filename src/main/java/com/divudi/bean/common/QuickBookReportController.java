@@ -299,13 +299,17 @@ public class QuickBookReportController implements Serializable {
         for (Institution i : fetchCreditCompany(commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), true, BillType.OpdBill)) {
             grantTot = 0.0;
             List<QuickBookFormat> qbfs = new ArrayList<>();
-            if (i!=null) {
+            if (i != null) {
                 System.out.println("****i.getName() = " + i.getName());
-            }else{
+            } else {
                 System.out.println("****i = " + i);
             }
             qbfs.addAll(fetchOPdListWithProDayEndTable(paymentMethods, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), i));
             qbfs.addAll(fetchOPdDocPaymentTable(paymentMethods, commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate), i));
+            if (qbfs.size() == 0) {
+                System.out.println("qbfs.size() = " + qbfs.size());
+                continue;
+            }
             QuickBookFormat qbf = new QuickBookFormat();
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
             qbf.setRowType("TRNS");
@@ -714,7 +718,7 @@ public class QuickBookReportController implements Serializable {
             if (b.getPaymentMethod() == PaymentMethod.Cash) {
                 qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getToInstitution().getChequePrintingName(), "", "", grantTot, b.getInvoiceNumber(), b.getDeptId(), b.getDepartment().getName(), b.getDeptId(), "", "", "", "", "");
             } else {
-                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getFromInstitution().getChequePrintingName(), "", "", grantTot, b.getInvoiceNumber(), b.getDeptId(), b.getDepartment().getName(), b.getDeptId(), "", "", "", "", "");
+                qbf = new QuickBookFormat("TRNS", "Bill", sdf.format(b.getCreatedAt()), "Accounts Payable:Trade Creditor-" + b.getDepartment().getName(), b.getToInstitution().getChequePrintingName(), "", "", grantTot, b.getInvoiceNumber(), b.getDeptId(), b.getDepartment().getName(), b.getDeptId(), "", "", "", "", "");
             }
             quickBookFormats.add(qbf);
 
@@ -1048,13 +1052,13 @@ public class QuickBookReportController implements Serializable {
             long d = (long) lobj[2];
             double sum = (double) lobj[3];
             BillClassType bclass = (BillClassType) lobj[4];
-            System.out.println("iName = " + i.getName());
-            System.out.println("i.getClass() = " + i.getClass());
-            System.out.println("bclass = " + bclass);
+//            System.out.println("iName = " + i.getName());
+//            System.out.println("i.getClass() = " + i.getClass());
+//            System.out.println("bclass = " + bclass);
 //            System.out.println("fValue = " + sum);
 //            System.out.println("d = " + d);
             if (itemBefore == null) {
-                System.err.println("if");
+//                System.err.println("if");
                 qbf.setRowType("SPL");
                 if (creditCompany != null) {
                     qbf.setTrnsType("INVOICE");
@@ -1107,9 +1111,9 @@ public class QuickBookReportController implements Serializable {
                 grantTot += sum;
                 itemBefore = i;
             } else {
-                System.err.println("Else");
+//                System.err.println("Else");
                 if (itemBefore == i) {
-                    System.err.println("Item Equal");
+//                    System.err.println("Item Equal");
                     long l = 0l;
                     try {
                         l = Long.parseLong(qbf.getCustFld5());
@@ -1129,8 +1133,8 @@ public class QuickBookReportController implements Serializable {
                     }
                     grantTot += sum;
                 } else {
-                    System.out.println("i.getName() = " + i.getName());
-                    System.out.println("itemBefore.getName() = " + itemBefore.getName());
+//                    System.out.println("i.getName() = " + i.getName());
+//                    System.out.println("itemBefore.getName() = " + itemBefore.getName());
                     itemBefore = i;
                     if (qbf.getAmount() != 0.0) {
                         qbfs.add(qbf);
@@ -1228,7 +1232,7 @@ public class QuickBookReportController implements Serializable {
         temMap.put("pms", paymentMethods);
 
         double d = getBillFeeFacade().findDoubleByJpql(jpql, temMap, TemporalType.TIMESTAMP);
-        System.out.println("d = " + d);
+//        System.out.println("d = " + d);
 //        List<Object[]> lobjs = getBillFacade().findAggregates(jpql, temMap, TemporalType.TIMESTAMP);
 //        System.out.println("lobjs.size = " + lobjs.size());
 

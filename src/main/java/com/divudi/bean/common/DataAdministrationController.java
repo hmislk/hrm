@@ -8,10 +8,12 @@ package com.divudi.bean.common;
 import com.divudi.bean.lab.InvestigationController;
 import com.divudi.data.BillType;
 import com.divudi.data.DepartmentType;
+import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.BillListWithTotals;
 import com.divudi.data.dataStructure.SearchKeyword;
 import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.ejb.BillEjb;
+import com.divudi.entity.Area;
 import com.divudi.entity.Bill;
 import com.divudi.entity.BillFee;
 import com.divudi.entity.BillItem;
@@ -24,6 +26,7 @@ import com.divudi.entity.Item;
 import com.divudi.entity.Service;
 import com.divudi.entity.ServiceSession;
 import com.divudi.entity.Staff;
+import com.divudi.entity.inward.AdmissionType;
 import com.divudi.entity.lab.Investigation;
 import com.divudi.entity.lab.PatientInvestigation;
 import com.divudi.entity.lab.PatientReport;
@@ -143,6 +146,7 @@ public class DataAdministrationController {
     private List<PatientInvestigation> patientInvestigations;
     List<PharmaceuticalItemCategory> pharmaceuticalItemCategorys;
     List<PharmaceuticalItemCategory> selectedPharmaceuticalItemCategorys;
+    List<PatientDetailsRow> patientDetailsRows;
 
     double val1;
     double val2;
@@ -946,6 +950,172 @@ public class DataAdministrationController {
 
     }
 
+    public void fillPatientDetails() {
+        Map m = new HashMap();
+        String sql;
+
+        if (getReportKeyWord().getString().equals("0")) {
+            sql = "select p.patient.person.name, "
+                    + " p.patient.person.mobile, "
+                    + " p.patient.person.area, "
+                    + " p.paymentMethod,"
+                    + " p.bhtNo,"
+                    + " p.dateOfDischarge, "
+                    + " p.dateOfAdmission, "
+                    + " p.paymentMethod, "
+                    + " p.creditCompany,"
+                    + " p.referringDoctor.person.name,"
+                    + " p.admissionType,"
+                    + " p.patient.person.phone "
+                    + " from PatientEncounter p "
+                    + " where p.retired=false "
+                    + " and p.discharged=true "
+//                    + " and (p.patient.person.mobile is not null "
+//                    + " or p.patient.person.mobile!=:em) "
+                    + " and p.paymentFinalized=true "
+                    + " and p.dateOfDischarge between :fd and :td ";
+
+            if (getReportKeyWord().getAdmissionType() != null) {
+                sql += " and p.admissionType =:ad ";
+                m.put("ad", getReportKeyWord().getAdmissionType());
+            }
+
+            if (getReportKeyWord().getInstitution() != null) {
+                sql += " and p.creditCompany =:ins ";
+                m.put("ins", getReportKeyWord().getInstitution());
+            }
+
+            if (getReportKeyWord().getPaymentMethod() != null) {
+                sql += " and p.paymentMethod =:pm ";
+                m.put("pm", getReportKeyWord().getPaymentMethod());
+            }
+
+            if (getReportKeyWord().getStaff() != null) {
+                sql += " and p.referringDoctor =:refDoc ";
+                m.put("refDoc", getReportKeyWord().getStaff());
+            }
+
+            if (getReportKeyWord().getArea() != null) {
+                sql += " and p.patient.person.area=:a ";
+                m.put("a", getReportKeyWord().getArea());
+            }
+
+            if (getReportKeyWord().isAdditionalDetails()) {
+                sql += " group by  p.patient.person.mobile ";
+            }
+
+            sql += " order by  p.patient.person.mobile ";
+
+            m.put("fd", fromDate);
+            m.put("td", toDate);
+
+        } else {
+            sql = "select b.patient.person.name, "
+                    + " b.patient.person.phone, "
+                    + " b.patient.person.area, ";
+            if (getReportKeyWord().getString().equals("4")) {
+                sql += " b.patient.person.mobile, ";
+            }
+            sql += " b.paymentMethod "
+                    + " from Bill b where "
+                    + " b.retired = false "
+                    + " and b.cancelled=false "
+                    + " and b.refunded=false "
+                    + " and (b.patient.person.phone is not null "
+                    + " or b.patient.person.phone!=:em) "
+                    + " and b.createdAt between :fd and :td  ";
+
+            if (getReportKeyWord().getString().equals("1")) {
+                BillType[] billTypes = {BillType.ChannelCash, BillType.ChannelPaid};
+                sql += " and b.billType in :bts ";
+                m.put("bts", Arrays.asList(billTypes));
+            }
+            if (getReportKeyWord().getString().equals("2")) {
+                BillType[] billTypes = {BillType.OpdBill};
+                sql += " and b.billType in :bts ";
+                m.put("bts", Arrays.asList(billTypes));
+            }
+            if (getReportKeyWord().getString().equals("3")) {
+                BillType[] billTypes = {BillType.PharmacySale};
+                sql += " and b.billType in :bts ";
+                m.put("bts", Arrays.asList(billTypes));
+            }
+            if (getReportKeyWord().getString().equals("4")) {
+                BillType[] billTypes = {BillType.InwardPaymentBill,BillType.CashRecieveBill};
+                sql += " and b.billType in :bts ";
+                m.put("bts", Arrays.asList(billTypes));
+            }
+            if (getReportKeyWord().getArea() != null) {
+                sql += " and b.patient.person.area=:a ";
+                m.put("a", getReportKeyWord().getArea());
+            }
+            if (getReportKeyWord().getPaymentMethod() != null) {
+                sql += " and b.paymentMethod =:pm ";
+                m.put("pm", getReportKeyWord().getPaymentMethod());
+            }
+
+            if (getReportKeyWord().isAdditionalDetails()) {
+                sql += " group by b.patient.person.phone ";
+            }
+
+            sql += " order by b.patient.person.phone ";
+
+            m.put("em", "");
+            m.put("fd", fromDate);
+            m.put("td", toDate);
+
+        }
+
+        System.out.println("sql = " + sql);
+        System.out.println("m = " + m);
+        List<Object[]> objs = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("objs.size() = " + objs.size());
+        createPatientDetailRows(getReportKeyWord().getString(), objs);
+
+    }
+
+    private void createPatientDetailRows(String s, List<Object[]> objects) {
+        patientDetailsRows = new ArrayList<>();
+        PatientDetailsRow row;
+        if (s.equals("0")) {
+            for (Object[] ob : objects) {
+                row = new PatientDetailsRow();
+                row.setName((String) ob[0]);
+                row.setMobile((String) ob[1]);
+                row.setArea((Area) ob[2]);
+                row.setPaymentMethod((PaymentMethod) ob[3]);
+                row.setBhtNo((String) ob[4]);
+                row.setDateOfDischarge((Date) ob[5]);
+                row.setDateOfAdmission((Date) ob[6]);
+                row.setBhtType((PaymentMethod) ob[7]);
+                row.setCreditCompany((Institution) ob[8]);
+                row.setRefDocName((String) ob[9]);
+                row.setAdmissionType((AdmissionType) ob[10]);
+                row.setPhone((String) ob[11]);
+                patientDetailsRows.add(row);
+
+            }
+        } else {
+            for (Object[] ob : objects) {
+                row = new PatientDetailsRow();
+                row.setName((String) ob[0]);
+                row.setPhone((String) ob[1]);
+                row.setArea((Area) ob[2]);
+                if (getReportKeyWord().getString().equals("4")) {
+                    row.setMobile((String) ob[3]);
+                    row.setPaymentMethod((PaymentMethod) ob[4]);
+                } else {
+                    row.setPaymentMethod((PaymentMethod) ob[3]);
+                }
+                patientDetailsRows.add(row);
+            }
+        }
+    }
+
+    public void listnerBillTypeChange() {
+        reportKeyWord.setArea(null);
+    }
+
     private List<Object> fetchAllBilledBillTypes() {
         List<Object> objects = new ArrayList<>();
         String sql;
@@ -1220,7 +1390,137 @@ public class DataAdministrationController {
 
         return getPharmaceuticalItemCategoryFacade().findBySQL(sql);
     }
-    
+
+    public List<PatientDetailsRow> getPatientDetailsRows() {
+        return patientDetailsRows;
+    }
+
+    public void setPatientDetailsRows(List<PatientDetailsRow> patientDetailsRows) {
+        this.patientDetailsRows = patientDetailsRows;
+    }
+
+    public class PatientDetailsRow {
+
+        String name;
+        Area area;
+        BillType billType;
+        PaymentMethod paymentMethod;
+
+        String bhtNo;
+        Date dateOfDischarge;
+        Date dateOfAdmission;
+        PaymentMethod bhtType;
+        Institution creditCompany;
+        String phone;
+        String mobile;
+        String refDocName;
+        AdmissionType admissionType;
+
+        public String getMobile() {
+            return mobile;
+        }
+
+        public void setMobile(String mobile) {
+            this.mobile = mobile;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Area getArea() {
+            return area;
+        }
+
+        public void setArea(Area area) {
+            this.area = area;
+        }
+
+        public BillType getBillType() {
+            return billType;
+        }
+
+        public void setBillType(BillType billType) {
+            this.billType = billType;
+        }
+
+        public PaymentMethod getPaymentMethod() {
+            return paymentMethod;
+        }
+
+        public void setPaymentMethod(PaymentMethod paymentMethod) {
+            this.paymentMethod = paymentMethod;
+        }
+
+        public String getBhtNo() {
+            return bhtNo;
+        }
+
+        public void setBhtNo(String bhtNo) {
+            this.bhtNo = bhtNo;
+        }
+
+        public Date getDateOfDischarge() {
+            return dateOfDischarge;
+        }
+
+        public void setDateOfDischarge(Date dateOfDischarge) {
+            this.dateOfDischarge = dateOfDischarge;
+        }
+
+        public Date getDateOfAdmission() {
+            return dateOfAdmission;
+        }
+
+        public void setDateOfAdmission(Date dateOfAdmission) {
+            this.dateOfAdmission = dateOfAdmission;
+        }
+
+        public PaymentMethod getBhtType() {
+            return bhtType;
+        }
+
+        public void setBhtType(PaymentMethod bhtType) {
+            this.bhtType = bhtType;
+        }
+
+        public Institution getCreditCompany() {
+            return creditCompany;
+        }
+
+        public void setCreditCompany(Institution creditCompany) {
+            this.creditCompany = creditCompany;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getRefDocName() {
+            return refDocName;
+        }
+
+        public void setRefDocName(String refDocName) {
+            this.refDocName = refDocName;
+        }
+
+        public AdmissionType getAdmissionType() {
+            return admissionType;
+        }
+
+        public void setAdmissionType(AdmissionType admissionType) {
+            this.admissionType = admissionType;
+        }
+    }
+
 //    Getters & Setters
     public PatientReportItemValueFacade getPatientReportItemValueFacade() {
         return patientReportItemValueFacade;

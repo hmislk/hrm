@@ -23,28 +23,34 @@
                         <h:panelGrid columns="20"  >
                             <h:outputLabel value="OPD Bill" />
                             <h:outputLabel value="&nbsp;&nbsp;&nbsp;&nbsp;" style="min-width: 50px;" />
-                            <p:selectOneMenu   id="cmbPs" value="#{opdPreSettleController.paymentMethod}"  >                                                                     
-                                <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}" />
+                            <p:selectOneMenu   id="cmbPs" value="#{opdPreSettleController.preBill.paymentMethod}" disabled="true">                                                                     
+                                <f:selectItems value="#{enumController.paymentMethodsOPDPre}" />
                                 <p:ajax process="cmbPs" update="creditCard cheque slip " event="change" />
                             </p:selectOneMenu>
 
-                            <h:panelGroup id="creditCard" style="display:#{opdPreSettleController.paymentMethod ne 'Card' ? 'none' : 'block'} ; ">
+                            <h:panelGroup id="creditCard" style="display:#{opdPreSettleController.preBill.paymentMethod ne 'Card' ? 'none' : 'block'} ; ">
                                 <pa:creditCard paymentMethodData="#{opdPreSettleController.paymentMethodData}"/>
                             </h:panelGroup>
 
-                            <h:panelGroup id="cheque" style="display:#{opdPreSettleController.paymentMethod ne 'Cheque' ? 'none' : 'block'} ; " >
+                            <h:panelGroup id="cheque" style="display:#{opdPreSettleController.preBill.paymentMethod ne 'Cheque' ? 'none' : 'block'} ; " >
                                 <pa:cheque paymentMethodData="#{opdPreSettleController.paymentMethodData}"/>
                             </h:panelGroup>
 
-                            <h:panelGroup id="slip" style="display:#{opdPreSettleController.paymentMethod ne 'Slip' ? 'none' : 'block'} ;">
+                            <h:panelGroup id="slip" style="display:#{opdPreSettleController.preBill.paymentMethod ne 'Slip' ? 'none' : 'block'} ;">
                                 <pa:slip paymentMethodData="#{opdPreSettleController.paymentMethodData}"/>
                             </h:panelGroup>
 
-                            <p:commandButton ajax= "false"  
+                            <p:commandButton ajax="false                                                                                                                                                                                                                                                                                                                                                    "  
                                              value="Settle and Accept Payment" 
                                              id="settle"
-                                             onclick="onSubmitButton();"
-                                             action="#{opdPreSettleController.settle()}" />
+                                             action="#{opdPreSettleController.settle()}" 
+                                             disabled="#{opdPreSettleController.preBill.paid or opdPreSettleController.preBill.cancelled}" >
+                                <p:confirm header="Confirmation" message="Are you sure to pay this Bill?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+                                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                            </p:confirmDialog>
 
                             <p:commandButton ajax="false" value="Back To Search"
                                              action="opd_search_pre_batch_bill"/>
@@ -56,42 +62,42 @@
                                 <p:panel header="Customer Detail">
                                     <p:panelGrid columns="2">
                                         <h:outputLabel value="Name:" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.patient.person.name}" ></h:outputLabel>                                        
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.patient.person.name}" ></h:outputLabel>                                        
                                     </p:panelGrid>
                                 </p:panel>
                                 <p:panel header="Payment Details">
                                     <p:panelGrid columns="2" >
                                         <h:outputLabel value="Bill No :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.deptId}" ></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.deptId}" ></h:outputLabel>
                                         <h:outputLabel value="Total :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.total}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.total}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
                                         <h:outputLabel value="Discount :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.discount}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.discount}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
                                         <h:outputLabel value="Net Total :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.netTotal}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.netTotal}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
                                         <h:outputLabel value="Paid Amount :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.cashPaid}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.cashPaid}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
                                         <h:outputLabel value="Balance :" ></h:outputLabel>
-                                        <h:outputLabel value="#{opdPreSettleController.billedBill.balance}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
+                                        <h:outputLabel value="#{opdPreSettleController.preBill.balance}" ><f:convertNumber pattern="#,##0.00"/></h:outputLabel>
                                     </p:panelGrid>
                                 </p:panel>
 
                                 <p:panel header="Bill Details" id="pBillDetails"  >
                                     <p:panelGrid columns="2" columnClasses="numberCol, textCol"  >
                                         <h:outputLabel value="Total" ></h:outputLabel>
-                                        <h:outputLabel id="total" value="#{opdPreSettleController.billedBill.total}" >
+                                        <h:outputLabel id="total" value="#{opdPreSettleController.preBill.total}" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>
                                         <h:outputLabel value="Discount" ></h:outputLabel>
-                                        <h:outputLabel id="dis" value="#{opdPreSettleController.billedBill.discount}" >
+                                        <h:outputLabel id="dis" value="#{opdPreSettleController.preBill.discount}" >
                                             <f:convertNumber pattern="#,##0.00" />                                          
                                         </h:outputLabel>
                                         <h:outputLabel value="Net Total" ></h:outputLabel>
-                                        <h:outputLabel id="netTotal" value="#{opdPreSettleController.billedBill.netTotal}" >
+                                        <h:outputLabel id="netTotal" value="#{opdPreSettleController.preBill.netTotal}" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>
                                         <h:outputLabel value="paid Amount" ></h:outputLabel>
-                                        <h:outputLabel id="netPaid" value="#{opdPreSettleController.billedBill.cashPaid}" >
+                                        <h:outputLabel id="netPaid" value="#{opdPreSettleController.preBill.cashPaid}" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>
                                         <h:outputLabel value="Tendered" ></h:outputLabel>
@@ -99,15 +105,15 @@
                                             <p:ajax process="total dis netTotal paid netPaid" update="balance netTotal netPaid" event="keyup"/>
                                         </p:inputText>
                                         <h:outputLabel  value="Balance " ></h:outputLabel>
-                                        <h:outputLabel id="balance" value="#{opdPreSettleController.cashPaid-(opdPreSettleController.billedBill.netTotal-opdPreSettleController.billedBill.cashPaid)}" >
+                                        <h:outputLabel id="balance" value="#{opdPreSettleController.cashPaid-(opdPreSettleController.preBill.netTotal-opdPreSettleController.preBill.cashPaid)}" >
                                             <f:convertNumber pattern="#,##0.00" />
                                         </h:outputLabel>
                                     </p:panelGrid>
 
                                 </p:panel>
                             </p:panelGrid>
-                            <p:panel header="Bill Details">
-                                <p:dataTable value="#{opdPreSettleController.billedBill.forwardReferenceBills}" var="rb">
+                            <p:panel header="Bill Details (Pre Bill)">
+                                <p:dataTable value="#{opdPreSettleController.preBill.forwardReferenceBills}" var="rb">
                                     <p:column  headerText="Bill No" >                                                               
                                         <h:outputLabel  value="#{rb.deptId}"/>                                   
                                     </p:column>
@@ -161,6 +167,67 @@
                                                 <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
                                             </h:outputLabel>
                                         </h:panelGroup> 
+                                    </p:column> 
+                                </p:dataTable>
+                            </p:panel>
+                            <p:panel header="Bill Details (Billed Bill)" rendered="#{opdPreSettleController.preBill.referenceBill ne null}">
+                                <p:dataTable value="#{opdPreSettleController.preBill.referenceBill.forwardReferenceBills}" var="rb">
+                                    <p:column  headerText="Bill No" >                                                               
+                                        <h:outputLabel  value="#{rb.deptId}"/>                                   
+                                    </p:column>
+                                    <p:column  headerText="Bill Raised At">
+                                        <h:outputLabel value="#{rb.createdAt}" >
+                                            <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                        </h:outputLabel>
+                                        <br></br>
+                                        <h:panelGroup rendered="#{rb.cancelled}" >
+                                            <h:outputLabel style="color: red;" value="Cancelled at " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
+                                                           value="#{rb.cancelledBill.createdAt}" >
+                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                            </h:outputLabel>
+                                            <br></br>
+                                            <h:outputLabel style="color: red;" value=" by " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.cancelled}"
+                                                           value="#{rb.cancelledBill.creater.webUserPerson.name}" >                                       
+                                            </h:outputLabel>
+                                        </h:panelGroup> 
+                                        <h:panelGroup rendered="#{rb.refunded}" >
+                                            <h:outputLabel style="color: red;" value="Refunded at " />
+                                            <h:outputLabel style="color: red;" rendered="#{rb.refunded}"
+                                                           value="#{rb.referenceBill.createdAt}" >
+                                                <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                            </h:outputLabel>
+                                        </h:panelGroup>
+                                    </p:column>
+
+                                    <p:column headerText="User" >                               
+                                        <h:outputLabel value="#{rb.creater.webUserPerson.name}" >                                      
+                                        </h:outputLabel>                                
+                                    </p:column>  
+
+                                    <p:column headerText="Total">
+                                        <h:outputLabel value="#{rb.total}">
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel>                                  
+                                    </p:column>
+                                    <p:column headerText="Discount" >
+                                        <h:outputLabel value="#{rb.discount}">
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel>                                  
+                                    </p:column>
+                                    <p:column headerText="Net Total" >
+                                        <h:outputLabel value="#{rb.total - rb.discount}">
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel>                                  
+                                    </p:column>
+                                    <p:column headerText="Paid" >
+                                        <h:outputLabel value="#{rb.cashPaid}">
+                                            <f:convertNumber pattern="#,##0.00" />
+                                        </h:outputLabel>                                  
+                                    </p:column>
+                                    <p:column  headerText="Comments">
+                                        <h:outputLabel  value="#{rb.cancelledBill.comments}"/> 
                                     </p:column> 
                                 </p:dataTable>
                             </p:panel>

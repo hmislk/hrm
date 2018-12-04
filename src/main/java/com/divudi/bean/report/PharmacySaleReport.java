@@ -3436,7 +3436,7 @@ public class PharmacySaleReport implements Serializable {
         jpql = "select pbi.billItem.bill.billType, "
                 + " pbi.itemBatch, "
                 + " pbi.billItem, "
-                + " stk,"
+                + " pbi,"
                 + " pbi.purchaseRate "
                 + " from PharmaceuticalBillItem pbi,Stock stk "
                 + " where (type(pbi.billItem.bill)=:bc or (type(pbi.billItem.bill)!=:bc and pbi.billItem.bill.billType in :bts)"
@@ -3454,7 +3454,7 @@ public class PharmacySaleReport implements Serializable {
             m.put("dept", department);
         }
         jpql = jpql + " group by pbi.billItem.bill.billType, pbi.itemBatch, pbi.billItem ";
-        jpql = jpql + " order by pbi.itemBatch.item.name ";
+        jpql = jpql + " order by pbi.itemBatch.item.name, pbi.itemBatch.id , pbi.billItem.bill.billType ";
         List<Object[]> objs = getBillFacade().findAggregates(jpql, m, TemporalType.TIMESTAMP);
         System.out.println("objs = " + objs.size());
 //        List<Object[]> obj = fetchTransferIssueReciveBills();
@@ -3481,7 +3481,8 @@ public class PharmacySaleReport implements Serializable {
             try {
                 ItemBatch itemBatch;
                 BillType billType;
-                Stock stock;
+//                Stock stock;
+                PharmaceuticalBillItem pbi;
                 double netValue = 0;
                 double qty = 0;
                 double pbipurchaseRate = 0;
@@ -3489,13 +3490,16 @@ public class PharmacySaleReport implements Serializable {
                 billType = (BillType) o[0];
                 itemBatch = (ItemBatch) o[1];
                 BillItem billItem = (BillItem) o[2];
-                stock = (Stock) o[3];
+                pbi = (PharmaceuticalBillItem) o[3];
                 pbipurchaseRate = (double) o[4];
                 if (billItem != null) {
                     netValue = billItem.getNetValue();
                     qty = billItem.getPharmaceuticalBillItem().getQty();
                 }
-//                System.out.println("****itemBatch.getItem().getName() = " + itemBatch.getItem().getName());
+                System.out.println("****itemBatch.getItem().getName() = " + itemBatch.getItem().getName());
+                System.out.println("****itemBatch.id = " + itemBatch.getId());
+                System.out.println("****stock = " + pbi.getStock().getStock());
+                System.out.println("****stock.id = " + pbi.getStock().getId());
 //                System.out.println("billItem.getBill().getInsId() = " + billItem.getBill().getInsId());
 //                System.out.println("billType = " + billType);
 //                System.out.println("itemBatch = " + itemBatch);
@@ -3507,9 +3511,17 @@ public class PharmacySaleReport implements Serializable {
 //                System.out.println("***qty = " + qty);
 
                 if (pi == null || !itemBatch.equals(pi)) {
+                    if (pi==null) {
+                        System.err.println("pi Null");
+                    } else {
+                        System.out.println("pi.getItem().getName() = " + pi.getItem().getName());
+                        System.out.println("pi.getId() = " + pi.getId());
+                    }
+                    System.out.println("itemBatch.getItem().getName(new) = " + itemBatch.getItem().getName());
+                    System.out.println("itemBatch.getItem().getName(new) = " + itemBatch.getId());
                     r = new CategoryMovementReportRow();
                     r.setItemBatch(itemBatch);
-                    r.setStock(stock);
+                    r.setStock(pbi.getStock());
                     r.setDepartmentIssue(0.0);
                     r.setInwardIssue(0.0);
                     r.setMarginValue(0.0);
@@ -3522,7 +3534,7 @@ public class PharmacySaleReport implements Serializable {
                     pi = itemBatch;
                     bi = billItem;
                     categoryMovementReportRows.add(r);
-                    stocks.add(stock);
+                    stocks.add(pbi.getStock());
 //                    System.out.println("size = " + categoryMovementReportRows.size());
                 }
 
@@ -3602,19 +3614,18 @@ public class PharmacySaleReport implements Serializable {
             totalMargineValue = r.getInwardMargin();
         }
 
-        System.out.println("stocks.size() = " + stocks.size());
-        List<Stock> removeStocks = fetchDepartmentStocks();
-        System.out.println("1.removeStocks.size() = " + removeStocks.size());
-        removeStocks.removeAll(stocks);
-        System.out.println("2.removeStocks.size() = " + removeStocks.size());
-        for (Stock rs : removeStocks) {
-            r = new CategoryMovementReportRow();
-            r.setItemBatch(rs.getItemBatch());
-            r.setStock(rs);
-            totalPurchaseValue += r.getStock().getStock() * r.getItemBatch().getPurcahseRate();
-            categoryMovementReportRows.add(r);
-        }
-
+//        System.out.println("stocks.size() = " + stocks.size());
+//        List<Stock> removeStocks = fetchDepartmentStocks();
+//        System.out.println("1.removeStocks.size() = " + removeStocks.size());
+//        removeStocks.removeAll(stocks);
+//        System.out.println("2.removeStocks.size() = " + removeStocks.size());
+//        for (Stock rs : removeStocks) {
+//            r = new CategoryMovementReportRow();
+//            r.setItemBatch(rs.getItemBatch());
+//            r.setStock(rs);
+//            totalPurchaseValue += r.getStock().getStock() * r.getItemBatch().getPurcahseRate();
+//            categoryMovementReportRows.add(r);
+//        }
         commonController.printReportDetails(fromDate, toDate, startTime,
                 "Pharmacy/Reports/Summeries/Category-vice movement report/Movement report stock by date- by batch(/faces/pharmacy/pharmacy_report_category_vice_movement_item_batch.xhtml)");
     }
@@ -3853,7 +3864,7 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", pm);
         m.put("btp", BillType.PharmacyPre);
 
-        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d = getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
         System.out.println("fetchSaleValue = " + d);
         return d;
     }
@@ -3885,7 +3896,7 @@ public class PharmacySaleReport implements Serializable {
         m.put("pm", pm);
         m.put("btp", BillType.PharmacyPre);
 
-        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d = getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
         System.out.println("fetchSaleReturnValue = " + d);
         return d;
     }
@@ -3920,7 +3931,7 @@ public class PharmacySaleReport implements Serializable {
         m.put("btp", BillType.PharmacySale);
         m.put("btp2", BillType.PharmacyPre);
 
-        double d= getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
+        double d = getBillFacade().findDoubleByJpql(sql, m, TemporalType.TIMESTAMP);
         System.out.println("fetchSaleCancelValue = " + d);
         return d;
     }

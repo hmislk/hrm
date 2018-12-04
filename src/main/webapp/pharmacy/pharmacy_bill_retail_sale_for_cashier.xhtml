@@ -333,7 +333,17 @@
                                 </f:facet>
                                 <p:tabView>
                                     <p:tab title="Not Accepted Bills">
-                                        <p:dataTable value="#{searchController.bills}" var="bill" styleClass="summeryBorder" >
+                                        <p:dataTable value="#{searchController.addToStockRows}" var="bill" styleClass="summeryBorder" >
+                                            <p:column headerText="Pre Bill No">
+                                                <h:outputLabel value="#{bill.billNo}"  ></h:outputLabel>
+                                            </p:column>     
+                                            <p:column headerText="Date" >                              
+                                                <h:outputLabel value="#{bill.date}" >
+                                                    <f:convertDateTime pattern="dd MM yy hh:mm:ss a"/>
+                                                </h:outputLabel>                                   
+                                            </p:column>
+                                        </p:dataTable>
+<!--                                        <p:dataTable value="#{searchController.bills}" var="bill" styleClass="summeryBorder" >
                                             <p:column headerText="Pre Bill No">
                                                 <h:outputLabel value="#{bill.deptId}"  ></h:outputLabel>
                                             </p:column>     
@@ -342,10 +352,10 @@
                                                     <f:convertDateTime pattern="dd MM yy hh:mm:ss a"/>
                                                 </h:outputLabel>                                   
                                             </p:column>
-<!--                                            <p:column headerText="User" style="overflow: hidden;">
+                                            <p:column headerText="User" style="overflow: hidden;">
                                                 <h:outputLabel value="#{bill.creater.webUserPerson.name}"  ></h:outputLabel>
-                                            </p:column>     -->
-                                        </p:dataTable>
+                                            </p:column>     
+                                        </p:dataTable>-->
                                     </p:tab>
                                     <p:tab title="Refering Details">
                                         <p:panelGrid columns="2">

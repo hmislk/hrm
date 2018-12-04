@@ -29,7 +29,8 @@
                         <h:outputLabel value="To Date"/>
                         <p:calendar value="#{channelReportTempController.toDate}" navigator="true" pattern="dd MMM yyyy HH:mm:ss" >
                         </p:calendar>
-
+                        <h:outputLabel value="By Session Date"/>
+                        <p:selectBooleanCheckbox value="#{channelReportTempController.reportKeyWord.additionalDetails}" />
                     </h:panelGrid> 
                     <h:panelGrid columns="3">
 

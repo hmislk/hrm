@@ -62,7 +62,10 @@ public class UserPrivilageController implements Serializable {
         TreeNode node0 = new PrivilageNode("OPD", tmproot);
         TreeNode node00 = new PrivilageNode("Billing Menu", node0, Privileges.Opd);
         TreeNode node01 = new PrivilageNode("Bill", node0, Privileges.OpdBilling);
-        TreeNode node01a = new PrivilageNode("Pre Billing", node0, Privileges.OpdPreBilling);
+        TreeNode node01a = new PrivilageNode("Pre Billing", node0);
+        TreeNode node01a0 = new PrivilageNode("Pre Billing", node01a, Privileges.OpdPreBilling);
+        TreeNode node01a1 = new PrivilageNode("Pre Bill Search to Cancel", node01a, Privileges.OpdPreBillSearch);
+        TreeNode node01a2 = new PrivilageNode("Pre Bill Accept", node01a, Privileges.OpdPreBillAccept);
         TreeNode node01aa = new PrivilageNode("Collecting Centre Billing", node0, Privileges.OpdCollectingCentreBilling);
         TreeNode node02 = new PrivilageNode("Bill Search", node0, Privileges.OpdBillSearch);
         TreeNode node03 = new PrivilageNode("Bill Item Search", node0, Privileges.OpdBillItemSearch);
@@ -197,6 +200,10 @@ public class UserPrivilageController implements Serializable {
         TreeNode node229b = new PrivilageNode("Lab Collecting center Billing", node229, Privileges.LabCCBilling);
         TreeNode node229c = new PrivilageNode("Lab Collecting Center Bill search", node229, Privileges.LabCCBillingSearch);
         TreeNode node230 = new PrivilageNode("Lab Reporting", node2, Privileges.LabReporting);
+        TreeNode node231 = new PrivilageNode("Lab Report for Out Station", node2);
+        TreeNode node231a = new PrivilageNode("Lab Report Print Out Station", node231, Privileges.LabReportSearchOut);
+        TreeNode node231b = new PrivilageNode("Lab Report Print Color", node231, Privileges.LabReportSearchOutPrintColor);
+        TreeNode node231c = new PrivilageNode("Lab Report Print Black &amp; White", node231, Privileges.LabReportSearchOutPrintBNW);
 
         TreeNode node3 = new PrivilageNode("Pharmacy", tmproot);
         TreeNode node300 = new PrivilageNode("Pharmacy Menu", node3, Privileges.Pharmacy);

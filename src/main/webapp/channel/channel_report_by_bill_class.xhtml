@@ -39,7 +39,7 @@
                 </p:panel>
                     <p:panel id="billFeeReport" styleClass="noBorder summeryBorder" >
                     <p:panel id="reportPrint">
-                        <p:dataTable value="#{channelReportController.billedBills}" var="b" id="tbl1" >
+                        <p:dataTable value="#{channelReportController.billedBills}" var="b" id="tbl1" rowIndexVar="i" >
                             <f:facet name="header" >
                                 <p:outputLabel value="Bill Detail Summary" />
                                 <h:outputLabel value="From : " style=" white-space:pre-line;"/>
@@ -51,6 +51,12 @@
                                         <f:convertDateTime pattern="dd MMM yyyy HH:mm a"/>
                                     </h:outputLabel>
                             </f:facet>
+                            <p:column  >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="No" />
+                                </f:facet>
+                                <p:outputLabel value="#{i+1}" />
+                            </p:column>
                             <p:column style="text-align: left;" rendered="#{webUserController.hasPrivilege('Developers')}" >
                                 <f:facet name="header" >
                                     <p:outputLabel value="Appoinment Date" />
@@ -157,7 +163,7 @@
                            
                         </p:dataTable>
                         
-                        <p:dataTable value="#{channelReportController.cancelBills}" var="b" id="tbl2" >
+                        <p:dataTable value="#{channelReportController.cancelBills}" var="b" id="tbl2" rowIndexVar="i" >
                             <f:facet name="header" >
                                 <p:outputLabel value="Cancel Bill List" />
                             </f:facet>
@@ -263,7 +269,7 @@
                            
                         </p:dataTable>
                         
-                        <p:dataTable value="#{channelReportController.refundBills}" var="b" id="tbl3" >
+                        <p:dataTable value="#{channelReportController.refundBills}" var="b" id="tbl3" rowIndexVar="i" >
                             <f:facet name="header" >
                                 <p:outputLabel value="Refund Bill List" />
                             </f:facet>

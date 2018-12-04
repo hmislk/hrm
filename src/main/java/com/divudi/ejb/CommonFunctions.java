@@ -308,13 +308,13 @@ public class CommonFunctions {
         calendar.setTime(date);
         calendar.add(Calendar.MONTH, 1);
 
-        System.out.println("1.calendar.getTime() = " + calendar.getTime());
+//        System.out.println("1.calendar.getTime() = " + calendar.getTime());
         calendar.add(Calendar.DATE, -1);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DATE);
         calendar.set(year, month, day, 23, 59, 59);
-        System.out.println("2.calendar.getTime() = " + calendar.getTime());
+//        System.out.println("2.calendar.getTime() = " + calendar.getTime());
         return calendar.getTime();
     }
 
@@ -487,6 +487,37 @@ public class CommonFunctions {
 
 //        System.err.println("****Rounding****");
         return d;
+    }
+    
+    public String getMonthString(int i) {
+        switch (i) {
+            case 1:
+                return "January";
+            case 2:
+                return "February";
+            case 3:
+                return "March";
+            case 4:
+                return "April";
+            case 5:
+                return "May";
+            case 6:
+                return "June";
+            case 7:
+                return "July";
+            case 8:
+                return "August";
+            case 9:
+                return "September";
+            case 10:
+                return "October";
+            case 11:
+                return "November";
+            case 12:
+                return "December";
+            default:
+                return "Error Month";
+        }
     }
 
 }

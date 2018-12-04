@@ -210,6 +210,17 @@
                     </p:column>
                     <p:column>
                         <f:facet name="header" >
+                            <p:outputLabel value="create At" />
+                        </f:facet>
+                        <p:outputLabel value="#{d.createdAt}">
+                        </p:outputLabel>
+                        <br></br>
+                        <h:outputLabel value="Remove At" style="color: red"/>
+                        <h:outputLabel value="#{d.retiredAt}" style="color: red">
+                        </h:outputLabel>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >
                             <p:outputLabel value="Leave Session" />
                         </f:facet>
                         <h:outputLabel value="#{d.originatingSession.sessionTime}">
@@ -226,7 +237,8 @@
                         <f:facet name="header" >
                             <p:outputLabel value="Leave Creater" />
                         </f:facet>
-                        <h:outputLabel value="#{d.creater.webUserPerson.name}"/>
+                        <h:outputLabel value="#{d.creater.webUserPerson.name}"/><br></br>
+                        <h:outputLabel value="Remove By - #{d.retirer.webUserPerson.name}" style="color: red"/>
                     </p:column>
                     <p:column>
                         <f:facet name="header" >

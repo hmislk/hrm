@@ -32,6 +32,8 @@ public enum Privileges {
     OpdCollectingCentreBilling,
     OpdCollectingCentreBillSearch,
     OpdPreBilling,
+    OpdPreBillSearch,
+    OpdPreBillAccept,
     OpdBillSearch,
     OpdBillItemSearch,
     OpdReprint,
@@ -131,6 +133,9 @@ public enum Privileges {
     LabCCBilling,
     LabCCBillingSearch,
     LabReportSearch,
+    LabReportSearchOut,
+    LabReportSearchOutPrintColor,
+    LabReportSearchOutPrintBNW,
     LabReporting,
     //dont remove
     LabSearchBillLoggedInstitution,
