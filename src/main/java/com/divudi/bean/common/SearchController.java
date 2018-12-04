@@ -1948,7 +1948,7 @@ public class SearchController implements Serializable {
 
         long count = 0l;
         count = getBillFacade().countBySql(sql, tmp, TemporalType.TIMESTAMP);
-        System.out.println("count = " + count);
+//        System.out.println("count = " + count);
 
         return count;
 
@@ -4192,7 +4192,7 @@ public class SearchController implements Serializable {
         patientInvestigations = getPatientInvestigationFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP, 50);
 
     }
-    
+
     public void createPatientInvestigationsTableByLoggedInstitutionOut() {
 
         Map m = new HashMap();
@@ -4201,7 +4201,6 @@ public class SearchController implements Serializable {
                 + " b.createdAt between :fromDate and :toDate  "
                 + " and b.fromInstitution =:ins "
                 + " and b.billType=:bt ";
-
 
         if (getSearchKeyword().getPatientName() != null && !getSearchKeyword().getPatientName().trim().equals("")) {
             sql += " and  (upper(p.name) like :patientName )";
@@ -4539,20 +4538,20 @@ public class SearchController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Sale Bills/Add to stock/refresh(/faces/pharmacy/pharmacy_search_pre_bill_not_paid.xhtml)");
 
     }
-    
+
     public void createPreBillsNotPaidBill() {
         Date startTime = new Date();
         Date fromDate = null;
         Date toDate = null;
 
-         addToStockRows= billsForTheDayNotPaid(BillType.PharmacyPre, getSessionController().getDepartment());
+        addToStockRows = billsForTheDayNotPaid(BillType.PharmacyPre, getSessionController().getDepartment());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Sale Bills/Add to stock/refresh(/faces/pharmacy/pharmacy_search_pre_bill_not_paid.xhtml)");
 
     }
-    
+
     private List<pharmacyAddToStockRow> billsForTheDayNotPaid(BillType type, Department department) {
-        List<pharmacyAddToStockRow>stockRows=new ArrayList<>();
+        List<pharmacyAddToStockRow> stockRows = new ArrayList<>();
         String sql;
         Map temMap = new HashMap();
         sql = "select b.deptId,b.createdAt from PreBill b "
@@ -4572,7 +4571,7 @@ public class SearchController implements Serializable {
         List<Object[]> objects = getBillFacade().findAggregates(sql, temMap);
 
         for (Object[] ob : objects) {
-            pharmacyAddToStockRow row=new pharmacyAddToStockRow();
+            pharmacyAddToStockRow row = new pharmacyAddToStockRow();
             row.setBillNo((String) ob[0]);
             row.setDate((Date) ob[1]);
             stockRows.add(row);
@@ -7093,20 +7092,27 @@ public class SearchController implements Serializable {
         Map temMap = new HashMap();
         telephoneNumbers = new ArrayList<>();
 
-//        if (getReportKeyWord().getString1().equals("0")) {
-//            sql = "select b.patient.person.phone from Bill b where ";
-//        } else {
-//            sql = "select b from Bill b where ";
-//        }
-        sql = "select b.patient.person.phone from Bill b where "
-                + " b.retired = false "
+        if (getReportKeyWord().getString1().equals("0")) {
+            sql = "select b.patient.person.phone from Bill b where ";
+        } else {
+            sql = "select b from Bill b where ";
+        }
+
+        sql += " b.retired = false "
                 + " and b.cancelled=false "
                 + " and b.refunded=false "
-                + " and (b.patient.person.phone is not null "
-                + " or b.patient.person.phone!=:em) "
+                + " and b.patient.person.phone is not null "
+                + " and b.patient.person.phone!=:em "
+                + " and b.patient.person.phone!=:em1 "
+                //                + " and (b.patient.person.phone is not null "
+                //                + " or b.patient.person.phone!=:em "
+                //                + " or b.patient.person.phone!=:em1) "
                 + " and b.createdAt between :fd and :td  ";
 
         if (getReportKeyWord().getString().equals("0")) {
+            BillType[] billTypes = {BillType.ChannelCash, BillType.ChannelPaid, BillType.OpdBill, BillType.PharmacySale};
+            sql += " and b.billType in :bts ";
+            temMap.put("bts", Arrays.asList(billTypes));
         }
         if (getReportKeyWord().getString().equals("1")) {
             BillType[] billTypes = {BillType.ChannelCash, BillType.ChannelPaid};
@@ -7128,94 +7134,82 @@ public class SearchController implements Serializable {
             temMap.put("a", getReportKeyWord().getArea());
         }
 
-//        if (getReportKeyWord().getString1().equals("0")) {
-//            sql += " group by b.patient.person.phone ";
-//        }
-        sql += " group by b.patient.person.phone "
-                + " order by b.patient.person.phone ";
+        if (getReportKeyWord().getString1().equals("0")) {
+            sql += " group by b.patient.person.phone"
+                    + " order by b.patient.person.phone ";
+        } else {
+            sql += " and b.patient.person.dob is not null "
+                    + " order by b.patient.person.phone ";
+        }
 
         temMap.put("em", "");
+        temMap.put("em1", "000-0000000");
         temMap.put("fd", fromDate);
         temMap.put("td", toDate);
 
         System.out.println("temMap = " + temMap);
-        List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
         System.out.println("sql = " + sql);
-        System.out.println("objs.size() = " + objs.size());
 
-        for (Object o : objs) {
-            String s = (String) o;
-            if (s != null && !"".equals(s)) {
-                String ss = s.substring(0, 3);
+        if (getReportKeyWord().getString1().equals("0")) {
+            List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
+            System.out.println("sql = " + sql);
+            System.out.println("objs.size() = " + objs.size());
+
+            for (Object o : objs) {
+                String s = (String) o;
+                if (s != null && !"".equals(s)) {
+                    String ss = s.substring(0, 3);
 //                System.out.println("ss = " + ss);
-                if (ss.equals("077") || ss.equals("076")
-                        || ss.equals("071") || ss.equals("072")
-                        || ss.equals("075") || ss.equals("078")) {
-                    telephoneNumbers.add(s);
-                }
+                    if (ss.equals("077") || ss.equals("076")
+                            || ss.equals("071") || ss.equals("072")
+                            || ss.equals("075") || ss.equals("078")) {
+                        telephoneNumbers.add(s);
+                    }
 
+                }
+            }
+        } else {
+            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+            System.out.println("bills.size() = " + bills.size());
+            for (Bill b : bills) {
+                if (b.getPatient().getPerson().getPhone() != null && !"".equals(b.getPatient().getPerson().getPhone())) {
+//                    System.out.println("b.getPatient().getPerson().getPhone() = " + b.getPatient().getPerson().getPhone());
+                    String ss = b.getPatient().getPerson().getPhone().substring(0, 3);
+                    if (getReportKeyWord().getString1().equals("1")) {
+                        if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+                            if (ss.equals("077") || ss.equals("076")
+                                    || ss.equals("071") || ss.equals("072")
+                                    || ss.equals("075") || ss.equals("078")) {
+                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+                            }
+                        }
+                    }
+                    if (getReportKeyWord().getString1().equals("2")) {
+                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getTo()) {
+//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+                            if (ss.equals("077") || ss.equals("076")
+                                    || ss.equals("071") || ss.equals("072")
+                                    || ss.equals("075") || ss.equals("078")) {
+                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+                            }
+//                            }
+                        }
+                    }
+                    if (getReportKeyWord().getString1().equals("3")) {
+                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getFrom()
+                                && b.getPatient().getAgeYears() <= getReportKeyWord().getTo()) {
+//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
+                            if (ss.equals("077") || ss.equals("076")
+                                    || ss.equals("071") || ss.equals("072")
+                                    || ss.equals("075") || ss.equals("078")) {
+                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
+                            }
+//                            }
+                        }
+                    }
+                }
             }
         }
-//        if (getReportKeyWord().getString1().equals("0")) {
-//            List<Object> objs = getBillFacade().findObjectBySQL(sql, temMap, TemporalType.TIMESTAMP);
-//            System.out.println("sql = " + sql);
-//            System.out.println("objs.size() = " + objs.size());
-//
-//            for (Object o : objs) {
-//                String s = (String) o;
-//                if (s != null && !"".equals(s)) {
-//                    String ss = s.substring(0, 3);
-////                System.out.println("ss = " + ss);
-//                    if (ss.equals("077") || ss.equals("076")
-//                            || ss.equals("071") || ss.equals("072")
-//                            || ss.equals("075") || ss.equals("078")) {
-//                        telephoneNumbers.add(s);
-//                    }
-//
-//                }
-//            }
-//        } else {
-//            bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
-//            System.out.println("bills.size() = " + bills.size());
-//            for (Bill b : bills) {
-//                if (b.getPatient().getPerson().getPhone() != null && !"".equals(b.getPatient().getPerson().getPhone())) {
-//                    System.out.println("b.getPatient().getPerson().getPhone() = " + b.getPatient().getPerson().getPhone());
-//                    String ss = b.getPatient().getPerson().getPhone().substring(0, 3);
-//                    if (getReportKeyWord().getString1().equals("1")) {
-//                        if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-//                            if (ss.equals("077") || ss.equals("076")
-//                                    || ss.equals("071") || ss.equals("072")
-//                                    || ss.equals("075") || ss.equals("078")) {
-//                                telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-//                            }
-//                        }
-//                    }
-//                    if (getReportKeyWord().getString1().equals("2")) {
-//                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getTo()) {
-//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-//                                if (ss.equals("077") || ss.equals("076")
-//                                        || ss.equals("071") || ss.equals("072")
-//                                        || ss.equals("075") || ss.equals("078")) {
-//                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (getReportKeyWord().getString1().equals("3")) {
-//                        if (b.getPatient().getAgeYears() >= getReportKeyWord().getFrom()
-//                                && b.getPatient().getAgeYears() <= getReportKeyWord().getTo()) {
-//                            if (b.getPatient().getAgeYears() <= getReportKeyWord().getFrom()) {
-//                                if (ss.equals("077") || ss.equals("076")
-//                                        || ss.equals("071") || ss.equals("072")
-//                                        || ss.equals("075") || ss.equals("078")) {
-//                                    telephoneNumbers.add(b.getPatient().getPerson().getPhone());
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         System.out.println("telephoneNumbers.size() = " + telephoneNumbers.size());
         commonController.printReportDetails(fromDate, toDate, startTime, "Bulk SMS");
@@ -7705,8 +7699,9 @@ public class SearchController implements Serializable {
             this.adjusetedVal = adjusetedVal;
         }
     }
-    
-    public class pharmacyAddToStockRow{
+
+    public class pharmacyAddToStockRow {
+
         String billNo;
         Date date;
 
