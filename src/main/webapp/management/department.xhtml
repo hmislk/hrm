@@ -84,6 +84,8 @@
 
                             <h:panelGrid id="gpDetail" columns="1">
                                 <h:panelGrid id="gpDetailText" columns="2">
+                                    <h:outputText value="id"  ></h:outputText>
+                                    <h:outputText value="#{departmentController.current.id}" />
                                     <h:outputText id="lblName" value="Name"  ></h:outputText>
                                     <p:inputText autocomplete="off" 
                                                  id="txtName" value="#{departmentController.current.name}" 

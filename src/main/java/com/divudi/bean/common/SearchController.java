@@ -4007,6 +4007,11 @@ public class SearchController implements Serializable {
             sql += " and  (upper(bi.bill.toInstitution.name) like :toIns )";
             m.put("toIns", "%" + searchKeyword.getToInstitution().trim().toUpperCase() + "%");
         }
+        
+        if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
+            sql += " and bi.bill.institution=:ins";
+            m.put("ins", getSessionController().getInstitution());
+        }
 
         sql += " order by bi.id desc  ";
         //System.err.println("Sql " + sql);
@@ -4056,6 +4061,11 @@ public class SearchController implements Serializable {
         if (searchKeyword.getToInstitution() != null && !searchKeyword.getToInstitution().trim().equals("")) {
             sql += " and  (upper(bi.bill.toInstitution.name) like :toIns )";
             m.put("toIns", "%" + searchKeyword.getToInstitution().trim().toUpperCase() + "%");
+        }
+        
+        if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
+            sql += " and bi.bill.institution=:ins";
+            m.put("ins", getSessionController().getInstitution());
         }
 
         sql += " order by bi.id desc  ";
@@ -5329,6 +5339,10 @@ public class SearchController implements Serializable {
         if (getSearchKeyword().getTotal() != null && !getSearchKeyword().getTotal().trim().equals("")) {
             sql += " and  (upper(b.total) like :total )";
             temMap.put("total", "%" + getSearchKeyword().getTotal().trim().toUpperCase() + "%");
+        }
+        if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
+            sql += " and b.institution=:ins";
+            temMap.put("ins", getSessionController().getInstitution());
         }
 
         sql += " order by b.createdAt desc  ";

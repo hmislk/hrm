@@ -267,11 +267,17 @@
                                             <p:column>
                                                 #{ix.total}
                                             </p:column>
-                                            <p:ajax event="itemSelect"  listener="#{opdPreBillController.fillBillSessions}" process="acIx" update="tblSs" ></p:ajax>
+                                            <p:ajax event="itemSelect"  listener="#{opdPreBillController.fillBillSessions}" process="acIx" update="tblSs txtQty" ></p:ajax>
                                         </p:autoComplete>
                                         <h:commandButton id="btnAddIx" value="Add" action="#{opdPreBillController.addToBill()}"  style="width: 75px;"  >
-                                            <f:ajax execute="acIx btnAddIx :#{p:component('cmbPs')} :#{p:component('pay')} panelBillItems" render="focusIx tblBillItem  :#{p:component('pBillDetails')}  pIxAdd" />
+                                            <f:ajax execute="txtQty acIx btnAddIx :#{p:component('cmbPs')} :#{p:component('pay')} panelBillItems" render="focusIx tblBillItem  :#{p:component('pBillDetails')}  pIxAdd" />
                                         </h:commandButton>
+                                        <h:panelGrid id="txtQty">
+                                            <h:inputText autocomplete="off" 
+                                                         rendered="#{opdPreBillController.currentBillItem.item.requestForQuentity}"
+                                                         value="#{opdPreBillController.currentBillItem.qty}" >
+                                            </h:inputText>
+                                        </h:panelGrid>
                                         <p:defaultCommand target="btnAddIx" />
                                         <p:panel header="Session"  >
                                             <p:calendar id="calS" mode="inline" value="#{opdPreBillController.sessionDate}" pattern="dd MMMM yyyy" >

@@ -16,6 +16,11 @@
 
         <h:panelGroup >
             <h:form  >
+                <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                    <f:facet name="header">
+                    </f:facet>
+                    <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                </p:panel>
                 <p:panel header="Inward Payment Bill" rendered="#{!inwardPaymentController.printPreview}">
                     <h:panelGrid columns="2">
                         <p:panel header="BHT">

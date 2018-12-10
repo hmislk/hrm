@@ -6,12 +6,15 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:bi="http://java.sun.com/jsf/composite/bill"
-     xmlns:pe="http://primefaces.org/ui/extensions">
+      xmlns:pe="http://primefaces.org/ui/extensions">
 
     <h:body>
         <ui:composition template="/resources/template/template.xhtml">
             <ui:define name="content">
                 <h:form>
+                    <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                        <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                    </p:panel>
                     <h:panelGroup rendered="#{!staffPaymentBillController.printPreview}" styleClass="alignTop" >
                         <p:panel header="Staff Payments" >
                             <h:panelGrid columns="1" >
@@ -36,11 +39,11 @@
                                     <p:selectOneMenu  id="cmbPay" style="width: 400px;" value="#{staffPaymentBillController.paymentMethod}" >                                      
                                         <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}"  />
                                     </p:selectOneMenu>
-                                    
+
                                     <h:outputLabel value="With Holding Tax Deduct" ></h:outputLabel>
                                     <h:selectBooleanCheckbox value="#{staffPaymentBillController.searchKeyword.activeAdvanceOption}"  >
                                         <f:ajax event="change" execute="@this" listener="#{staffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
+                                                render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
                                     </h:selectBooleanCheckbox>
 
                                     <!--                                    <p:commandButton ajax="false" value="Process" >
@@ -80,7 +83,7 @@
                                         <h:outputLabel value="#{bf.billItem.refunded}">
                                         </h:outputLabel>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Payment Methord">
                                         <f:facet name="header">
                                             <h:outputLabel value="Payment Methord"/>

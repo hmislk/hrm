@@ -135,35 +135,35 @@ public class StockHistoryRecorder {
 //        //System.out.println("TIme taken for Hx is " + (((new Date()) - startTime )/(1000*60*60)) + " minutes.");
     }
 
-    @SuppressWarnings("unused")
-    @Schedule(hour = "00", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mid Night", persistent = false)
-    public void myTimerDaily() {
-        Date startTime = new Date();
-        System.out.println("Start writing stock history: " + startTime);
-        for (FeeChange fc : fetchFeeChanges()) {
-            System.err.println("fc.getFee().getName() = " + fc.getFee().getName());
-            System.err.println("fc.getFee().getFeeType() = " + fc.getFee().getFeeType());
-            if (fc.getFee().getStaff() != null) {
-                System.out.println("fc.getFee().getStaff().getPerson().getName() = " + fc.getFee().getStaff().getPerson().getName());
-            }
-            for (ItemFee f : fetchServiceSessionFees(fc.getFee().getFeeType(), fc.getFee().getName(), fc.getFee().getStaff())) {
-                System.out.println("1.f.getFee() = " + f.getFee());
-                f.setFee(f.getFee() + fc.getFee().getFee());
-                System.out.println("2.f.getFee() = " + f.getFee());
-                System.out.println("fc.getFee().getFee() = " + fc.getFee().getFee());
-                System.out.println("1.f.getFfee() = " + f.getFfee());
-                f.setFfee(f.getFfee() + fc.getFee().getFfee());
-                System.out.println("2.f.getFfee() = " + f.getFfee());
-                System.out.println("fc.getFee().getFfee() = " + fc.getFee().getFfee());
-                getItemFeeFacade().edit(f);
-            }
-            fc.setDoneAt(new Date());
-            fc.setDone(true);
-            getFeeChangeFacade().edit(fc);
-        }
-        //System.out.println("End writing stock history: " + new Date());
-//        //System.out.println("TIme taken for Hx is " + (((new Date()) - startTime )/(1000*60*60)) + " minutes.");
-    }
+//    @SuppressWarnings("unused")
+//    @Schedule(hour = "00", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mid Night", persistent = false)
+//    public void myTimerDaily() {
+//        Date startTime = new Date();
+//        System.out.println("Start writing stock history: " + startTime);
+//        for (FeeChange fc : fetchFeeChanges()) {
+//            System.err.println("fc.getFee().getName() = " + fc.getFee().getName());
+//            System.err.println("fc.getFee().getFeeType() = " + fc.getFee().getFeeType());
+//            if (fc.getFee().getStaff() != null) {
+//                System.out.println("fc.getFee().getStaff().getPerson().getName() = " + fc.getFee().getStaff().getPerson().getName());
+//            }
+//            for (ItemFee f : fetchServiceSessionFees(fc.getFee().getFeeType(), fc.getFee().getName(), fc.getFee().getStaff())) {
+//                System.out.println("1.f.getFee() = " + f.getFee());
+//                f.setFee(f.getFee() + fc.getFee().getFee());
+//                System.out.println("2.f.getFee() = " + f.getFee());
+//                System.out.println("fc.getFee().getFee() = " + fc.getFee().getFee());
+//                System.out.println("1.f.getFfee() = " + f.getFfee());
+//                f.setFfee(f.getFfee() + fc.getFee().getFfee());
+//                System.out.println("2.f.getFfee() = " + f.getFfee());
+//                System.out.println("fc.getFee().getFfee() = " + fc.getFee().getFfee());
+//                getItemFeeFacade().edit(f);
+//            }
+//            fc.setDoneAt(new Date());
+//            fc.setDone(true);
+//            getFeeChangeFacade().edit(fc);
+//        }
+//        //System.out.println("End writing stock history: " + new Date());
+////        //System.out.println("TIme taken for Hx is " + (((new Date()) - startTime )/(1000*60*60)) + " minutes.");
+//    }
 
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "09", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
@@ -364,6 +364,7 @@ public class StockHistoryRecorder {
         System.err.println("Time 1 = " + new Date());
         List<ServiceSession> sessions = new ArrayList<>();
         int finalSessionDayCount = finalVariables.getSessionSessionDayCounterLargestById(inputSessions);
+        System.out.println("finalSessionDayCount = " + finalSessionDayCount);
         while (toDate.after(nowDate) && sessionDayCount < finalSessionDayCount) {
             if (sessions.isEmpty()) {
                 for (Long s : inputSessions) {
@@ -376,6 +377,7 @@ public class StockHistoryRecorder {
                         nDate.setTime(nowDate);
                         System.out.println("ss.getId() = " + ss.getId());
                         System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
+                        System.out.println("nDate = " + nDate.getTime());
                         System.out.println("ss.getName() = " + ss.getName());
                         if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE) && sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH) && sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
                             ServiceSession newSs = new ServiceSession();
@@ -437,6 +439,7 @@ public class StockHistoryRecorder {
                         nDate.setTime(nowDate);
                         System.out.println("ss.getId() = " + ss.getId());
                         System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
+                        System.out.println("nDate = " + nDate.getTime());
                         System.out.println("ss.getName() = " + ss.getName());
                         if (sessionDate.get(Calendar.DATE) == nDate.get(Calendar.DATE) && sessionDate.get(Calendar.MONTH) == nDate.get(Calendar.MONTH) && sessionDate.get(Calendar.YEAR) == nDate.get(Calendar.YEAR)) {
                             ServiceSession newSs = new ServiceSession();

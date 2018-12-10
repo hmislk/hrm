@@ -4,6 +4,7 @@
  */
 package com.divudi.bean.hr;
 
+import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
 import com.divudi.data.hr.DayType;
@@ -84,6 +85,8 @@ public class StaffSalaryController implements Serializable {
     @EJB
     private CommonFunctions commonFunctions;
     /////////////
+    @Inject
+    CommonController commonController;
     @Inject
     private SessionController sessionController;
     @Inject
@@ -445,7 +448,7 @@ public class StaffSalaryController implements Serializable {
                 if (checkDateRange(getCurrent().getStaff().getDateJoined())) {
                     long extraDays;
                     if (getCurrent().getStaff().getDateJoined().getTime() > salaryCycle.getDayOffPhToDate().getTime()) {
-                        long l=commonFunctions.getEndOfDay(salaryCycle.getSalaryToDate()).getTime() + 1 - commonFunctions.getStartOfDay(getCurrent().getStaff().getDateJoined()).getTime();
+                        long l = commonFunctions.getEndOfDay(salaryCycle.getSalaryToDate()).getTime() + 1 - commonFunctions.getStartOfDay(getCurrent().getStaff().getDateJoined()).getTime();
                         System.out.println("l = " + l);
                         extraDays = (l) / (1000 * 60 * 60 * 24);
                     } else {
@@ -1677,7 +1680,7 @@ public class StaffSalaryController implements Serializable {
             setCurrent(getHumanResourceBean().getStaffSalary(s, getSalaryCycle()));
             if (getCurrent().getId() == null) {
                 Date lastAnalyseDate = fetchLastAnalysDate(s);
-                System.out.println("****lastAnalyseDate = " + lastAnalyseDate);
+                System.out.println("****LastShiftDate = " + lastAnalyseDate);
                 System.out.println("****s.getDateLeft() = " + s.getDateLeft());
                 System.out.println("getCurrent().getStaff().getDateLeft() = " + getCurrent().getStaff().getDateLeft());
                 if (s.isWithOutNotice()) {
@@ -1709,6 +1712,26 @@ public class StaffSalaryController implements Serializable {
                     fetchAndSetBankData();
                     addSalaryComponent();
                 } else {
+                    Date nowDate = salaryCycle.getDayOffPhFromDate();
+                    boolean error = false;
+                    System.out.println("salaryCycle.getDayOffPhToDate() = " + salaryCycle.getDayOffPhToDate());
+                    while (nowDate.before(salaryCycle.getDayOffPhToDate())) {
+                        System.out.println("nowDate = " + nowDate);
+                        if (humanResourceBean.checkDateAnalsed(nowDate, s)) {
+                            error = true;
+                            JsfUtil.addErrorMessage("Name - " + s.getPerson().getName()
+                                    + " , " + commonController.getDateFormat2(nowDate) + " Day not Analysis.");
+                            break;
+                        }
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(nowDate);
+                        cal.add(Calendar.DATE, 1);
+                        nowDate = cal.getTime();
+                    }
+                    if (error) {
+                        continue;
+                    }
+
                     resetAutoLeave(s, getSalaryCycle().getDayOffPhFromDate(), getSalaryCycle().getDayOffPhToDate());
                     generateAutoLeave(s, getSalaryCycle().getDayOffPhFromDate(), getSalaryCycle().getDayOffPhToDate());
                     fetchAndSetBankData();
