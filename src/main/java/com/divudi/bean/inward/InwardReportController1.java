@@ -10,6 +10,7 @@ import com.divudi.bean.common.PriceMatrixController;
 import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.inward.InwardChargeType;
 import com.divudi.data.table.String1Value2;
 import com.divudi.data.table.String2Value4;
@@ -29,6 +30,7 @@ import com.divudi.entity.Staff;
 import com.divudi.entity.inward.Admission;
 import com.divudi.entity.inward.AdmissionType;
 import com.divudi.entity.inward.PatientRoom;
+import com.divudi.entity.inward.Room;
 import com.divudi.entity.inward.RoomCategory;
 import com.divudi.facade.BillFacade;
 import com.divudi.facade.BillFeeFacade;
@@ -104,6 +106,9 @@ public class InwardReportController1 implements Serializable {
 
     @Inject
     CommonController commonController;
+    @Inject
+    RoomController roomController;
+    ReportKeyWord reportKeyWord;
 
     double billFreeGross;
     double billFeeMargin;
@@ -302,6 +307,40 @@ public class InwardReportController1 implements Serializable {
         }
 
         hm.put("cat", roomCategory);
+        hm.put("fromDate", fromDate);
+        hm.put("toDate", toDate);
+        return patientRoomFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
+
+    }
+    
+    public List<PatientRoom> fetchPatientRoomTime(Category roomCategory,Room room) {
+        HashMap hm = new HashMap();
+        String sql = "SELECT pr "
+                + " FROM PatientRoom pr "
+                + " where pr.retired=false "
+                + " and pr.admittedAt is not null "
+                + " and pr.dischargedAt is not null "
+                + " and pr.roomFacilityCharge.roomCategory=:cat "
+                + " and pr.roomFacilityCharge.room=:r "
+                + " and pr.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+
+        if (admissionType != null) {
+            sql = sql + " and pr.patientEncounter.admissionType=:at ";
+            hm.put("at", admissionType);
+        }
+
+        if (paymentMethod != null) {
+            sql = sql + " and pr.patientEncounter.paymentMethod=:bt ";
+            hm.put("bt", paymentMethod);
+        }
+
+        if (institution != null) {
+            sql = sql + " and pr.patientEncounter.creditCompany=:cc ";
+            hm.put("cc", institution);
+        }
+
+        hm.put("cat", roomCategory);
+        hm.put("r", room);
         hm.put("fromDate", fromDate);
         hm.put("toDate", toDate);
         return patientRoomFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
@@ -1079,7 +1118,7 @@ public class InwardReportController1 implements Serializable {
 
     public void bhtCreditPayments() {
         Date startTime = new Date();
-        
+
         HashMap hm = new HashMap();
         String sql = "Select b from BillItem b "
                 + " where b.retired=false "
@@ -1113,7 +1152,7 @@ public class InwardReportController1 implements Serializable {
 
         billItems = BillItemFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
         totalBhtCreditPayments();
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Payments/Receieve/Credit Company/Reports/BHT payment(/faces/credit/inward_bht_credit_payment_report.xhtml)");
 
     }
@@ -1157,7 +1196,7 @@ public class InwardReportController1 implements Serializable {
 
     public void opdCreditPayments() {
         Date startTime = new Date();
-        
+
         HashMap hm = new HashMap();
         String sql = "Select b.referenceBill.billItems"
                 + " from BillItem b "
@@ -1219,10 +1258,18 @@ public class InwardReportController1 implements Serializable {
         return billItemNetValue;
 
     }
+    
+    public void createRoomTime(){
+        if (getReportKeyWord().isAdditionalDetails()) {
+            createRoomTimeCategory();
+        } else {
+            createRoomTimeCategoryWithRoom();
+        }
+    }
 
-    public void createRoomTime() {
+    public void createRoomTimeCategory() {
         Date startTime = new Date();
-        
+
         categoryTimes = new ArrayList<>();
 
         for (RoomCategory rm : roomCategoryController.getItems()) {
@@ -1250,7 +1297,47 @@ public class InwardReportController1 implements Serializable {
             row.setAdded(added);
             categoryTimes.add(row);
         }
-        
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Room time report(/faces/inward/inward_report_room.xhtml)");
+    }
+
+    public void createRoomTimeCategoryWithRoom() {
+        Date startTime = new Date();
+        categoryTimes = new ArrayList<>();
+        List<Room> rooms = roomController.getItems();
+        for (RoomCategory rm : roomCategoryController.getItems()) {
+            for (Room r : rooms) {
+                long time = 0;
+                double calculated = 0;
+                double added = 0;
+                Calendar frm = Calendar.getInstance();
+                Calendar to = Calendar.getInstance();
+                Calendar ans = Calendar.getInstance();
+                List<PatientRoom> list = fetchPatientRoomTime(rm,r);
+//                System.out.println("list.size() = " + list.size());
+                if (list.isEmpty()) {
+                    continue;
+                }
+                for (PatientRoom pt : list) {
+                    frm.setTime(pt.getAdmittedAt());
+                    to.setTime(pt.getDischargedAt());
+                    time += (to.getTimeInMillis() - frm.getTimeInMillis());
+
+                    added += pt.getAddedRoomCharge();
+                    calculated += (pt.getCalculatedRoomCharge() - pt.getAddedRoomCharge());
+
+                }
+
+                CategoryTime row = new CategoryTime();
+                row.setRoomCategory((RoomCategory) rm);
+                row.setRoom(r);
+                row.setTime(time / (1000 * 60 * 60));
+                row.setCalculated(calculated);
+                row.setAdded(added);
+                categoryTimes.add(row);
+            }
+        }
+
         commonController.printReportDetails(fromDate, toDate, startTime, "Room time report(/faces/inward/inward_report_room.xhtml)");
     }
 
@@ -1275,7 +1362,7 @@ public class InwardReportController1 implements Serializable {
 
     public void createBHTDiscountTable() {
         Date statTime = new Date();
-        
+
         String sql;
         Map m = new HashMap();
         billItems = new ArrayList<>();
@@ -1325,7 +1412,7 @@ public class InwardReportController1 implements Serializable {
         inwardMargin = dbl[1];
         inwardDiscount = dbl[2];
         inwardNetValue = dbl[3];
-        
+
         commonController.printReportDetails(fromDate, toDate, statTime, "Discount Report(/faces/inward/inward_report_discount.xhtml)");
 
     }
@@ -1517,7 +1604,7 @@ public class InwardReportController1 implements Serializable {
         createFinalSummeryMonth();
         createPaidByPatient();
         createCreditPayment();
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "BHT income by categories All BHT/Process(/faces/inward/inward_report_bht_income_by_caregories.xhtml)");
 
     }
@@ -2033,7 +2120,7 @@ public class InwardReportController1 implements Serializable {
         }
 
     }
-    
+
     public void processPatientRoomsBillDate() {
         String sql;
         Map m = new HashMap();
@@ -2082,7 +2169,7 @@ public class InwardReportController1 implements Serializable {
     public void processInwardChargesBillDate() {
         processInwardChargesMediceineBillDate();
     }
-    
+
     public void processInwardChargesAdmissionFee() {
         String sql;
         Map m = new HashMap();
@@ -2207,7 +2294,7 @@ public class InwardReportController1 implements Serializable {
         }
 
     }
-    
+
     public void processInwardChargesMediceineBillDate() {
         String sql;
         Map m = new HashMap();
@@ -2288,7 +2375,7 @@ public class InwardReportController1 implements Serializable {
         return inwardMedicieneNetValue;
 
     }
-    
+
     public double totalOfProcessInwardChargesMediceineBillDate() {
         String sql;
         Map m = new HashMap();
@@ -2722,6 +2809,17 @@ public class InwardReportController1 implements Serializable {
         this.creditPaymentTotalValue = creditPaymentTotalValue;
     }
 
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord==null) {
+            reportKeyWord=new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
+    }
+
     //DATA STRUCTURE
     public class OpdService {
 
@@ -2954,6 +3052,7 @@ public class InwardReportController1 implements Serializable {
     public class CategoryTime {
 
         Category roomCategory;
+        Room room;
         private double time;
         private double calculated;
         private double added;
@@ -2988,6 +3087,14 @@ public class InwardReportController1 implements Serializable {
 
         public void setAdded(double added) {
             this.added = added;
+        }
+
+        public Room getRoom() {
+            return room;
+        }
+
+        public void setRoom(Room room) {
+            this.room = room;
         }
 
     }
@@ -3030,5 +3137,5 @@ public class InwardReportController1 implements Serializable {
     public void setCommonController(CommonController commonController) {
         this.commonController = commonController;
     }
-    
+
 }
