@@ -31,6 +31,8 @@ import com.divudi.facade.WebUserPrivilegeFacade;
 import com.divudi.facade.WebUserRoleFacade;
 import com.divudi.facade.util.JsfUtil;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -83,6 +85,8 @@ public class SessionController implements Serializable, HttpSessionListener {
     ApplicationController applicationController;
     @Inject
     SearchController searchController;
+    @Inject
+    CommonController commonController;
     /**
      * Properties
      */
@@ -741,6 +745,8 @@ public class SessionController implements Serializable, HttpSessionListener {
 
         System.out.println("getDepartment().getName() = " + getDepartment().getName());
         System.out.println("getDepartment().getDepartmentType() = " + getDepartment().getDepartmentType());
+        DateFormat df=new SimpleDateFormat("YYYY MM dd hh:mm:ss a");
+        System.out.println("Logged Time = " + df.format(commonController.getCurrentDateTime()));
 
         if (getDepartment().getDepartmentType() == DepartmentType.Pharmacy) {
             long i=searchController.createInwardBHTForIssueBillCount();

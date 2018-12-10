@@ -308,13 +308,13 @@ public class CommonFunctions {
         calendar.setTime(date);
         calendar.add(Calendar.MONTH, 1);
 
-        System.out.println("1.calendar.getTime() = " + calendar.getTime());
+//        System.out.println("1.calendar.getTime() = " + calendar.getTime());
         calendar.add(Calendar.DATE, -1);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DATE);
         calendar.set(year, month, day, 23, 59, 59);
-        System.out.println("2.calendar.getTime() = " + calendar.getTime());
+//        System.out.println("2.calendar.getTime() = " + calendar.getTime());
         return calendar.getTime();
     }
 

@@ -106,6 +106,20 @@ public class CommonController implements Serializable {
         System.err.println(s);
 
     }
+    
+    public void printTimeDefference(Date startTime, String url) {
+
+        String s;
+        s = "***************Function Description : " + url;
+        if (startTime != null) {
+            s += "\nTime Defferent(Miniuts) : " + dateDifferenceInMinutes(startTime, new Date());
+            s += "\nTime Defferent(Seconds) : " + dateDifferenceInSeconds(startTime, new Date());
+        }
+        s += "\n***************";
+
+        System.err.println(s);
+
+    }
 
     //----------Date Time Formats
     public String getDateFormat(Date date) {

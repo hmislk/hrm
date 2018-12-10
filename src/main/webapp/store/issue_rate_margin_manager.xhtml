@@ -31,13 +31,13 @@
 
                             </p:panelGrid>                          
                             <p:commandButton ajax="false" value="Fill" 
-                                            action="#{issueRateMarginsController.createMargins()}" 
+                                             action="#{issueRateMarginsController.createMargins()}" 
                                              onclick="onSubmitButton();"/>
-                            
-                             <p:commandButton ajax="false" value="Add All" 
-                                            action="#{issueRateMarginsController.addAllDep()}" 
+
+                            <p:commandButton ajax="false" value="Add All" 
+                                             action="#{issueRateMarginsController.addAllDep()}" 
                                              onclick="onSubmitButton();"/>
-                           
+
 
                         </p:panel>
 
@@ -47,19 +47,20 @@
                                 value="#{issueRateMarginsController.items}" 
                                 var="a" 
                                 paginator="true"
+                                rows="20"
                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                rowsPerPageTemplate="5,10,15"
+                                rowsPerPageTemplate="20,100,1000"
                                 >
 
                                 <p:column headerText="From Department" filterBy="#{a.fromDepartment.name}" filterMatchMode="contains" exportable="false">
                                     <au:department value="#{a.fromDepartment}"/>
                                 </p:column>
-                                <p:column headerText="To Department" filterBy="#{a.toDepartment.name}" filterMatchMode="contains" exportable="false">
+                                <p:column headerText="To Department" filterBy="#{a.toDepartment.name}" filterMatchMode="contains" sortBy="#{a.toDepartment.name}" exportable="false">
                                     <au:department value="#{a.toDepartment}"/>
                                 </p:column>
-                                
-                                  <p:column headerText="At Purchase Rate">
-                                   <p:selectBooleanCheckbox value="#{a.atPurchaseRate}" />                               
+
+                                <p:column headerText="At Purchase Rate">
+                                    <p:selectBooleanCheckbox value="#{a.atPurchaseRate}" />                               
                                 </p:column>
 
                                 <p:column headerText="Margin">
