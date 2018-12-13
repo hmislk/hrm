@@ -204,6 +204,7 @@ public class PreReturnController implements Serializable {
             UtilityController.addErrorMessage("Total is Zero cant' return");
             return;
         }
+        calTotal();
 
         saveReturnBill();
         saveComponent();

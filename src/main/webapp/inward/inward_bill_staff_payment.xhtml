@@ -14,6 +14,9 @@
 
             <ui:define name="content">
                 <h:form>
+                    <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                        <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                    </p:panel>
                     <h:panelGroup rendered="#{!inwardStaffPaymentBillController.printPreview}" styleClass="alignTop" >
                         <p:panel header="Staff Payments" >
                             <h:panelGrid columns="1" >
@@ -48,11 +51,11 @@
                                                       value="#{inwardStaffPaymentBillController.paymentMethod}" >                                        
                                         <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}"/>
                                     </p:selectOneMenu>
-                                    
+
                                     <h:outputLabel value="With Holding Tax Deduct" ></h:outputLabel>
                                     <h:selectBooleanCheckbox value="#{inwardStaffPaymentBillController.searchKeyword.activeAdvanceOption}"  >
                                         <f:ajax event="change" execute="@this" listener="#{inwardStaffPaymentBillController.performCalculations()}"   
-                                             render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
+                                                render=":#{p:component('scStaff')}  :#{p:component('lblDue')} :#{p:component('lblPay')} :#{p:component('lblTax')} tblFee" />
                                     </h:selectBooleanCheckbox>
 
                                 </h:panelGrid>
@@ -84,11 +87,11 @@
 
 
                                     <p:column headerText="Bill Date">
-                                    
-                                      <f:facet name="header">
+
+                                        <f:facet name="header">
                                             <h:outputLabel value="Bill Date"/>
-                                           
-                                       </f:facet>
+
+                                        </f:facet>
                                         <h:outputLabel value="#{bf.bill.createdAt}">
                                             <f:convertDateTime pattern="dd MMMM yyyy" />
                                         </h:outputLabel>
@@ -99,7 +102,7 @@
                                         <f:facet name="header">
                                             <h:outputLabel value="Patient"/>
                                         </f:facet>
-                                        
+
                                         <h:outputLabel value="#{bf.bill.patient.person.nameWithTitle}" rendered="#{bf.bill.patientEncounter eq null}"/>                                    
                                         <h:outputLabel value="#{bf.bill.patientEncounter.patient.person.nameWithTitle}"/>                                    
                                     </p:column> 
@@ -108,7 +111,7 @@
                                         <f:facet name="header">
                                             <h:outputLabel value="Test"/>
                                         </f:facet>
-                                        
+
                                         <h:outputLabel value="#{bf.billItem.item.name}" />
                                     </p:column>
 

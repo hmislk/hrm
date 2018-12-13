@@ -12,8 +12,14 @@
     <ui:define name="content">
         <h:panelGroup >
             <h:form  >
+                <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                    <f:facet name="header">
+                    </f:facet>
+                    <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                </p:panel>
                 <p:panel rendered="#{!pettyCashBillController.printPreview}" >
                     <f:facet name="header" >
+
                         <h:panelGrid columns="14"  >
                             <h:outputLabel value="Petty Bill" />
                             <h:outputLabel value="&nbsp;&nbsp;&nbsp;&nbsp;" style="min-width: 50px;" />
@@ -21,7 +27,7 @@
                                 <f:selectItems value="#{enumController.paymentMethodsWithoutCredit}"  />
                                 <p:ajax process="cmbPs" update="creditCard cheque slip" event="change" />
                             </p:selectOneMenu>
-                            
+
                             <p:inputText value="#{pettyCashBillController.comment}" id="comment"/>
                             <p:watermark value="Comment" for="comment"/>
 

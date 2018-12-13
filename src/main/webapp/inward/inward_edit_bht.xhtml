@@ -116,6 +116,10 @@
                                         <p:inputText autocomplete="off" value="#{bhtEditController.current.guardian.address}" />
                                     </h:panelGrid>
                                 </p:panel>
+                                <p:panel header="Comment">
+                                    <h:outputLabel value="Comment"/>
+                                    <p:inputText validator="#{bhtEditController.current.comments}" autocomplete="off" />
+                                </p:panel>
                                 <p:panel header="Room Detail">
                                     <p:dataTable value="#{bhtEditController.patientRoom}" var="rm">
                                         <p:column headerText="Room Name">

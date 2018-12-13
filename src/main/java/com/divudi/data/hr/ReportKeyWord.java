@@ -77,6 +77,7 @@ public class ReportKeyWord {
     WebUser webUser;
     private String string = "0";
     private String string1 = "0";
+    private String string2 = "0";
     boolean bool1;
     boolean bool2;
     String address;
@@ -585,6 +586,14 @@ public class ReportKeyWord {
 
     public void setSalaryCycleTo(SalaryCycle salaryCycleTo) {
         this.salaryCycleTo = salaryCycleTo;
+    }
+
+    public String getString2() {
+        return string2;
+    }
+
+    public void setString2(String string2) {
+        this.string2 = string2;
     }
 
 }

@@ -1116,15 +1116,17 @@ public class HrReportController implements Serializable {
     public String createStaffSalaryQuary(HashMap hm) {
         String sql = "";
         sql = "select ss from StaffSalary ss "
-                + " where ss.retired=false "
-                + " and ss.salaryCycle=:scl ";
+                + " where ss.retired=false ";
+        if (getReportKeyWord().getSalaryCycle() != null) {
+            sql += " and ss.salaryCycle=:scl ";
+            hm.put("scl", getReportKeyWord().getSalaryCycle());
+        }
         if (blocked == true) {
             sql += " and ss.blocked=true";
         }
         if (hold == true) {
             sql += " and ss.hold=true";
         }
-        hm.put("scl", getReportKeyWord().getSalaryCycle());
 
         if (getReportKeyWord().getStaff() != null) {
             sql += " and ss.staff=:stf ";
@@ -4459,12 +4461,16 @@ public class HrReportController implements Serializable {
         Date startTime = new Date();
         Date fromDate = null;
         Date toDate = null;
+        if (getReportKeyWord().getSalaryCycle()==null && getReportKeyWord().getStaff()==null) {
+            JsfUtil.addErrorMessage("Pleasse Select Staff Or Salary Cycle");
+            return ;
+        }
 
         System.out.println("Creating Staff Salary");
         String sql = "";
         HashMap hm = new HashMap();
         sql = createStaffSalaryQuary(hm);
-        sql += " order by ss.staff.codeInterger ";
+        sql += " order by ss.staff.codeInterger, ss.salaryCycle.id desc ";
         System.out.println("sql = " + sql);
         System.out.println("hm = " + hm);
         staffSalarys = staffSalaryFacade.findBySQL(sql, hm, TemporalType.DATE);
@@ -5452,9 +5458,9 @@ public class HrReportController implements Serializable {
         List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
         for (Object[] ob : objects) {
             Sex s = (Sex) ob[0];
-            System.out.println("s = " + s);
+//            System.out.println("s = " + s);
             long d = (long) ob[1];
-            System.out.println("d = " + d);
+//            System.out.println("d = " + d);
             subArray = new JSONArray();
             subArray.put(0, s);
             subArray.put(1, d);
@@ -5605,16 +5611,17 @@ public class HrReportController implements Serializable {
         m.put("cd", new Date());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
-//        System.out.println("staffs = " + list.size());
+        System.out.println("staffs = " + list.size());
         SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd");
         for (Staff s : list) {
-            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
-            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+//            System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//            System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
             Calendar dob = Calendar.getInstance();
             if (s.getPerson() != null && s.getPerson().getDob() != null) {
                 dob.setTime(s.getPerson().getDob());
                 Calendar now = Calendar.getInstance();
                 now.setTime(getCommonFunctions().getStartOfDay());
+                now.set(Calendar.MILLISECOND, 0);
                 dob.set(Calendar.YEAR, now.get(Calendar.YEAR));
                 System.out.println("dob.getTime() = " + dob.getTime());
                 now.add(Calendar.DATE, 1);
@@ -5624,10 +5631,11 @@ public class HrReportController implements Serializable {
                 Date td = commonFunctions.getEndOfDay(now.getTime());
                 System.out.println("td = " + td);
                 
-                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
-                System.out.println("fd.getTime() == dob.getTime().getTime() = " + (fd.getTime() == dob.getTime().getTime()));
-                System.out.println("dob.getTime().before(td) = " + dob.getTime().before(td));
-                System.out.println("td.getTime() == dob.getTime().getTime() = " + (td.getTime() == dob.getTime().getTime()));
+//                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
+//                System.out.println("(fd.getTime() == dob.getTime().getTime()) = " + (fd.getTime() == dob.getTime().getTime()));
+//                System.out.println("fd.equals(dob.getTime()) = " + fd.equals(dob.getTime()));
+//                System.out.println("fd.getTime() = " + fd.getTime());
+//                System.out.println("dob.getTime().getTime() = " + dob.getTime().getTime());
                 
                 if ((dob.getTime().after(fd) || fd.getTime() == dob.getTime().getTime())
                         && (dob.getTime().before(td) || td.getTime() == dob.getTime().getTime())) {

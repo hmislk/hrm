@@ -389,6 +389,7 @@ public class GrnController implements Serializable {
         getGrnBill().setFromInstitution(getApproveBill().getToInstitution());
         generateBillComponent();
         calGrossTotal();
+        getGrnBill().setReferenceInstitution(getApproveBill().getInstitution());
     }
 
     private double getRetailPrice(BillItem billItem) {

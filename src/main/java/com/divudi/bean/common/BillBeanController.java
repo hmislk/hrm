@@ -65,6 +65,7 @@ import com.divudi.facade.PackageFeeFacade;
 import com.divudi.facade.PackegeFacade;
 import com.divudi.facade.PatientInvestigationFacade;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -2910,7 +2911,7 @@ public class BillBeanController implements Serializable {
         } else {
             bill.setTotal(tot);
             bill.setNetTotal(net);
-            bill.setDiscount(dis);
+            bill.setDiscount(roundOff(dis));
         }
 
         bill.setVat(vat);
@@ -3497,6 +3498,15 @@ public class BillBeanController implements Serializable {
         bfp.setCreatedAt(new Date());
         bfp.setPayment(p);
         getBillFeePaymentFacade().create(bfp);
+    }
+    
+    private double roundOff(double d) {
+        DecimalFormat newFormat = new DecimalFormat("#.##");
+        try {
+            return Double.valueOf(newFormat.format(d));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public ItemFacade getItemFacade() {

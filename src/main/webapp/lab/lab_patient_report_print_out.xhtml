@@ -15,10 +15,6 @@
         <ui:composition template="/resources/template/template.xhtml">
             <ui:define name="content">
 
-                <h:panelGroup rendered="#{!(webUserController.hasPrivilege('LabAutherizing') eq true or webUserController.hasPrivilege('LabDataentry') eq true or webUserController.hasPrivilege('LabPrinting') eq true)}" >
-                    You are NOT authorized
-                </h:panelGroup>
-
                 <h:form id="form">
 
 

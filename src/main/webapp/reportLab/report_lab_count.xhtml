@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <ui:define name="content">
+        <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
+        <h:form id="frm">
+            <p:panel 
+                header="Lab Reports Count by Billed Department">
+
+                <h:panelGrid columns="2" id="panDetails">
+
+                    <h:outputLabel value="From Date"/>
+                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.fromDate}" 
+                                navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
+
+                    <h:outputLabel value="To Date"/>
+                    <p:calendar styleClass="dateTimePicker" value="#{investigationMonthSummeryOwnControllerSession.toDate}" 
+                                navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" />
+
+                    <h:outputLabel  value="Search By" />
+                    <p:selectOneRadio value="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string}" >
+                        <f:selectItem itemLabel="Department" itemValue="0" />
+                        <f:selectItem itemLabel="Institution" itemValue="1" />
+                        <f:ajax event="change" execute="@this" render="panDetails" />
+                    </p:selectOneRadio>
+
+                    <h:outputLabel  value="Search By" />
+                    <p:selectOneRadio value="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string1}" >
+                        <f:selectItem itemLabel="Billed" itemValue="0" />
+                        <f:selectItem itemLabel="Item" itemValue="1" />
+                    </p:selectOneRadio>
+
+                    <h:outputLabel value="Departmant" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string eq '0'}"/>
+                    <p:autoComplete styleClass="noPrintButton mediuminput" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string eq '0'}"
+                                    value="#{investigationMonthSummeryOwnControllerSession.department}"  
+                                    style="text-align: left; "  completeMethod="#{departmentController.completeDept}" 
+                                    var="dep" itemValue="#{dep}" itemLabel="#{dep.name}" forceSelection="true" />
+
+                    <h:outputLabel value="Institution" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string ne '0'}"/>
+                    <p:autoComplete styleClass="noPrintButton mediuminput" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string ne '0'}"
+                                    value="#{investigationMonthSummeryOwnControllerSession.institution}"  
+                                    style="text-align: left;"  completeMethod="#{institutionController.completeCompany}" 
+                                    var="ins" itemValue="#{ins}" itemLabel="#{ins.name}" forceSelection="true" />
+
+                    <h:outputLabel  value="Search By" />
+                    <p:selectOneRadio value="#{investigationMonthSummeryOwnControllerSession.summeryType}" >
+                        <f:selectItem itemLabel="All" itemValue="1" />
+                        <f:selectItem itemLabel="Only OPD" itemValue="2" />
+                        <f:selectItem itemLabel="Only Inward" itemValue="3" />
+                        <f:selectItem itemLabel="Only Collecting Center" itemValue="4" />
+                    </p:selectOneRadio>
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="4">
+                    <p:commandButton ajax="false" value="Count" 
+                                     action="#{investigationMonthSummeryOwnControllerSession.createInvestigationCounts()}"
+                                     styleClass="noPrintButton" style="float: right;" >
+                    </p:commandButton>
+                    <p:commandButton id="print" value="Print" style="display: none">
+                        <p:printer target="panPrint" />
+                    </p:commandButton>
+                    <p:commandButton value="Excel" ajax="false" styleClass="noPrintButton" style="float: right;" >
+                        <pe:exporter type="xlsx" target="tbl" fileName="Investigation Counts" />
+                    </p:commandButton> 
+                </h:panelGrid>
+
+                <p:panel styleClass="noBorder summeryBorder" id="panPrint">
+                    <p:dataTable id="tbl"  value="#{investigationMonthSummeryOwnControllerSession.items}" 
+                                 var="c" rowIndexVar="i" >
+                        <f:facet name="header" >
+                            <h:outputLabel value="Investigation Counts by "/>
+                            <h:outputLabel value="Billed " rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string1 eq '0'}" />
+                            <h:outputLabel value="Item " rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string1 eq '0'}" />
+                            <h:outputLabel value="Department - #{investigationMonthSummeryOwnControllerSession.department.name}" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string eq '0'}" />
+                            <h:outputLabel value="Institution - #{investigationMonthSummeryOwnControllerSession.institution.name}" rendered="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string eq '0'}" />
+                        </f:facet>
+
+                        <p:column >
+                            <f:facet name="header">
+                                <h:outputLabel value="No"/>
+                            </f:facet>
+                            <h:outputLabel value="#{i+1}" rendered="#{c.investigation ne null}"  />
+                        </p:column>
+
+                        <p:column sortBy="#{c.investigation.name}">
+                            <f:facet name="header">
+                                <h:outputLabel value="Test Name"/>
+                            </f:facet>
+                            <h:outputLabel value="#{c.investigation.name}" rendered="#{c.investigation ne null}" />
+                            <h:outputLabel value="Total" rendered="#{c.investigation eq null}" style="font-weight: bold;" />
+                        </p:column>
+                        <p:column style="text-align:right" sortBy="#{c.count}">
+                            <f:facet name="header">
+                                <h:outputLabel value="Count"/>
+                            </f:facet>
+                            <h:outputLabel value="#{c.count}" rendered="#{c.investigation ne null}" />
+                            <h:outputLabel value="#{c.count}" rendered="#{c.investigation eq null}" style="font-weight: bold;" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </p:panel>
+
+
+        </h:form>
+
+    </ui:define>
+
+
+
+</ui:composition>

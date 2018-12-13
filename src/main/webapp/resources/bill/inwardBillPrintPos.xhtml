@@ -50,12 +50,38 @@
                 <table style="width: 100%;" >
                     <tr>
                         <td style="width: 40%; text-align: left;" >
-                            <h:outputLabel value="Date" class="billDetails" ></h:outputLabel>
+                            <h:outputLabel value="Date / Time" class="billDetails" ></h:outputLabel>
                         </td>
                         <td>:</td>
                         <td style="width: 50%;text-align: left;" >
                             <!--<h:outputLabel value=": &npsp;" ></h:outputLabel>-->
                             <h:outputLabel value="#{cc.attrs.bill.createdAt}" class="billDetails" >
+                                <f:convertDateTime pattern="dd/MM/yy hh:mm a" ></f:convertDateTime>
+                            </h:outputLabel>
+                        </td>
+                        <td style="width: 10%" >
+
+                        </td>
+                        <td style="width: 15%" >
+                            <!--<h:outputLabel value="Time" ></h:outputLabel>-->
+                        </td>
+
+                        <td style="width: 30%" >
+                            <!--<h:outputLabel value=": &npsp;" ></h:outputLabel>-->
+<!--                            <h:outputLabel value="#{cc.attrs.bill.createdAt}" class="billDetails">
+                                <f:convertDateTime pattern="hh:mm a" ></f:convertDateTime>
+                            </h:outputLabel>-->
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td style="width: 40%; text-align: left;" >
+                            <h:outputLabel value="Print Date/ Time" class="billDetails" ></h:outputLabel>
+                        </td>
+                        <td>:</td>
+                        <td style="width: 50%;text-align: left;" >
+                            <!--<h:outputLabel value=": &npsp;" ></h:outputLabel>-->
+                            <h:outputLabel value="#{commonController.currentDateTime}" class="billDetails" >
                                 <f:convertDateTime pattern="dd/MM/yy hh:mm a" ></f:convertDateTime>
                             </h:outputLabel>
                         </td>

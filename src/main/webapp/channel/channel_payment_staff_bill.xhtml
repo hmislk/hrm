@@ -12,6 +12,9 @@
 
             <ui:define name="content">
                 <h:form>
+                    <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                        <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                    </p:panel>
                     <h:panelGroup rendered="#{!channelStaffPaymentBillController.printPreview}" styleClass="alignTop" >
                         <p:panel header="Staff Payments" >
                             <h:panelGrid columns="1" >
@@ -87,7 +90,7 @@
                                         <h:outputLabel value="#{bf.bill.insId}">
                                         </h:outputLabel>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Appoinment No">
                                         <h:outputLabel value="#{bf.bill.singleBillSession.serialNo}">
                                         </h:outputLabel>
@@ -109,15 +112,15 @@
                                             <f:convertDateTime pattern="dd MMMM yyyy" />
                                         </h:outputLabel>
                                     </p:column>
-                                    
-                                    
-                                    
+
+
+
                                     <p:column headerText="Refundable" rendered="#{webUserController.hasPrivilege('Developers')}">
                                         <h:outputLabel value="#{bf.bill.singleBillSession.serviceSession.originatingSession.refundable}">
                                         </h:outputLabel>
                                     </p:column>
-                                    
-                                    
+
+
                                     <p:column headerText="Absent" rendered="#{webUserController.hasPrivilege('Developers')}">
                                         <h:outputLabel value="#{bf.bill.singleBillSession.absent}">
                                         </h:outputLabel>
@@ -126,12 +129,12 @@
                                         <h:outputLabel value="#{bf.bill.cancelled}">
                                         </h:outputLabel>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Refund" rendered="#{webUserController.hasPrivilege('Developers')}">
                                         <h:outputLabel value="#{bf.bill.refunded}">
                                         </h:outputLabel>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Appoinment Date">
                                         <h:outputLabel value="#{bf.bill.appointmentAt}">
                                             <f:convertDateTime pattern="dd MMMM yyyy" />

@@ -7,6 +7,7 @@ package com.divudi.bean.common;
 
 import com.divudi.bean.report.BookKeepingSummery;
 import com.divudi.bean.report.CommonReport;
+import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
@@ -29,6 +30,7 @@ import com.divudi.entity.Staff;
 import com.divudi.entity.WebUser;
 import com.divudi.entity.inward.AdmissionType;
 import com.divudi.entity.lab.Investigation;
+import com.divudi.entity.lab.Machine;
 import com.divudi.facade.BillFacade;
 import com.divudi.facade.BillFeeFacade;
 import com.divudi.facade.InstitutionFacade;
@@ -78,6 +80,8 @@ public class GoogleChartController implements Serializable {
     private SessionController sessionController;
     @Inject
     private CommonReport commonReport;
+    @Inject
+    CommonController commonController;
 
     private List<ChartValue> chartValues;
     private JSONArray jsonArray;
@@ -457,15 +461,16 @@ public class GoogleChartController implements Serializable {
     }
 
     public String drawChannelCountChart() {
-        System.out.println("1.Time(Channel) = " + new Date());
+        Date startTime = new Date();
+//        System.out.println("1.Time(Channel) = " + new Date());
         Calendar cal = Calendar.getInstance();
         Date toDate = cal.getTime();
 
         cal.add(Calendar.MONTH, -1);
         Date fromDate = cal.getTime();
 
-        System.out.println("fromDate = " + fromDate);
-        System.out.println("toDate = " + toDate);
+//        System.out.println("fromDate = " + fromDate);
+//        System.out.println("toDate = " + toDate);
 
         JSONArray jSONArray1 = new JSONArray();
         JSONArray arrays = new JSONArray();
@@ -520,16 +525,91 @@ public class GoogleChartController implements Serializable {
         }
 //        System.out.println("2.objects.size() = " + objects.size());
 
-        System.out.println("2.Time(Channel) = " + new Date());
+//        System.out.println("2.Time(Channel) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Channel)");
+        return jSONArray1.toString();
+
+    }
+
+    public String drawChannelCount12MonthsChart() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Channel 12) = " + new Date());
+        Calendar cal = Calendar.getInstance();
+        Date toDate = cal.getTime();
+
+        cal.add(Calendar.MONTH, -12);
+        Date fromDate = cal.getTime();
+
+//        System.out.println("fromDate = " + fromDate);
+//        System.out.println("toDate = " + toDate);
+
+        JSONArray jSONArray1 = new JSONArray();
+        JSONArray arrays = new JSONArray();
+
+        arrays.put(0, "Date");
+        arrays.put(1, "Channel Count");
+//        arrays.put(2, "Scan Count");
+        jSONArray1.put(arrays);
+
+        double netTot = 0.0;
+
+        JSONArray inarr = new JSONArray();
+        Date fd = commonFunctions.getStartOfDay(fromDate);
+        Date td = commonFunctions.getEndOfMonth(toDate);
+
+        DateFormat df = new SimpleDateFormat("yy MMM dd");
+        String formatedDate = df.format(fd);
+
+        BillType[] billTypes = new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent};
+        Class[] classes = new Class[]{CancelledBill.class, RefundBill.class};
+
+        List<Object[]> objects = fetchBillsTotalNewMonth(billTypes, null, null, null, new BilledBill(), fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objects.size() = " + objects.size());
+        List<Object[]> objectsCan = fetchBillsTotalNewMonth(billTypes, null, classes, null, null, fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objectsCan.size() = " + objectsCan.size());
+        for (Object[] obj : objects) {
+//            System.out.println("objects[0] = " + obj[0]);
+            int d = (int) obj[0];
+            long tot = 0l;
+            for (Object[] ob1 : objects) {
+//                System.out.println("ob1[0] = " + ob1[0]);
+                if (d == (int) ob1[0]) {
+//                    System.out.println("ob1[1] = " + ob1[1]);
+                    tot += (long) ob1[1];
+                    break;
+                }
+            }
+            for (Object[] ob2 : objectsCan) {
+//                System.out.println("ob2[0] = " + ob2[0]);
+                if (d == (int) ob2[0]) {
+//                    System.out.println("ob2[1] = " + ob2[1]);
+                    tot -= (long) ob2[1];
+                    break;
+                }
+            }
+//            System.out.println("***obj[0] = " + obj[0]);
+//            System.out.println("***tot = " + tot);
+            arrays = new JSONArray();
+
+            arrays.put(0, fetchMonth(d));
+            arrays.put(1, tot);
+            jSONArray1.put(arrays);
+        }
+//        System.out.println("jSONArray1 = " + jSONArray1.toString());
+//
+//        System.out.println("2.Time(Channel 12) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Channel 12 Months)");
         return jSONArray1.toString();
 
     }
 
     public String drawPharmacyChart() {
-        System.out.println("1.Time(Pharmacy) = " + new Date());
+        Date startTime = new Date();
+//        System.out.println("1.Time(Pharmacy) = " + new Date());
         Date fd;
         Date td;
         Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
         td = commonFunctions.getEndOfDay(cal.getTime());
         cal.add(Calendar.DATE, -7);
         fd = commonFunctions.getStartOfDay(cal.getTime());
@@ -585,7 +665,7 @@ public class GoogleChartController implements Serializable {
 //                        System.out.println("ob[1] = " + ob[1]);
 //                        System.out.println("ob[2] = " + ob[2]);
 //                        System.err.println("**in");
-                        d = 0 - (double) ob[2];
+                        d = (double) ob[2];
                         break;
                     }
                 }
@@ -601,32 +681,724 @@ public class GoogleChartController implements Serializable {
 //            System.out.println("nowDate = " + nowDate);
         }
 //        System.out.println("mainJSONArray = " + mainJSONArray);
-        System.out.println("2.Time(Pharmacy) = " + new Date());
+//        System.out.println("2.Time(Pharmacy) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Pharmacy)");
         return mainJSONArray.toString();
 
+    }
+
+    public String drawOPDCategoryIncomeYesterdayCashChart() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(OPD Category Income-cash) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+        Map m = new HashMap();
+        String sql = "select c.name, "
+                + " sum(bf.feeValue) "
+                + " from BillFee bf join bf.billItem bi join bi.item i join i.category c "
+                + " where bi.bill.institution=:ins "
+                + " and bi.bill.billType= :bTp  "
+                + " and bi.bill.createdAt between :fromDate and :toDate "
+                + " and bi.bill.paymentMethod in :pms "
+                + " and bi.bill.retired=false "
+                + " and bi.retired=false "
+                + " and bf.retired=false ";
+
+        sql += " group by c.name "
+                + " order by c.name ";
+
+        PaymentMethod[] pms = new PaymentMethod[]{PaymentMethod.Cash, PaymentMethod.Card, PaymentMethod.Cheque, PaymentMethod.Slip};
+        m.put("pms", Arrays.asList(pms));
+        m.put("toDate", td);
+        m.put("fromDate", fd);
+        m.put("ins", getSessionController().getInstitution());
+        m.put("bTp", BillType.OpdBill);
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Category");
+        subArray.put(1, "Income");
+        mainJSONArray.put(subArray);
+//        System.out.println("objects.size() = " + objects.size());
+        for (Object[] ob : objects) {
+            String s = (String) ob[0];
+//            System.out.println("s = " + s);
+            double d = (double) ob[1];
+//            System.out.println("d = " + d);
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(OPD Category Income-cash) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(OPD Category Income-cash)");
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawOPDCategoryIncomeYesterdayCreditChart() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(OPD Category Income-credit) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+        Map m = new HashMap();
+        String sql = "select c.name, "
+                + " sum(bf.feeValue) "
+                + " from BillFee bf join bf.billItem bi join bi.item i join i.category c "
+                + " where bi.bill.institution=:ins "
+                + " and bi.bill.billType= :bTp  "
+                + " and bi.bill.createdAt between :fromDate and :toDate "
+                + " and bi.bill.paymentMethod in :pms "
+                + " and bi.bill.retired=false "
+                + " and bi.retired=false "
+                + " and bf.retired=false ";
+
+        sql += " group by c.name "
+                + " order by c.name ";
+
+        PaymentMethod[] pms = new PaymentMethod[]{PaymentMethod.Credit};
+        m.put("pms", Arrays.asList(pms));
+        m.put("toDate", td);
+        m.put("fromDate", fd);
+        m.put("ins", getSessionController().getInstitution());
+        m.put("bTp", BillType.OpdBill);
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Category");
+        subArray.put(1, "Income");
+        mainJSONArray.put(subArray);
+//        System.out.println("objects.size() = " + objects.size());
+        for (Object[] ob : objects) {
+            String s = (String) ob[0];
+//            System.out.println("s = " + s);
+            double d = (double) ob[1];
+//            System.out.println("d = " + d);
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(OPD Category Income-credit) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(OPD Category Income-credit)");
+        return mainJSONArray.toString();
+
+    }
+
+    public String drawInwardCashBHTCollection() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Inward Cash BHT Collection) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Admission Type");
+        subArray.put(1, "Income");
+        mainJSONArray.put(subArray);
+
+        List<Object[]> objects = calInwardPaymentTotal(fd, td, PaymentMethod.Cash);
+//        System.out.println("objects.size() = " + objects.size());
+
+        for (Object[] ob : objects) {
+            String s = (String) ob[0];
+            double d = (double) ob[1];
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Inward Cash BHT Collection) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Inward Cash BHT Collection)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawInwardCreditBHTCollection() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Inward Credit BHT Collection) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Admission Type");
+        subArray.put(1, "Income");
+        mainJSONArray.put(subArray);
+
+        List<Object[]> objects = calInwardPaymentTotal(fd, td, PaymentMethod.Credit);
+//        System.out.println("objects.size() = " + objects.size());
+
+        for (Object[] ob : objects) {
+            String s = (String) ob[0];
+            double d = (double) ob[1];
+            subArray = new JSONArray();
+            subArray.put(0, s);
+            subArray.put(1, d);
+            mainJSONArray.put(subArray);
+        }
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Inward Credit BHT Collection) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Inward Credit BHT Collection)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawInvestigationCountYesterday() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Investigation Count Yesterday) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Item");
+        subArray.put(1, "OPD");
+        subArray.put(2, "Inward");
+        subArray.put(3, "Collecting Center");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountWithInvestigation(fd, td, Arrays.asList(bts));
+//        System.out.println("objects.size() = " + objects.size());
+        Item lastItem = null;
+        double copd = 0.0;
+        double cinw = 0.0;
+        double ccol = 0.0;
+
+        for (Object[] ob : objects) {
+            Item i = (Item) ob[0];
+//            System.out.println("i = " + i.getName());
+            BillType bt = (BillType) ob[1];
+//            System.out.println("bt = " + bt);
+            BillClassType bct = (BillClassType) ob[2];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[3];
+            } else {
+                l = 0 - (long) ob[3];
+            }
+//            System.out.println("l = " + l);
+            if (lastItem == null) {
+                lastItem = i;
+                if (bt == BillType.InwardBill) {
+                    cinw = l;
+                } else if (bt == BillType.CollectingCentreBill) {
+                    ccol = l;
+                } else {
+                    copd = l;
+                }
+            } else {
+                if (lastItem == i) {
+                    if (bt == BillType.InwardBill) {
+                        cinw += l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol += l;
+                    } else {
+                        copd += l;
+                    }
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, lastItem.getName());
+                    subArray.put(1, copd);
+                    subArray.put(2, cinw);
+                    subArray.put(3, ccol);
+                    mainJSONArray.put(subArray);
+                    lastItem = i;
+                    cinw = 0.0;
+                    ccol = 0.0;
+                    copd = 0.0;
+                    if (bt == BillType.InwardBill) {
+                        cinw = l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol = l;
+                    } else {
+                        copd = l;
+                    }
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, lastItem.getName());
+        subArray.put(1, copd);
+        subArray.put(2, cinw);
+        subArray.put(3, ccol);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Yesterday) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Investigation Count Yesterday)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawInvestigationCountLast30Days() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Investigation Count Last 30 Days) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        System.out.println("td = " + td);
+        cal.add(Calendar.DATE, -30);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+        System.out.println("fd = " + fd);
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Item");
+        subArray.put(1, "OPD");
+        subArray.put(2, "Inward");
+        subArray.put(3, "Collecting Center");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountWithInvestigation(fd, td, Arrays.asList(bts));
+//        System.out.println("objects.size() = " + objects.size());
+        Item lastItem = null;
+        double copd = 0.0;
+        double cinw = 0.0;
+        double ccol = 0.0;
+
+        for (Object[] ob : objects) {
+            Item i = (Item) ob[0];
+//            System.out.println("i = " + i.getName());
+            BillType bt = (BillType) ob[1];
+//            System.out.println("bt = " + bt);
+            BillClassType bct = (BillClassType) ob[2];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[3];
+            } else {
+                l = 0 - (long) ob[3];
+            }
+//            System.out.println("l = " + l);
+            if (lastItem == null) {
+                lastItem = i;
+                if (bt == BillType.InwardBill) {
+                    cinw = l;
+                } else if (bt == BillType.CollectingCentreBill) {
+                    ccol = l;
+                } else {
+                    copd = l;
+                }
+            } else {
+                if (lastItem == i) {
+                    if (bt == BillType.InwardBill) {
+                        cinw += l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol += l;
+                    } else {
+                        copd += l;
+                    }
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, lastItem.getName());
+                    subArray.put(1, copd);
+                    subArray.put(2, cinw);
+                    subArray.put(3, ccol);
+                    mainJSONArray.put(subArray);
+                    lastItem = i;
+                    cinw = 0.0;
+                    ccol = 0.0;
+                    copd = 0.0;
+                    if (bt == BillType.InwardBill) {
+                        cinw = l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol = l;
+                    } else {
+                        copd = l;
+                    }
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, lastItem.getName());
+        subArray.put(1, copd);
+        subArray.put(2, cinw);
+        subArray.put(3, ccol);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Last 30 Days) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Investigation Count Last 30 Days)");
+        return mainJSONArray.toString();
+    }
+    
+    public String drawMachineViseCountYesterday() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Investigation Count Yesterday) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Item");
+        subArray.put(1, "OPD");
+        subArray.put(2, "Inward");
+        subArray.put(3, "Collecting Center");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountWithMachine(fd, td, Arrays.asList(bts));
+//        System.out.println("objects.size() = " + objects.size());
+        Machine lastMachine = null;
+        double copd = 0.0;
+        double cinw = 0.0;
+        double ccol = 0.0;
+
+        for (Object[] ob : objects) {
+            Machine m = (Machine) ob[0];
+//            System.out.println("i = " + i.getName());
+            BillType bt = (BillType) ob[1];
+//            System.out.println("bt = " + bt);
+            BillClassType bct = (BillClassType) ob[2];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[3];
+            } else {
+                l = 0 - (long) ob[3];
+            }
+//            System.out.println("l = " + l);
+            if (lastMachine == null) {
+                lastMachine = m;
+                if (bt == BillType.InwardBill) {
+                    cinw = l;
+                } else if (bt == BillType.CollectingCentreBill) {
+                    ccol = l;
+                } else {
+                    copd = l;
+                }
+            } else {
+                if (lastMachine == m) {
+                    if (bt == BillType.InwardBill) {
+                        cinw += l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol += l;
+                    } else {
+                        copd += l;
+                    }
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, lastMachine.getName());
+                    subArray.put(1, copd);
+                    subArray.put(2, cinw);
+                    subArray.put(3, ccol);
+                    mainJSONArray.put(subArray);
+                    lastMachine = m;
+                    cinw = 0.0;
+                    ccol = 0.0;
+                    copd = 0.0;
+                    if (bt == BillType.InwardBill) {
+                        cinw = l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol = l;
+                    } else {
+                        copd = l;
+                    }
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, lastMachine.getName());
+        subArray.put(1, copd);
+        subArray.put(2, cinw);
+        subArray.put(3, ccol);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Yesterday) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Investigation Count Yesterday)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawMachineViseCountLast30Days() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Investigation Count Last 30 Days) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        System.out.println("td = " + td);
+        cal.add(Calendar.DATE, -30);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+        System.out.println("fd = " + fd);
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Item");
+        subArray.put(1, "OPD");
+        subArray.put(2, "Inward");
+        subArray.put(3, "Collecting Center");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountWithMachine(fd, td, Arrays.asList(bts));
+//        System.out.println("objects.size() = " + objects.size());
+        Machine lastMachine = null;
+        double copd = 0.0;
+        double cinw = 0.0;
+        double ccol = 0.0;
+
+        for (Object[] ob : objects) {
+            Machine m = (Machine) ob[0];
+//            System.out.println("i = " + i.getName());
+            BillType bt = (BillType) ob[1];
+//            System.out.println("bt = " + bt);
+            BillClassType bct = (BillClassType) ob[2];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[3];
+            } else {
+                l = 0 - (long) ob[3];
+            }
+//            System.out.println("l = " + l);
+            if (lastMachine == null) {
+                lastMachine = m;
+                if (bt == BillType.InwardBill) {
+                    cinw = l;
+                } else if (bt == BillType.CollectingCentreBill) {
+                    ccol = l;
+                } else {
+                    copd = l;
+                }
+            } else {
+                if (lastMachine == m) {
+                    if (bt == BillType.InwardBill) {
+                        cinw += l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol += l;
+                    } else {
+                        copd += l;
+                    }
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, lastMachine.getName());
+                    subArray.put(1, copd);
+                    subArray.put(2, cinw);
+                    subArray.put(3, ccol);
+                    mainJSONArray.put(subArray);
+                    lastMachine = m;
+                    cinw = 0.0;
+                    ccol = 0.0;
+                    copd = 0.0;
+                    if (bt == BillType.InwardBill) {
+                        cinw = l;
+                    } else if (bt == BillType.CollectingCentreBill) {
+                        ccol = l;
+                    } else {
+                        copd = l;
+                    }
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, lastMachine.getName());
+        subArray.put(1, copd);
+        subArray.put(2, cinw);
+        subArray.put(3, ccol);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Last 30 Days) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Investigation Count Last 30 Days)");
+        return mainJSONArray.toString();
+    }
+    
+    public String drawInvestigationCollectingCenterCountYesterday() {
+        System.out.println("1.Time(Collecting CenterCount Yesterday) = " + new Date());
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        System.out.println("td = " + td);
+        cal.add(Calendar.DATE, -30);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+        System.out.println("fd = " + fd);
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Nmae");
+        subArray.put(1, "count");
+        mainJSONArray.put(subArray);
+
+
+        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+
+        System.out.println("2.Time(Collecting Center Count Yesterday) = " + new Date());
+        return mainJSONArray.toString();
+    }
+
+    private List<Object[]> fetchCountWithInvestigation(Date fd, Date td, List<BillType> bts) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select bi.item, bi.bill.billType, bi.bill.billClassType, count(bi) "
+                + " FROM BillItem bi where"
+                + " bi.bill.billType in :bts "
+                //                + " and (bi.bill.toInstitution=:ins or bi.item.department.institution=:ins ) "
+                + " and bi.bill.createdAt between :fromDate and :toDate "
+                + " and type(bi.item)=:iClass "
+                + " group by bi.item, bi.bill.billType, bi.bill.billClassType "
+                + " order by bi.item.name";
+        m.put("toDate", td);
+        m.put("fromDate", fd);
+        m.put("bts", bts);
+        m.put("iClass", Investigation.class);
+//        m.put("ins", getSessionController().getInstitution());
+        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+    }
+    
+    private List<Object[]> fetchCountWithMachine(Date fd, Date td, List<BillType> bts) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select bi.item.machine, bi.bill.billType, bi.bill.billClassType, count(bi) "
+                + " FROM BillItem bi where"
+                + " bi.bill.billType in :bts "
+                //                + " and (bi.bill.toInstitution=:ins or bi.item.department.institution=:ins ) "
+                + " and bi.bill.createdAt between :fromDate and :toDate "
+                + " and type(bi.item)=:iClass "
+                + " group by bi.item.machine, bi.bill.billType, bi.bill.billClassType "
+                + " order by bi.item.machine.name";
+        m.put("toDate", td);
+        m.put("fromDate", fd);
+        m.put("bts", bts);
+        m.put("iClass", Investigation.class);
+//        m.put("ins", getSessionController().getInstitution());
+        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+    }
+
+    private List<Object[]> calInwardPaymentTotal(Date fromDate, Date toDate, PaymentMethod pm) {
+        String sql;
+        sql = "SELECT b.patientEncounter.admissionType.name,"
+                + " sum(b.netTotal) "
+                + " FROM Bill b "
+                + " WHERE b.retired=false "
+                + " and b.billType = :bTp "
+                + " and b.patientEncounter.paymentMethod=:pm "
+                + " and b.createdAt between :fromDate and :toDate"
+                + " group by b.patientEncounter.admissionType "
+                + " order by b.patientEncounter.admissionType.name ";
+        Map temMap = new HashMap();
+        temMap.put("fromDate", fromDate);
+        temMap.put("toDate", toDate);
+        temMap.put("bTp", BillType.InwardPaymentBill);
+        temMap.put("pm", pm);
+        return getBillFacade().findAggregates(sql, temMap, TemporalType.TIMESTAMP);
+    }
+
+    private String fetchMonth(int i) {
+        switch (i) {
+            case 1:
+                return "January";
+            case 2:
+                return "February";
+            case 3:
+                return "March";
+            case 4:
+                return "April";
+            case 5:
+                return "May";
+            case 6:
+                return "June";
+            case 7:
+                return "July";
+            case 8:
+                return "August";
+            case 9:
+                return "September";
+            case 10:
+                return "October";
+            case 11:
+                return "November";
+            case 12:
+                return "December";
+            default:
+                return "Error Month";
+        }
     }
 
     private List<Object[]> fetchSaleValue(Date fd, Date td) {
         String sql;
         Map m = new HashMap();
-        sql = "select bi.bill.department.name,"
-                + " FUNC('Date',bi.bill.createdAt),"
-                + " sum(bi.pharmaceuticalBillItem.qty*bi.pharmaceuticalBillItem.purchaseRate) "
-                + " from BillItem bi "
-                + " where bi.bill.retired=false "
-                + " and bi.bill.billType=:btp "
-                + " and type(bi.bill)=:cl "
-                + " and bi.bill.createdAt between :fd and :td "
-                + " group by bi.bill.department, FUNC('Date',bi.bill.createdAt) "
-                + " order by bi.bill.department.name, bi.bill.createdAt ";
+        sql = "select b.referenceBill.department.name,"
+                + " FUNC('Date',b.createdAt),"
+                + " sum(b.netTotal) "
+                + " from Bill b "
+                + " where b.retired=false "
+                + " and b.billType=:btp "
+                + " and type(b)=:cl "
+                + " and b.paymentMethod in :pm "
+                + " and b.createdAt between :fd and :td "
+                + " group by b.referenceBill.department, FUNC('Date',b.createdAt) "
+                + " order by b.referenceBill.department.name, b.createdAt ";
 
+        PaymentMethod[] pms = new PaymentMethod[]{PaymentMethod.Cash, PaymentMethod.Card, PaymentMethod.Cheque, PaymentMethod.Slip};
+        m.put("pm", Arrays.asList(pms));
         m.put("fd", fd);
         m.put("td", td);
-        m.put("cl", PreBill.class);
-        m.put("btp", BillType.PharmacyPre);
+        m.put("cl", BilledBill.class);
+        m.put("btp", BillType.PharmacySale);
 
         List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
-        System.out.println("objects.size() = " + objects.size());
+//        System.out.println("objects.size() = " + objects.size());
 
         return objects;
     }
@@ -1242,6 +2014,152 @@ public class GoogleChartController implements Serializable {
                     + " order by b.createdAt ";
         } else {
             sql += " group by FUNC('Date',b.createdAt) "
+                    + " order by b.createdAt ";
+        }
+
+        m.put("fromDate", fd);
+        m.put("toDate", td);
+//        System.err.println("Sql " + sql);
+//        System.out.println("m = " + m);
+        if (count) {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        }
+
+    }
+
+    public List<Object[]> fetchBillsTotalNewMonth(BillType[] billTypes, BillType bt, Class[] bills, Class[] nbills, Bill b, Date fd, Date td, Institution billedInstitution, Institution creditCompany, boolean withOutDocFee, boolean count, Staff staff, Speciality sp, WebUser webUser) {
+
+        String sql = "";
+        Map m = new HashMap();
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql = " select FUNC('Month',b.singleBillSession.sessionDate), count(b) ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql = " select FUNC('Month',b.createdAt), count(b) ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql = " select FUNC('Month',b.createdAt), count(b) ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql = " select FUNC('Month',b.createdAt), count(b) ";
+                } else {
+//                    System.err.println("billed");
+                    sql = " select FUNC('Month',b.singleBillSession.sessionDate), count(b) ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql = " select FUNC('Month',b.createdAt), sum(b.netTotal-b.staffFee) ";
+        } else {
+            sql = " select FUNC('Month',b.createdAt), sum(b.netTotal) ";
+        }
+
+        sql += " from Bill b "
+                + " where b.retired=false ";
+
+        if (b != null) {
+            if (b.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+        }
+
+        if (bills != null) {
+            if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                System.err.println("Can or Ref");
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            } else {
+//                System.err.println("billed");
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+        }
+
+        if (billTypes != null) {
+            sql += " and b.billType in :bt ";
+            List<BillType> bts = Arrays.asList(billTypes);
+            m.put("bt", bts);
+        }
+        if (bt != null) {
+            sql += " and b.billType=:bt ";
+            m.put("bt", bt);
+        }
+        if (bills != null) {
+            sql += " and type(b) in :class ";
+            List<Class> cs = Arrays.asList(bills);
+            m.put("class", cs);
+        }
+        if (nbills != null) {
+            sql += " and type(b) not in :nclass ";
+            List<Class> ncs = Arrays.asList(nbills);
+            m.put("nclass", ncs);
+        }
+        if (b != null) {
+            sql += " and type(b)=:class ";
+            m.put("class", b.getClass());
+        }
+        if (billedInstitution != null) {
+            sql += " and b.institution=:ins ";
+            m.put("ins", billedInstitution);
+        }
+        if (creditCompany != null) {
+            sql += " and b.creditCompany=:cc ";
+            m.put("cc", creditCompany);
+        }
+        if (staff != null) {
+            sql += " and b.staff=:s ";
+            m.put("s", staff);
+        }
+        if (webUser != null) {
+            sql += " and b.creater=:wu ";
+            m.put("wu", webUser);
+        }
+        if (sp != null) {
+            sql += " and b.staff.speciality=:sp ";
+            m.put("sp", sp);
+        }
+
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql += " group by FUNC('Month',b.singleBillSession.sessionDate) "
+                            + " order by b.singleBillSession.sessionDate ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql += " group by FUNC('Month',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql += " group by FUNC('Month',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql += " group by FUNC('Month',b.createdAt) "
+                            + " order by b.createdAt ";
+                } else {
+//                    System.err.println("billed");
+                    sql += " group by FUNC('Month',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql += " group by FUNC('Month',b.createdAt) "
+                    + " order by b.createdAt ";
+        } else {
+            sql += " group by FUNC('Month',b.createdAt) "
                     + " order by b.createdAt ";
         }
 

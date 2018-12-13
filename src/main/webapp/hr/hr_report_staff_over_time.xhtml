@@ -22,6 +22,7 @@
                             <h:outputLabel value="Salary Cycle"/>
                             <p:selectOneMenu value="#{hrReportController.reportKeyWord.salaryCycle}" 
                                              var="t">
+                                <f:selectItem itemLabel="Select Salary Cycle"/>
                                 <f:selectItems value="#{salaryCycleController.salaryCycles}" 
                                                var="theme" 
                                                itemLabel="#{theme.name}" 
@@ -97,7 +98,7 @@
                                         <br/>
                                     </h:panelGroup>
                                 </f:facet>
-                                <p:column headerText="Emp No">
+                                <p:column headerText="Emp No" >
                                     <f:facet name="header">
                                         <h:outputLabel value="Emp No"  />
                                     </f:facet>
@@ -109,6 +110,13 @@
                                         <h:outputLabel value="Emp Name"  />
                                     </f:facet>
                                     <p:outputLabel value="#{ss.staff.person.nameWithTitle}">
+                                    </p:outputLabel>
+                                </p:column>                              
+                                <p:column headerText="Salary Cycle" rendered="#{hrReportController.reportKeyWord.salaryCycle eq null}">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Salary Cycle"  />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.salaryCycle.name}">
                                     </p:outputLabel>
                                 </p:column>                              
                                 <p:column headerText="Over 45 OT (Minutes)" style="text-align: right;">

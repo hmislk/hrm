@@ -1371,37 +1371,39 @@ public class BillController implements Serializable {
         }
 
         Double[] billItemValues = billBean.fetchBillItemValues(b);
-        double billItemTotal = billItemValues[0];
-        double billItemDiscount = billItemValues[1];
-        double billItemNetTotal = billItemValues[2];
-        double billItemVatPlusNetValue = billItemValues[3] + billItemValues[2];
+        double billItemTotal = roundOff(billItemValues[0]);
+        double billItemDiscount = roundOff(billItemValues[1]);
+        double billItemNetTotal = roundOff(billItemValues[2]);
+        double billItemVatPlusNetValue = roundOff(billItemValues[3] + billItemValues[2]);
 
-        System.out.println("b.getVatPlusNetTotal() = " + b.getVatPlusNetTotal());
-        System.out.println("roundOff(b.getVatPlusNetTotal()) = " + roundOff(b.getVatPlusNetTotal()));
+        System.out.println("billItemTotal = " + billItemTotal);
+        System.out.println("billItemDiscount = " + billItemDiscount);
+        System.out.println("billItemNetTotal = " + billItemNetTotal);
         System.out.println("billItemVatPlusNetValue = " + billItemVatPlusNetValue);
-        System.out.println("roundOff(billItemVatPlusNetValue) = " + roundOff(billItemVatPlusNetValue));
+        
+        System.out.println("b.getTotal() = " + b.getTotal());
+        System.out.println("b.getDiscount() = " + b.getDiscount());
+        System.out.println("b.getNetTotal() = " + b.getNetTotal());
+        System.out.println("b.getVatPlusNetTotal() = " + b.getVatPlusNetTotal());
 
         if (billItemTotal != b.getTotal() || billItemDiscount != b.getDiscount() || billItemNetTotal != b.getNetTotal() || roundOff(billItemVatPlusNetValue) != roundOff(b.getVatPlusNetTotal())) {
             return true;
         }
 
         Double[] billFeeValues = billBean.fetchBillFeeValues(b);
-        double billFeeTotal = billFeeValues[0];
-        double billFeeDiscount = billFeeValues[1];
-        double billFeeNetTotal = billFeeValues[2];
-        double billFeeVatPlusNetValue = billFeeValues[3] + billFeeValues[2];
+        double billFeeTotal = roundOff(billFeeValues[0]);
+        double billFeeDiscount = roundOff(billFeeValues[1]);
+        double billFeeNetTotal = roundOff(billFeeValues[2]);
+        double billFeeVatPlusNetValue = roundOff(billFeeValues[3] + billFeeValues[2]);
 
-        System.out.println("b.getVatPlusNetTotal() = " + b.getVatPlusNetTotal());
-        System.out.println("billItemVatPlusNetValue = " + roundOff(billItemVatPlusNetValue));
-        System.out.println("billFeeVatPlusNetValue = " + roundOff(billFeeVatPlusNetValue));
+        System.out.println("billFeeTotal = " + billFeeTotal);
+        System.out.println("billFeeDiscount = " + billFeeDiscount);
+        System.out.println("billFeeNetTotal = " + billFeeNetTotal);
+        System.out.println("billFeeVatPlusNetValue = " + billFeeVatPlusNetValue);
 
-        if (billFeeTotal != b.getTotal() || billFeeDiscount != b.getDiscount() || billFeeNetTotal != b.getNetTotal() || roundOff(billItemVatPlusNetValue) != roundOff(b.getVatPlusNetTotal())) {
+        if (billFeeTotal != b.getTotal() || billFeeDiscount != b.getDiscount() || billFeeNetTotal != b.getNetTotal() || roundOff(billFeeVatPlusNetValue) != roundOff(b.getVatPlusNetTotal())) {
             return true;
         }
-
-        System.out.println("b.getVatPlusNetTotal() = " + b.getVatPlusNetTotal());
-        System.out.println("billItemVatPlusNetValue = " + roundOff(billItemVatPlusNetValue));
-        System.out.println("billFeeVatPlusNetValue = " + roundOff(billFeeVatPlusNetValue));
 
         return false;
     }
