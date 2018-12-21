@@ -82,6 +82,9 @@
                             <p:column headerText="paidValue" rendered="#{webUserController.hasPrivilege('Developers')}">                                
                                 <h:outputLabel value="#{bf.paidValue}" ></h:outputLabel>                                    
                             </p:column>
+                            <p:column headerText="singleBillSession" rendered="#{webUserController.hasPrivilege('Developers')}">                                
+                                <h:outputLabel value="#{bf.bill.singleBillSession}" ></h:outputLabel>                                    
+                            </p:column>
                             <p:column headerText="feeValue" rendered="#{webUserController.hasPrivilege('Developers')}" >                                
                                 <h:outputLabel value="#{bf.feeValue}" ></h:outputLabel>                                    
                             </p:column>
