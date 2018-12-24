@@ -476,7 +476,7 @@ public class GoogleChartController implements Serializable {
         JSONArray arrays = new JSONArray();
 
         arrays.put(0, "Date");
-        arrays.put(1, "Channel Count");
+        arrays.put(1, "Count");
 //        arrays.put(2, "Scan Count");
         jSONArray1.put(arrays);
 
@@ -547,7 +547,7 @@ public class GoogleChartController implements Serializable {
         JSONArray arrays = new JSONArray();
 
         arrays.put(0, "Date");
-        arrays.put(1, "Channel Count");
+        arrays.put(1, "Count");
 //        arrays.put(2, "Scan Count");
         jSONArray1.put(arrays);
 
@@ -599,6 +599,83 @@ public class GoogleChartController implements Serializable {
 //
 //        System.out.println("2.Time(Channel 12) = " + new Date());
         commonController.printTimeDefference(startTime, "Time(Channel 12 Months)");
+        return jSONArray1.toString();
+
+    }
+    
+    public String drawChannelCountLastYearsChart() {
+        Date startTime = new Date();
+//        System.out.println("1.Time(Channel 12) = " + new Date());
+        Calendar cal = Calendar.getInstance();
+        int year=cal.get(Calendar.YEAR);
+        int month=cal.get(Calendar.MONTH);
+        cal.set(year, month, 31, 23, 59, 59);
+        Date toDate = cal.getTime();
+
+        cal = Calendar.getInstance();
+        year=cal.get(Calendar.YEAR);
+        cal.set(year-3, 00, 01, 00, 00, 00);
+        Date fromDate = cal.getTime();
+
+//        System.out.println("fromDate = " + fromDate);
+//        System.out.println("toDate = " + toDate);
+
+        JSONArray jSONArray1 = new JSONArray();
+        JSONArray arrays = new JSONArray();
+
+        arrays.put(0, "Date");
+        arrays.put(1, "Count");
+//        arrays.put(2, "Scan Count");
+        jSONArray1.put(arrays);
+
+        double netTot = 0.0;
+
+        JSONArray inarr = new JSONArray();
+        Date fd = commonFunctions.getStartOfDay(fromDate);
+        Date td = commonFunctions.getEndOfMonth(toDate);
+
+        DateFormat df = new SimpleDateFormat("yy MMM dd");
+        String formatedDate = df.format(fd);
+
+        BillType[] billTypes = new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent};
+        Class[] classes = new Class[]{CancelledBill.class, RefundBill.class};
+
+        List<Object[]> objects = fetchBillsTotalNewYear(billTypes, null, null, null, new BilledBill(), fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objects.size() = " + objects.size());
+        List<Object[]> objectsCan = fetchBillsTotalNewYear(billTypes, null, classes, null, null, fd, td, null, null, false, true, null, null, null);
+//        System.out.println("objectsCan.size() = " + objectsCan.size());
+        for (Object[] obj : objects) {
+//            System.out.println("objects[0] = " + obj[0]);
+            int d = (int) obj[0];
+            long tot = 0l;
+            for (Object[] ob1 : objects) {
+//                System.out.println("ob1[0] = " + ob1[0]);
+                if (d == (int) ob1[0]) {
+//                    System.out.println("ob1[1] = " + ob1[1]);
+                    tot += (long) ob1[1];
+                    break;
+                }
+            }
+            for (Object[] ob2 : objectsCan) {
+//                System.out.println("ob2[0] = " + ob2[0]);
+                if (d == (int) ob2[0]) {
+//                    System.out.println("ob2[1] = " + ob2[1]);
+                    tot -= (long) ob2[1];
+                    break;
+                }
+            }
+//            System.out.println("***obj[0] = " + obj[0]);
+//            System.out.println("***tot = " + tot);
+            arrays = new JSONArray();
+
+            arrays.put(0, d);
+            arrays.put(1, tot);
+            jSONArray1.put(arrays);
+        }
+//        System.out.println("jSONArray1 = " + jSONArray1.toString());
+//
+//        System.out.println("2.Time(Channel 12) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Channel Last Years)");
         return jSONArray1.toString();
 
     }
@@ -2160,6 +2237,152 @@ public class GoogleChartController implements Serializable {
                     + " order by b.createdAt ";
         } else {
             sql += " group by FUNC('Month',b.createdAt) "
+                    + " order by b.createdAt ";
+        }
+
+        m.put("fromDate", fd);
+        m.put("toDate", td);
+//        System.err.println("Sql " + sql);
+//        System.out.println("m = " + m);
+        if (count) {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        } else {
+            return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        }
+
+    }
+    
+    public List<Object[]> fetchBillsTotalNewYear(BillType[] billTypes, BillType bt, Class[] bills, Class[] nbills, Bill b, Date fd, Date td, Institution billedInstitution, Institution creditCompany, boolean withOutDocFee, boolean count, Staff staff, Speciality sp, WebUser webUser) {
+
+        String sql = "";
+        Map m = new HashMap();
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql = " select FUNC('Year',b.singleBillSession.sessionDate), count(b) ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql = " select FUNC('Year',b.createdAt), count(b) ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql = " select FUNC('Year',b.createdAt), count(b) ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql = " select FUNC('Year',b.createdAt), count(b) ";
+                } else {
+//                    System.err.println("billed");
+                    sql = " select FUNC('Year',b.singleBillSession.sessionDate), count(b) ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql = " select FUNC('Year',b.createdAt), sum(b.netTotal-b.staffFee) ";
+        } else {
+            sql = " select FUNC('Year',b.createdAt), sum(b.netTotal) ";
+        }
+
+        sql += " from Bill b "
+                + " where b.retired=false ";
+
+        if (b != null) {
+            if (b.getClass().equals(BilledBill.class)) {
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(CancelledBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+            if (b.getClass().equals(RefundBill.class)) {
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            }
+        }
+
+        if (bills != null) {
+            if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                System.err.println("Can or Ref");
+                sql += " and b.createdAt between :fromDate and :toDate ";
+            } else {
+//                System.err.println("billed");
+                sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate ";
+            }
+        }
+
+        if (billTypes != null) {
+            sql += " and b.billType in :bt ";
+            List<BillType> bts = Arrays.asList(billTypes);
+            m.put("bt", bts);
+        }
+        if (bt != null) {
+            sql += " and b.billType=:bt ";
+            m.put("bt", bt);
+        }
+        if (bills != null) {
+            sql += " and type(b) in :class ";
+            List<Class> cs = Arrays.asList(bills);
+            m.put("class", cs);
+        }
+        if (nbills != null) {
+            sql += " and type(b) not in :nclass ";
+            List<Class> ncs = Arrays.asList(nbills);
+            m.put("nclass", ncs);
+        }
+        if (b != null) {
+            sql += " and type(b)=:class ";
+            m.put("class", b.getClass());
+        }
+        if (billedInstitution != null) {
+            sql += " and b.institution=:ins ";
+            m.put("ins", billedInstitution);
+        }
+        if (creditCompany != null) {
+            sql += " and b.creditCompany=:cc ";
+            m.put("cc", creditCompany);
+        }
+        if (staff != null) {
+            sql += " and b.staff=:s ";
+            m.put("s", staff);
+        }
+        if (webUser != null) {
+            sql += " and b.creater=:wu ";
+            m.put("wu", webUser);
+        }
+        if (sp != null) {
+            sql += " and b.staff.speciality=:sp ";
+            m.put("sp", sp);
+        }
+
+        if (count) {
+            if (b != null) {
+                if (b.getClass().equals(BilledBill.class)) {
+                    sql += " group by FUNC('Year',b.singleBillSession.sessionDate) "
+                            + " order by b.singleBillSession.sessionDate ";
+                }
+                if (b.getClass().equals(CancelledBill.class)) {
+                    sql += " group by FUNC('Year',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+                if (b.getClass().equals(RefundBill.class)) {
+                    sql += " group by FUNC('Year',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+            if (bills != null) {
+                if (Arrays.asList(bills).contains(CancelledBill.class) || Arrays.asList(bills).contains(RefundBill.class)) {
+//                    System.err.println("Can or Ref");
+                    sql += " group by FUNC('Year',b.createdAt) "
+                            + " order by b.createdAt ";
+                } else {
+//                    System.err.println("billed");
+                    sql += " group by FUNC('Year',b.createdAt) "
+                            + " order by b.createdAt ";
+                }
+            }
+        } else if (withOutDocFee) {
+            sql += " group by FUNC('Year',b.createdAt) "
+                    + " order by b.createdAt ";
+        } else {
+            sql += " group by FUNC('Year',b.createdAt) "
                     + " order by b.createdAt ";
         }
 

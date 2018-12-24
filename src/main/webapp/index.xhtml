@@ -26,21 +26,28 @@
                                          and sessionController.logged
                                          and !sessionController.firstLogin 
                                          and sessionController.department ne null}">
-                        <a href="/ruhunu1/faces/hr/hr_report_dashboard.xhtml"  >
+                        <p:commandLink ajax="false" action="/hr/hr_report_dashboard.xhtml">
                             <p:graphicImage library="image/dashboard" id="hr"
                                             name="hr.png" cache="false"
                                             style="height: 64px; width: 64px; margin: 5px;"  >
                             </p:graphicImage>
                             <poue:tooltip for="hr" value="HR Dashboard" />
-                        </a>
-                        <!--<p:spacer width="10" />-->
-                        <a href="/ruhunu1/faces/reportIncome/report_dashboard.xhtml"  >
+                        </p:commandLink>
+
+                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_accounts">
                             <p:graphicImage library="image/dashboard" id="acc"
                                             name="account.png" cache="false"
                                             style="height: 64px; width: 64px; margin: 5px;"  >
                             </p:graphicImage>
                             <poue:tooltip for="acc" value="Accounts Dashboard" />
-                        </a>
+                        </p:commandLink>
+                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_lab">
+                            <p:graphicImage library="image/dashboard" id="lab"
+                                            name="account.png" cache="false"
+                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                            </p:graphicImage>
+                            <poue:tooltip for="lab" value="Laboratory Dashboard" />
+                        </p:commandLink>
                     </p:panel>
                 </h:form>
 

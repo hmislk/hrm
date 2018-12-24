@@ -44,7 +44,7 @@
                             var data = google.visualization.arrayToDataTable(rowdata);
                             var options = {
                                 hAxis: {
-                                    title: 'Date'
+                                    title: 'Month'
                                 },
                                 vAxis: {
                                     title: 'Count'
@@ -52,6 +52,26 @@
                             };
 
                             var chart = new google.visualization.LineChart(document.getElementById('chart_channel_12'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawChannelCountLastYearsChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Year'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_channel_years'));
                             chart.draw(data, options);
                         }
                     </script>
@@ -129,77 +149,10 @@
                             chart.draw(data, options);
                         }
                     </script>
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-                        function drawChart() {
-                            var rowdata =#{googleChartController.drawInvestigationCountYesterday()}
-                            var data = google.visualization.arrayToDataTable(rowdata);
-                            var options = {
-//                                title: 'Employee Head Count',
-//                                is3D: true,
-                                legend: { position: 'top', maxLines: 3 },
-                                isStacked: true,
-                                
-                            };
-                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_investigation_count'));
-                            chart.draw(data, options);
-                        }
-                    </script>
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-                        function drawChart() {
-                            var rowdata =#{googleChartController.drawInvestigationCountLast30Days()}
-                            var data = google.visualization.arrayToDataTable(rowdata);
-                            var options = {
-//                                title: 'Employee Head Count',
-//                                is3D: true,
-                                legend: { position: 'top', maxLines: 3 },
-                                isStacked: true,
-                                
-                            };
-                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_investigation_count_last_month'));
-                            chart.draw(data, options);
-                        }
-                    </script>
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-                        function drawChart() {
-                            var rowdata =#{googleChartController.drawMachineViseCountYesterday()}
-                            var data = google.visualization.arrayToDataTable(rowdata);
-                            var options = {
-//                                title: 'Employee Head Count',
-//                                is3D: true,
-                                legend: { position: 'top', maxLines: 3 },
-                                isStacked: true,
-                                
-                            };
-                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_machine_count'));
-                            chart.draw(data, options);
-                        }
-                    </script>
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-                        function drawChart() {
-                            var rowdata =#{googleChartController.drawMachineViseCountLast30Days()}
-                            var data = google.visualization.arrayToDataTable(rowdata);
-                            var options = {
-//                                title: 'Employee Head Count',
-//                                is3D: true,
-                                legend: { position: 'top', maxLines: 3 },
-                                isStacked: true,
-                                
-                            };
-                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_machine_count_last_month'));
-                            chart.draw(data, options);
-                        }
-                    </script>
                     <center>
                         <p:panel>
                             <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
+                            <h2 style="color: #107710">Accounts</h2>
                             <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
                             <h3>
                                 <h:outputLabel value="#{commonController.currentDateTime}">
@@ -216,6 +169,11 @@
                             <h:panelGrid>
                                 <p:panel header="Channel Counts Of Last 12 Months" >
                                     <div id="chart_channel_12" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last Years" >
+                                    <div id="chart_channel_years" style="width: 700px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid>
@@ -239,27 +197,8 @@
                                     <div id="piechart_inward_credit" style="width: 740px; height: 750px;"></div>
                                 </p:panel>
                             </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                <p:panel header="Investigation Count Yesterday">
-                                    <div id="chart_investigation_count" style="width: 1500px; height: 500px;"></div>
-                                </p:panel>
-                            </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                <p:panel header="Investigation Count Last 30 Days">
-                                    <div id="chart_investigation_count_last_month" style="width: 1500px; height: 500px;"></div>
-                                </p:panel>
-                            </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                <p:panel header="Machine Vise Count Yesterday">
-                                    <div id="chart_machine_count" style="width: 740px; height: 500px;"></div>
-                                </p:panel>
-                                <p:panel header="Machine Vise Count Last 30 Days">
-                                    <div id="chart_machine_count_last_month" style="width: 740px; height: 500px;"></div>
-                                </p:panel>
-                            </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                
-                            </h:panelGrid>
+
+
                         </p:panel>
                     </center>
                 </h:form>
