@@ -44,7 +44,7 @@
                             <p:printer target="panelPrint" />
                         </p:commandButton>
 
-                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummery()}" value="Excel" ajax="false">
+                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummeryOP()}" value="Excel" ajax="false">
                             <pe:exporter type="xlsx" target="opd" fileName="Service_Summery_By_Category"  />
                         </p:commandButton>
                     </h:panelGrid>
