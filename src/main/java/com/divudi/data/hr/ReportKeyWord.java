@@ -501,7 +501,7 @@ public class ReportKeyWord {
 
     public Date getToDate() {
         if (toDate == null) {
-            toDate = commonFunctions.getEndOfMonth();
+            toDate = commonFunctions.getEndOfMonth(new Date());
         }
         return toDate;
     }

@@ -8,6 +8,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
+import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.InvestigationSummeryData;
 import com.divudi.data.dataStructure.ItemInstitutionCollectingCentreCountRow;
@@ -556,6 +557,36 @@ public class InvestigationMonthSummeryOwnController implements Serializable {
         m.put("fromDate", getFromDate());
 //        m.put("mac", ma);
         m.put("bts", bts);
+        m.put("ins", institution);
+        return getBillItemFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+    }
+
+    private List<Object[]> getCountWithInvestigation(List<BillType> bts, boolean b) {
+        String sql = "";
+        Map m = new HashMap();
+        if (b) {
+            sql = "select bi.item, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType, sum(bf.feeValue) ";
+        } else {
+            sql = "select bi.item.machine, bi.item, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType, sum(bf.feeValue) ";
+        }
+        sql += " FROM BillFee bf join bf.billItem bi where "
+                + " bi.bill.billType in :bts "
+                + " and type(bi.item)=:iClass "
+                + " and (bi.bill.toInstitution=:ins or bi.item.department.institution=:ins ) "
+                + " and bi.bill.createdAt between :fromDate and :toDate ";
+        if (b) {
+            sql += " and bi.item.machine is null "
+                    + " group by bi.item, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType "
+                    + " order by bi.item.name, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType ";
+        } else {
+            sql += " group by bi.item.machine, bi.item, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType "
+                    + " order by bi.item.machine.name, bi.item.name, bi.bill.billType, bi.bill.billClassType, bf.fee.feeType ";
+        }
+        m.put("toDate", getToDate());
+        m.put("fromDate", getFromDate());
+        m.put("bts", bts);
+        m.put("iClass", Investigation.class);
         m.put("ins", institution);
         return getBillItemFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
 
@@ -1548,6 +1579,179 @@ public class InvestigationMonthSummeryOwnController implements Serializable {
 
         investigationCountWithMachines.add(row);
         System.out.println("investigationCountWithMachines.size() = " + investigationCountWithMachines.size());
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Reports/lab Report/Investigation Count/Machine count by bill type(/faces/reportLab/count_by_machine_and_bill_type.xhtml) new ");
+    }
+
+    public void createLabServiceWithCountAndValueByMachineInvestigationAndBillTypeSpecial() {
+
+        Date startTime = new Date();
+        investigationCountWithMachines = new ArrayList<>();
+        totalCount = 0;
+        totalOpdCount = 0;
+        totalccCount = 0;
+        totalInwardCount = 0;
+        total = 0;
+        totalOpd = 0;
+        totalcc = 0;
+        totalInward = 0;
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = getCountWithInvestigation(Arrays.asList(bts), false);
+        InvestigationCountWithMachine row = new InvestigationCountWithMachine();
+        InvestigationCountWithMachine rowInv = new InvestigationCountWithMachine();
+        List<InvestigationCountWithMachine> listRowInv = new ArrayList<>();
+        int j = 1;
+        Machine lastMachine = null;
+        Investigation lastInvestigation = null;
+        for (Object[] ob : objects) {
+//            bi.item.machine, bi.item, bi.bill.billType, bi.bill.billClassType, bf.feeType, sum(bf.feeValue) ;
+            Machine m = (Machine) ob[0];
+            System.out.println("m.getName() = " + m.getName());
+            Investigation i = (Investigation) ob[1];
+            System.out.println("i.getName() = " + i.getName());
+            BillType bt = (BillType) ob[2];
+            System.out.println("bt = " + bt);
+            BillClassType classType = (BillClassType) ob[3];
+            System.out.println("classType = " + classType);
+            FeeType ft = (FeeType) ob[4];
+            System.out.println("ft = " + ft);
+            double tot = (double) ob[5];
+            System.out.println("tot = " + tot);
+            if (bt == BillType.CollectingCentreBill && ft == FeeType.CollectingCentre) {
+                tot = 0.0;
+                System.out.println("tot (Collecting Centre Bill) = " + tot);
+            }
+            if (m == null) {
+                continue;
+            }
+            if (lastMachine == null) {
+                row.setMachine(m);
+                lastMachine = m;
+                if (lastInvestigation == null) {
+                    rowInv.setInvestigation(i);
+                    rowInv.setCountAndTotal(0, bt, classType, tot);
+                    lastInvestigation = i;
+                } else {
+                    if (lastInvestigation == i) {
+                        rowInv.setCountAndTotal(0, bt, classType, tot);
+                    } else {
+                        listRowInv.add(rowInv);
+                        rowInv = new InvestigationCountWithMachine();
+                        rowInv.setInvestigation(i);
+                        rowInv.setCountAndTotal(0, bt, classType, tot);
+                        lastInvestigation = i;
+                    }
+                }
+            } else {
+                if (lastMachine == m) {
+                    if (lastInvestigation == null) {
+                        rowInv.setInvestigation(i);
+                        rowInv.setCountAndTotal(0, bt, classType, tot);
+                        lastInvestigation = i;
+                    } else {
+                        if (lastInvestigation == i) {
+                            rowInv.setCountAndTotal(0, bt, classType, tot);
+                        } else {
+                            rowInv.setCount(0);
+                            rowInv.setTotal(rowInv.getOpdTotal() + rowInv.getCcTotal() + rowInv.getInwardTotal());
+
+                            row.setOpdCount(row.getOpdCount() + rowInv.getOpdCount());
+                            row.setCcCount(row.getCcCount() + rowInv.getCcCount());
+                            row.setInwardCount(row.getInwardCount() + rowInv.getInwardCount());
+                            row.setCount(row.getOpdCount() + row.getCcCount() + row.getInwardCount());
+
+                            row.setOpdTotal(row.getOpdTotal() + rowInv.getOpdTotal());
+                            row.setCcTotal(row.getCcTotal() + rowInv.getCcTotal());
+                            row.setInwardTotal(row.getInwardTotal() + rowInv.getInwardTotal());
+                            row.setTotal(row.getOpdTotal() + row.getCcTotal() + row.getInwardTotal());
+
+                            listRowInv.add(rowInv);
+                            rowInv = new InvestigationCountWithMachine();
+                            rowInv.setInvestigation(i);
+                            rowInv.setCountAndTotal(0, bt, classType, tot);
+                            lastInvestigation = i;
+                        }
+                    }
+                } else {
+                    rowInv.setCount(rowInv.getOpdCount() + rowInv.getCcCount() + rowInv.getInwardCount());
+                    rowInv.setTotal(rowInv.getOpdTotal() + rowInv.getCcTotal() + rowInv.getInwardTotal());
+
+                    row.setOpdCount(row.getOpdCount() + rowInv.getOpdCount());
+                    row.setCcCount(row.getCcCount() + rowInv.getCcCount());
+                    row.setInwardCount(row.getInwardCount() + rowInv.getInwardCount());
+                    row.setCount(row.getOpdCount() + row.getCcCount() + row.getInwardCount());
+
+                    row.setOpdTotal(row.getOpdTotal() + rowInv.getOpdTotal());
+                    row.setCcTotal(row.getCcTotal() + rowInv.getCcTotal());
+                    row.setInwardTotal(row.getInwardTotal() + rowInv.getInwardTotal());
+                    row.setTotal(row.getOpdTotal() + row.getCcTotal() + row.getInwardTotal());
+
+                    listRowInv.add(rowInv);
+                    rowInv = new InvestigationCountWithMachine();
+                    row.setListOfInvestigationCounts(listRowInv);
+                    listRowInv = new ArrayList<>();
+//                    System.err.println("***********");
+//                    System.out.println("totalCount = " + totalCount);
+//                    System.out.println("total = " + total);
+//                    System.err.println("***********");
+                    totalOpdCount += row.getOpdCount();
+                    totalccCount += row.getCcCount();
+                    totalInwardCount += row.getInwardCount();
+//                    totalCount += (totalOpdCount + totalccCount + totalInwardCount);
+
+                    totalOpd += row.getOpdTotal();
+                    totalcc += row.getCcTotal();
+                    totalInward += row.getInwardTotal();
+//                    total += (totalOpd + totalcc + totalInward);
+
+                    investigationCountWithMachines.add(row);
+//                    System.out.println("row.getMachine().getName() = " + row.getMachine().getName());
+//                    System.out.println("totalCount = " + totalCount);
+//                    System.out.println("total = " + total);
+                    System.err.println("********Add********");
+                    row = new InvestigationCountWithMachine();
+                    row.setMachine(m);
+                    lastMachine = m;
+                    if (lastInvestigation == null) {
+                        System.err.println("****LIN****");
+                        rowInv.setInvestigation(i);
+                        rowInv.setCountAndTotal(0, bt, classType, tot);
+                        lastInvestigation = i;
+                    } else {
+                        if (lastInvestigation == i) {
+                            rowInv.setCountAndTotal(0, bt, classType, tot);
+                        } else {
+                            rowInv = new InvestigationCountWithMachine();
+                            rowInv.setInvestigation(i);
+                            rowInv.setCountAndTotal(0, bt, classType, tot);
+                            lastInvestigation = i;
+                        }
+                    }
+                }
+            }
+
+//            System.err.println("***" + j + "***");
+//            System.out.println("m.getName() = " + m.getName());
+//            System.out.println("i.getName() = " + i.getName());
+//            System.err.println("*****");
+//            j++;
+        }
+        total = (totalOpd + totalcc + totalInward);
+//        objects = getCountWithInvestigation(Arrays.asList(bts), true);
+//        System.err.println("*******************");
+//        for (Object[] ob : objects) {
+//            Item i=(Item) ob[0];
+//            System.out.println("i.getName() = " + i.getName());
+//            BillType bt=(BillType) ob[1];
+//            System.out.println("bt = " + bt);
+//            BillClassType bct=(BillClassType) ob[2];
+//            System.out.println("bct = " + bct);
+//            FeeType ft=(FeeType) ob[3];
+//            System.out.println("ft = " + ft);
+//            double d=(double) ob[4];
+//            System.out.println("d = " + d);
+//        }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/lab Report/Investigation Count/Machine count by bill type(/faces/reportLab/count_by_machine_and_bill_type.xhtml) new ");
     }

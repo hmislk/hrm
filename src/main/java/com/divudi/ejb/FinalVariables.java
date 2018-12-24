@@ -92,6 +92,13 @@ public class FinalVariables {
         int maxRowNumber = 0;
         for (Long s : inputSessions) {
             ServiceSession ss = serviceSessionFacade.find(s);
+            if (ss.getMaxTableRows() > 0) {
+                System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
+                System.out.println("ss.getSessionWeekday() = " + ss.getSessionWeekday());
+                System.out.println("ss.getMaxTableRows() = " + ss.getMaxTableRows());
+                System.out.println("ss.getCreater().getWebUserPerson().getName() = " + ss.getCreater().getWebUserPerson().getName());
+
+            }
 //            System.out.println("maxRowNumber = " + maxRowNumber);
 //            System.out.println("ss.getMaxTableRows() = " + ss.getMaxTableRows());
             if (maxRowNumber < ss.getMaxTableRows()) {
@@ -154,11 +161,11 @@ public class FinalVariables {
             return 1;
         }
     }
-    
-    public double getWithHoldingTaxRate(){
+
+    public double getWithHoldingTaxRate() {
         if (sessionController.getInstitutionPreference().getApplicationInstitution() == ApplicationInstitution.Ruhuna) {
             return 0.05;
-        }else{
+        } else {
             return 0;
         }
     }

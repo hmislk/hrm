@@ -10,6 +10,7 @@ import com.divudi.bean.common.DoctorSpecialityController;
 import com.divudi.bean.common.PriceMatrixController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.bean.common.WebUserController;
 import com.divudi.bean.memberShip.PaymentSchemeController;
 import com.divudi.data.ApplicationInstitution;
 import com.divudi.data.BillClassType;
@@ -155,6 +156,8 @@ public class ChannelBillController implements Serializable {
     private PaymentSchemeController paymentSchemeController;
     @Inject
     CommonController commonController;
+    @Inject
+    WebUserController webUserController;
     //////////////////////////////
     @EJB
     private BillNumberGenerator billNumberBean;
@@ -1363,7 +1366,6 @@ public class ChannelBillController implements Serializable {
         }
 
 //        UtilityController.addSuccessMessage("Cancelled");
-
     }
 
 //    private void cancelBillItemsOld(CancelledBill can) {
@@ -1973,6 +1975,14 @@ public class ChannelBillController implements Serializable {
                 errorText = "Please select Agency";
                 UtilityController.addErrorMessage("Please select Agency");
                 return true;
+            }
+            if (institution.getId() == 20385287 && webUserController.hasPrivilege("Developers")) {
+                System.out.println("institution.getName() = " + institution.getName());
+                if (getAgentReferenceBookController().checkAgentReferenceNumberAlredyExsist(getAgentRefNo(), institution, BillType.ChannelAgent, PaymentMethod.Agent)) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
             if (institution.isInactive()) {
                 errorText = "This Agency is Inactve. Please contact Channel Agency Cordinator.";
@@ -2938,7 +2948,7 @@ public class ChannelBillController implements Serializable {
     public void listnerComment() {
         System.out.println("getBillSession = " + getBillSession());
         System.out.println("getBillSessionTmp = " + getBillSessionTmp());
-        if (getBillSession()==null) {
+        if (getBillSession() == null) {
             setBillSession(getBillSessionTmp());
         }
         System.out.println("getBillSession = " + getBillSession());

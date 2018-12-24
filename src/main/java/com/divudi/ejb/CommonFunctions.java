@@ -307,6 +307,7 @@ public class CommonFunctions {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MONTH, 1);
+        calendar.set(calendar.DATE, 1);
 
 //        System.out.println("1.calendar.getTime() = " + calendar.getTime());
         calendar.add(Calendar.DATE, -1);

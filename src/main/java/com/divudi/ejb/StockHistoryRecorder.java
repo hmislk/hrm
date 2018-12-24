@@ -288,13 +288,20 @@ public class StockHistoryRecorder {
     public void generateSessions(Staff staff) {
         String sql;
         Map m = new HashMap();
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        System.out.println("cal.getTime() = " + cal.getTime());
         m.put("staff", staff);
         m.put("class", ServiceSession.class);
+        m.put("d", cal.getTime());
         System.err.println("Time stage 1 = " + new Date());
         if (staff != null) {
             sql = "Select s.id From ServiceSession s "
                     + " where s.retired=false "
                     + " and s.staff=:staff "
+                    + " and ((s.sessionDate>=:d and s.sessionWeekday is null) or (s.sessionDate is null and s.sessionWeekday is not null)) "
                     + " and s.originatingSession is null "
                     + " and type(s)=:class "
                     + " order by s.sessionWeekday,s.startingTime ";

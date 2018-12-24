@@ -1412,6 +1412,42 @@ public class ServiceSummery implements Serializable {
 
     }
 
+    public void createServiceCategorySummeryNew() {
+        Date startTime = new Date();
+
+        if (getCategory() == null) {
+            return;
+        }
+        if (getToDate() == null || getFromDate() == null) {
+            return;
+        }
+
+        billItemWithFees = new ArrayList<>();
+
+        List<Object[]> list = getBillItemByCategory(category, BillType.OpdBill);
+//        List<BillItem> list = calBillItems(BillType.OpdBill, false);
+
+        System.out.println("list.size() = " + list.size());
+        
+        for (Object[] ob : list) {
+            long id=(long) ob[0];
+            System.out.println("id = " + id);
+            String billId=(String) ob[1];
+            System.out.println("billId = " + billId);
+            String billedId=(String) ob[2];
+            System.out.println("billedId = " + billedId);
+            String ccName=(String) ob[3];
+            System.out.println("ccName = " + ccName);
+            Date billDate  =(Date) ob[4];
+            System.out.println("billDate = " + billDate);
+            String itemName=(String) ob[5];
+            System.out.println("itemName = " + itemName);
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Summery by service OPD/ Summery by service category(/faces/reportInstitution/report_opd_service_summery_by_category.xhtml)");
+
+    }
+
     public void createInvestigationCategorySummery() {
         Date startTime = new Date();
 
@@ -1702,6 +1738,52 @@ public class ServiceSummery implements Serializable {
 
         temMap.put("cat", cat);
         List<BillItem> tmp = getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+
+        return tmp;
+
+    }
+
+    private List<Object[]> getBillItemByCategory(Category cat, BillType billType) {
+        String sql;
+        Map temMap = new HashMap();
+
+        sql = "select bi.id,bi.bill.insId,bi.bill.billedBill.insId,bi.bill.creditCompany.name,"
+                + " bi.createdAt,bi.item.name "
+                + " FROM BillItem bi "
+                + " where  bi.bill.institution=:ins "
+                + " and  bi.bill.billType= :bTp  "
+                + " and bi.item.category=:cat "
+                + " and bi.retired=false ";
+
+        if (billType != BillType.InwardBill) {
+            if (credit) {
+                sql += " and bi.bill.paymentMethod = :pm ";
+
+                temMap.put("pm", PaymentMethod.Credit);
+            } else {
+                sql += " and ( bi.bill.paymentMethod = :pm1 "
+                        + " or  bi.bill.paymentMethod = :pm2 "
+                        + " or  bi.bill.paymentMethod = :pm3"
+                        + " or  bi.bill.paymentMethod = :pm4) ";
+
+                temMap.put("pm1", PaymentMethod.Cash);
+                temMap.put("pm2", PaymentMethod.Card);
+                temMap.put("pm3", PaymentMethod.Cheque);
+                temMap.put("pm4", PaymentMethod.Slip);
+            }
+
+        }
+
+        sql += " and  bi.bill.createdAt between :fromDate and :toDate ";
+
+        sql += " order by bi.item.name";
+        temMap.put("toDate", getToDate());
+        temMap.put("fromDate", getFromDate());
+        temMap.put("ins", getSessionController().getInstitution());
+        temMap.put("bTp", billType);
+
+        temMap.put("cat", cat);
+        List<Object[]> tmp = getBillItemFacade().findAggregates(sql, temMap, TemporalType.TIMESTAMP);
 
         return tmp;
 

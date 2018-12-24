@@ -5,6 +5,7 @@
  */
 package com.divudi.bean.inward;
 
+import com.divudi.bean.common.BillBeanController;
 import com.divudi.bean.common.CommonController;
 import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
@@ -17,8 +18,10 @@ import com.divudi.entity.Bill;
 import com.divudi.entity.BillFee;
 import com.divudi.entity.BillItem;
 import com.divudi.entity.Category;
+import com.divudi.entity.Fee;
 import com.divudi.entity.Institution;
 import com.divudi.entity.Item;
+import com.divudi.entity.ItemFee;
 import com.divudi.entity.PatientEncounter;
 import com.divudi.entity.PatientItem;
 import com.divudi.entity.Speciality;
@@ -78,6 +81,8 @@ public class InwardReportControllerBht implements Serializable {
     ////
     @Inject
     CommonController commonController;
+    @Inject
+    private BillBeanController billBean;
 
     double opdSrviceGross;
     double opdServiceMargin;
@@ -329,6 +334,17 @@ public class InwardReportControllerBht implements Serializable {
         billItem.setNetValue((billItem.getGrossValue() + billItem.getMarginValue()) - billItem.getDiscount());
 
         billItemFacade.edit(billItem);
+    }
+    
+    public void createBillFee(BillItem billItem) {
+        List<ItemFee> itemFee = getBillBean().getItemFee(billItem);
+
+        for (Fee i : itemFee) {
+            BillFee billFee = getBillBean().createBillFee(billItem, i);
+            billFee.setBill(billItem.getBill());
+            getBillFeeFacade().create(billFee);
+            System.err.println("** Added **");
+        }
     }
 
     public void updatePatientBillItem(PatientItem patientItem) {
@@ -1182,6 +1198,14 @@ public class InwardReportControllerBht implements Serializable {
 
     public void setPatientRooms(List<PatientRoom> patientRooms) {
         this.patientRooms = patientRooms;
+    }
+
+    public BillBeanController getBillBean() {
+        return billBean;
+    }
+
+    public void setBillBean(BillBeanController billBean) {
+        this.billBean = billBean;
     }
 
     //DATA STRUCTURE

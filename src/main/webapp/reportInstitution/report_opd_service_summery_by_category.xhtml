@@ -36,7 +36,7 @@
                     <h:panelGrid columns="5" styleClass="noPrintButton">
                         <p:spacer width="190" height="1"/>
                         <p:commandButton value="Refresh" ajax="false" id="btnRefresh"  
-                                         actionListener="#{serviceSummery.createServiceCategorySummery()}"
+                                         actionListener="#{serviceSummery.createServiceCategorySummeryNew()}"
                                          styleClass="noPrintButton" style="float: right;" />
                         <p:defaultCommand target="btnRefresh"/>
 
@@ -44,7 +44,7 @@
                             <p:printer target="panelPrint" />
                         </p:commandButton>
 
-                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummery()}" value="Excel" ajax="false">
+                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummeryNew()}" value="Excel" ajax="false">
                             <pe:exporter type="xlsx" target="opd" fileName="Service_Summery_By_Category"  />
                         </p:commandButton>
                     </h:panelGrid>

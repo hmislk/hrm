@@ -1560,7 +1560,7 @@ public class BillBeanController implements Serializable {
                 + " and b.institution=:ins "
                 + " and b.paymentMethod = :bTp "
                 + " and b.createdAt between :fromDate and :toDate "
-                + " and b.retired=false"
+                + " and b.retired=false "
                 + " order by b.id desc  ";
 
         temMap.put("bTp", paymentMethod);
@@ -1568,6 +1568,31 @@ public class BillBeanController implements Serializable {
         temMap.put("fromDate", fromDate);
         temMap.put("type", PreBill.class);
         temMap.put("ins", institution);
+        lstBills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+
+        return lstBills;
+
+    }
+
+    public List<Bill> fetchBills(PaymentMethod paymentMethod, Date fromDate, Date toDate, Institution institution, BillType[] withoutBillTypes) {
+        List<Bill> lstBills;
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select b from Bill b "
+                + " where type(b)!=:type "
+                + " and b.institution=:ins "
+                + " and b.paymentMethod = :bTp "
+                + " and b.createdAt between :fromDate and :toDate "
+                + " and b.retired=false "
+                + " and b.billType not in :wbts "
+                + " order by b.id desc  ";
+
+        temMap.put("bTp", paymentMethod);
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+        temMap.put("type", PreBill.class);
+        temMap.put("ins", institution);
+        temMap.put("wbts", Arrays.asList(withoutBillTypes));
         lstBills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
 
         return lstBills;
@@ -1584,7 +1609,7 @@ public class BillBeanController implements Serializable {
                 + " and b.institution=:ins "
                 + " and b.paymentMethod = :bTp "
                 + " and b.createdAt between :fromDate and :toDate "
-                + " and b.retired=false"
+                + " and b.retired=false "
                 + " order by b.id desc  ";
 
         temMap.put("bTp", paymentMethod);
@@ -1592,6 +1617,31 @@ public class BillBeanController implements Serializable {
         temMap.put("fromDate", fromDate);
         temMap.put("type", PreBill.class);
         temMap.put("ins", institution);
+
+        return getBillFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+
+    }
+
+    public double calBillTotal(PaymentMethod paymentMethod, Date fromDate, Date toDate, Institution institution, BillType[] withoutBillTypes) {
+
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select sum(b.netTotal) "
+                + " from Bill b "
+                + " where type(b)!=:type "
+                + " and b.institution=:ins "
+                + " and b.paymentMethod = :bTp "
+                + " and b.createdAt between :fromDate and :toDate "
+                + " and b.retired=false "
+                + " and b.billType not in :wbts "
+                + " order by b.id desc  ";
+
+        temMap.put("bTp", paymentMethod);
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+        temMap.put("type", PreBill.class);
+        temMap.put("ins", institution);
+        temMap.put("wbts", Arrays.asList(withoutBillTypes));
 
         return getBillFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
 
@@ -1786,7 +1836,7 @@ public class BillBeanController implements Serializable {
         return getBillFeeFacade().findAggregates(sql, temMap, TemporalType.TIMESTAMP);
 
     }
-    
+
     public List<Object[]> fetchBilledDepartmentItem(Date fromDate, Date toDate, Department department, BillType bt, boolean toDep) {
         String sql;
         Map temMap = new HashMap();
@@ -2872,6 +2922,13 @@ public class BillBeanController implements Serializable {
             }
         }
 
+        staff = roundOff(staff);
+        ins = roundOff(ins);
+        tot = roundOff(tot);
+        dis = roundOff(dis);
+        net = roundOff(net);
+        vat = roundOff(vat);
+
         bill.setStaffFee(staff);
         bill.setPerformInstitutionFee(ins);
 
@@ -3499,7 +3556,7 @@ public class BillBeanController implements Serializable {
         bfp.setPayment(p);
         getBillFeePaymentFacade().create(bfp);
     }
-    
+
     private double roundOff(double d) {
         DecimalFormat newFormat = new DecimalFormat("#.##");
         try {

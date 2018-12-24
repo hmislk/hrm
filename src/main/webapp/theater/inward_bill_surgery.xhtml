@@ -64,7 +64,7 @@
                                 </h:panelGroup>
                             </p:panel>
                             <p:panel>
-                                <p:panelGrid columns="2" >
+                                <h:panelGrid columns="2" >
                                     <h:outputLabel value="Surgery Name" >
                                     </h:outputLabel>
                                     <p:autoComplete forceSelection="true"
@@ -73,8 +73,22 @@
                                                     var="apt2" itemLabel="#{apt2.name}"
                                                     itemValue="#{apt2}" size="30"  style="width: 400px;">
                                     </p:autoComplete>
-
-                                </p:panelGrid>
+                                    <h:outputText value="Speciality"/>
+                                        <p:autoComplete converter="specilityCon"   forceSelection="true" id="cmbSpe" 
+                                                        value="#{inwardProfessionalBillController.proEncounterComponent.billFee.speciality}" 
+                                                        completeMethod="#{specialityController.completeSpeciality}" var="sp" 
+                                                        itemLabel="#{sp.name}" 
+                                                        itemValue="#{sp}" size="30"  style="width: 400px;">
+                                            <f:ajax event="itemSelect" execute="cmbSpe" render="cmbDoc" />
+                                        </p:autoComplete>
+                                        <h:outputText value="Doctor/Staff"/>
+                                        <p:autoComplete converter="stfcon"  forceSelection="true" id="cmbDoc" 
+                                                        value="#{surgeryBillController.staff}" 
+                                                        completeMethod="#{inwardProfessionalBillController.completeItems}" var="st" 
+                                                        itemLabel="#{st.person.nameWithTitle}" itemValue="#{st}" size="30" 
+                                                        style="width: 400px;">
+                                        </p:autoComplete>
+                                </h:panelGrid>
                             </p:panel>
                         </h:panelGrid>
                     </p:panel>
