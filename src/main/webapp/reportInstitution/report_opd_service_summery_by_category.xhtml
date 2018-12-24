@@ -20,7 +20,7 @@
                         <h:outputLabel value="From Date"/>
                         <p:calendar id="frmDate" value="#{serviceSummery.fromDate}" navigator="true"  pattern="dd MMMM yyyy  HH:mm:ss" >
                         </p:calendar>
-                        
+
                         <h:outputLabel value="To Date"/>
                         <p:calendar id="toDate" value="#{serviceSummery.toDate}" navigator="true" pattern="dd MMMM yyyy  HH:mm:ss" >
                         </p:calendar>
@@ -36,7 +36,7 @@
                     <h:panelGrid columns="5" styleClass="noPrintButton">
                         <p:spacer width="190" height="1"/>
                         <p:commandButton value="Refresh" ajax="false" id="btnRefresh"  
-                                         actionListener="#{serviceSummery.createServiceCategorySummeryNew()}"
+                                         actionListener="#{serviceSummery.createServiceCategorySummeryOP()}"
                                          styleClass="noPrintButton" style="float: right;" />
                         <p:defaultCommand target="btnRefresh"/>
 
@@ -44,7 +44,7 @@
                             <p:printer target="panelPrint" />
                         </p:commandButton>
 
-                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummeryNew()}" value="Excel" ajax="false">
+                        <p:commandButton actionListener="#{serviceSummery.createServiceCategorySummery()}" value="Excel" ajax="false">
                             <pe:exporter type="xlsx" target="opd" fileName="Service_Summery_By_Category"  />
                         </p:commandButton>
                     </h:panelGrid>
@@ -54,9 +54,10 @@
 
             <p:dataTable id="opd" rowIndexVar="i"  value="#{serviceSummery.billItemWithFees}" var="d" 
                          rowStyleClass="#{d.billItem.bill.cancelled or d.billItem.bill.billedBill ne null?'crossLine':''}"
-                         paginator="false"
+                         paginator="true"
+                         rows="50"
                          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                         rowsPerPageTemplate="5,10,15,20">                   
+                         rowsPerPageTemplate="50,100,500,1000">                   
 
                 <f:facet name="header">
                     <h:outputLabel value="#{serviceSummery.category.name}"/>
@@ -77,20 +78,20 @@
                     <h:outputLabel value="#{i+1}"/>
                 </p:column>
 
-                <p:column headerText="Bill No">
+<!--                <p:column headerText="Bill No">
                     <f:facet name="header">
                         <h:outputLabel value="Bill No" />
                     </f:facet>
                     <p:outputLabel value="#{d.billItem.bill.insId}" />
                 </p:column>
-                
+
                 <p:column headerText="Billed Bill No">
                     <f:facet name="header">
                         <p:outputLabel value="Billed Bill No"/>
                     </f:facet>
                     <p:outputLabel value="#{d.billItem.bill.billedBill.insId}" />
                 </p:column>
-                
+
                 <p:column headerText="Credit Company" rendered="#{serviceSummery.credit}">
                     <f:facet name="header">
                         <p:outputLabel value="Credit Company"/>
@@ -112,6 +113,43 @@
                         <h:outputLabel value="Item Name" />
                     </f:facet>
                     <p:outputLabel value="#{d.billItem.item.name}" />
+                </p:column>-->
+                
+                <p:column headerText="Bill No">
+                    <f:facet name="header">
+                        <h:outputLabel value="Bill No" />
+                    </f:facet>
+                    <p:outputLabel value="#{d.billNo}" />
+                </p:column>
+
+                <p:column headerText="Billed Bill No">
+                    <f:facet name="header">
+                        <p:outputLabel value="Billed Bill No"/>
+                    </f:facet>
+                    <p:outputLabel value="#{d.billedNo}" />
+                </p:column>
+
+                <p:column headerText="Credit Company" rendered="#{serviceSummery.credit}">
+                    <f:facet name="header">
+                        <p:outputLabel value="Credit Company"/>
+                    </f:facet>
+                    <p:outputLabel value="#{d.creditCompany.name}" />
+                </p:column>
+
+                <p:column headerText="Date">
+                    <f:facet name="header">
+                        <h:outputLabel value="Date" />
+                    </f:facet>
+                    <h:outputLabel value="#{d.createdAt}">
+                        <f:convertDateTime pattern="dd MMMM yyyy hh:mm a"/>
+                    </h:outputLabel>
+                </p:column>
+
+                <p:column headerText="Item Name">
+                    <f:facet name="header">
+                        <h:outputLabel value="Item Name" />
+                    </f:facet>
+                    <p:outputLabel value="#{d.itemName}" />
                 </p:column>
 
 
@@ -121,7 +159,7 @@
                     </f:facet>
                     <p:outputLabel value="#{d.staffsNames}" />
                 </p:column>
-                
+
                 <p:column headerText="Professional Fee" style="text-align: right;">
                     <f:facet name="header">
                         <h:outputLabel value="Professional Fee" />
@@ -144,7 +182,7 @@
                         <f:convertNumber pattern="#,##0.00"/>
                     </p:outputLabel>
                 </p:column>   
-                
+
                 <p:column headerText="Out Side Fee" style="text-align: right;">
                     <f:facet name="header">
                         <h:outputLabel value="Out Side Fee" />
@@ -180,20 +218,34 @@
                             </f:facet>
                         </p:column>
 
-                        <p:column colspan="4" style="text-align: right;" footerText="#{serviceSummery.outSideFeeTotoal}" >
+                        <p:column colspan="2" style="text-align: right;" footerText="#{serviceSummery.proFeeTotal}" >
+                            <f:facet name="footer">
+                                <h:outputLabel value="#{serviceSummery.proFeeTotal}">
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </f:facet>
+                        </p:column>
+                        <p:column  style="text-align: right;" footerText="#{serviceSummery.hosFeeTotal}" >
+                            <f:facet name="footer">
+                                <h:outputLabel value="#{serviceSummery.hosFeeTotal}">
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </f:facet>
+                        </p:column>
+                        <p:column style="text-align: right;" footerText="#{serviceSummery.outSideFeeTotoal}" >
                             <f:facet name="footer">
                                 <h:outputLabel value="#{serviceSummery.outSideFeeTotoal}">
                                     <f:convertNumber pattern="#,##0.00"/>
                                 </h:outputLabel>
                             </f:facet>
                         </p:column>
-                        <p:column colspan="3" style="text-align: right;" footerText="#{serviceSummery.value}" >
+<!--                        <p:column colspan="3" style="text-align: right;" footerText="#{serviceSummery.value}" >
                             <f:facet name="footer">
                                 <h:outputLabel value="#{serviceSummery.value}">
                                     <f:convertNumber pattern="#,##0.00"/>
                                 </h:outputLabel>
                             </f:facet>
-                        </p:column>
+                        </p:column>-->
                     </p:row>
                 </p:columnGroup>
                 <f:facet name="footer" >

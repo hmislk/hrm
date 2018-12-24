@@ -219,7 +219,7 @@ public class CommonReport implements Serializable {
     List<ItemCountRow> itemCountRows;
     List<ItemCountRow> itemCountRowsCancel;
     List<ItemCountRow> itemCountRowsRefund;
-    
+
     List<BillItem> canBillItems;
     List<BillItem> refBillItems;
 
@@ -4255,11 +4255,11 @@ public class CommonReport implements Serializable {
     }
 
     public void createDirectPurchaseBillItemTable() {
-        billItems=fetchDirectPurchaseBillItems(new BilledBill());
+        billItems = fetchDirectPurchaseBillItems(new BilledBill());
         System.out.println("billItems.size() = " + billItems.size());
-        canBillItems=fetchDirectPurchaseBillItems(new CancelledBill());
+        canBillItems = fetchDirectPurchaseBillItems(new CancelledBill());
         System.out.println("canBillItems.size() = " + canBillItems.size());
-        refBillItems=fetchDirectPurchaseBillItems(new RefundBill());
+        refBillItems = fetchDirectPurchaseBillItems(new RefundBill());
         System.out.println("refBillItems.size() = " + refBillItems.size());
     }
 
@@ -5113,12 +5113,14 @@ public class CommonReport implements Serializable {
         totalCC = 0.0;
         totalHos = 0.0;
         BillType billTypes[] = {BillType.LabBill, BillType.CollectingCentreBill};
-        for (Institution i : fetchCollectingCenters(billTypes)) {
+        for (Institution i : fetchCollectingCenters(billTypes,department)) {
+//        for (Institution i : fetchCollectingCenters(billTypes)) {
             CollectingCenteRow row = new CollectingCenteRow();
             row.setI(i);
             System.out.println("i = " + i.getName());
             List<Bill> bs = new ArrayList<>();
-            bs = getBillList(billTypes, i);
+            bs = getBillList(billTypes, i,department);
+//            bs = getBillList(billTypes, i);
             double tot = 0.0;
             double totVat = 0.0;
             double tothos = 0.0;
@@ -5164,6 +5166,31 @@ public class CommonReport implements Serializable {
 
         return getBillFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
     }
+    
+    public List<Bill> getBillList(BillType[] bts, Institution ins,Department d) {
+        Map m = new HashMap();
+        String sql = "select b from Bill b "
+                + " where b.billType in :bTypes "
+                + " and b.createdAt between :fromDate and :toDate ";
+
+        if (ins != null) {
+            sql += " and (b.collectingCentre=:col or b.fromInstitution=:col) ";
+            m.put("col", ins);
+        } else {
+            sql += " and (b.collectingCentre is not null or b.fromInstitution is not null) ";
+        }
+        
+        if (d != null) {
+            sql += " and b.department=:d ";
+            m.put("d", d);
+        }
+
+        m.put("toDate", getToDate());
+        m.put("fromDate", getFromDate());
+        m.put("bTypes", Arrays.asList(bts));
+
+        return getBillFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+    }
 
     public List<Institution> fetchCollectingCenters(BillType[] bts) {
         Map m = new HashMap();
@@ -5171,6 +5198,26 @@ public class CommonReport implements Serializable {
                 + " where b.billType in :bTypes "
                 + " and b.retired=false "
                 + " and b.createdAt between :fromDate and :toDate "
+                + " and b.fromInstitution is not null "
+                + " order by b.fromInstitution.name ";
+
+        m.put("toDate", getToDate());
+        m.put("fromDate", getFromDate());
+        m.put("bTypes", Arrays.asList(bts));
+
+        return getInstitutionFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
+    }
+
+    public List<Institution> fetchCollectingCenters(BillType[] bts, Department d) {
+        Map m = new HashMap();
+        String sql = "select distinct(b.fromInstitution) from Bill b "
+                + " where b.billType in :bTypes "
+                + " and b.retired=false ";
+        if (d != null) {
+            sql += " and b.department=:d ";
+            m.put("d", d);
+        }
+        sql += " and b.createdAt between :fromDate and :toDate "
                 + " and b.fromInstitution is not null "
                 + " order by b.fromInstitution.name ";
 

@@ -26,6 +26,12 @@
                     <p:calendar id="toDate" value="#{commonReport.toDate}" styleClass="dateTimePicker" navigator="true" pattern="dd MMMM yyyy hh:mm:ss a" >
                     </p:calendar>
 
+                    <h:outputLabel value="Billed Departmant"/>
+                    <p:autoComplete styleClass="noPrintButton mediuminput" 
+                                    value="#{commonReport.department}"  
+                                    style="text-align: left; "  completeMethod="#{departmentController.completeDept}" 
+                                    var="dep" itemValue="#{dep}" itemLabel="#{dep.name}" forceSelection="true" rendered="true" />
+
                 </h:panelGrid> 
                 <h:panelGrid columns="4" styleClass="noPrintButton">
                     <p:spacer width="40"/>

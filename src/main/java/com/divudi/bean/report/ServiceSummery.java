@@ -1230,6 +1230,20 @@ public class ServiceSummery implements Serializable {
 
     }
 
+    private double calFee(long id, FeeType feeType) {
+        HashMap hm = new HashMap();
+        String sql = "Select sum(f.feeValue) from "
+                + " BillFee f where "
+                + " f.retired=false "
+                + " and f.billItem.id=:id "
+                + " and f.fee.feeType=:ftp";
+        hm.put("id", id);
+        hm.put("ftp", feeType);
+
+        return getBillFeeFacade().findDoubleByJpql(sql, hm, TemporalType.TIMESTAMP);
+
+    }
+
     private double calFee(BillItem bi) {
         HashMap hm = new HashMap();
         String sql = "Select sum(f.feeValue) from "
@@ -1249,6 +1263,18 @@ public class ServiceSummery implements Serializable {
                 + " f.retired=false "
                 + " and f.billItem=:b ";
         hm.put("b", bi);
+
+        return getBillFeeFacade().findDoubleByJpql(sql, hm, TemporalType.TIMESTAMP);
+
+    }
+
+    private double calFeeVat(long id) {
+        HashMap hm = new HashMap();
+        String sql = "Select sum(f.feeVat) from "
+                + " BillFee f where "
+                + " f.retired=false "
+                + " and f.billItem.id=:id ";
+        hm.put("id", id);
 
         return getBillFeeFacade().findDoubleByJpql(sql, hm, TemporalType.TIMESTAMP);
 
@@ -1278,6 +1304,49 @@ public class ServiceSummery implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return name;
+
+    }
+
+    private String fetchStaffs(long id, FeeType feeType) {
+        String name = "";
+        HashMap hm = new HashMap();
+        String sql = "Select f.staff.person.name,f.fee.feeType from "
+                + " BillFee f where "
+                + " f.retired=false "
+                + " and f.billItem.id=:id"
+                + " and f.fee.feeType=:ftp";
+        hm.put("id", id);
+        hm.put("ftp", feeType);
+
+        try {
+            for (Object[] bf : (List<Object[]>) getBillFeeFacade().findAggregates(sql, hm)) {
+                String s = (String) bf[0];
+                System.out.println("bf.getStaff().getPerson().getName() = " + s);
+                if ("".equalsIgnoreCase(s)) {
+                    System.err.println("**");
+                } else {
+                    name += " ," + s;
+                }
+                System.out.println("name = " + name);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        try {
+//            for (BillFee bf : (List<BillFee>) getBillFeeFacade().findBySQL(sql, hm)) {
+//                if ("".equalsIgnoreCase(name)) {
+//
+//                } else {
+//                    name += " ," + bf.getStaff().getPerson().getName();
+//                }
+//                System.out.println("bf.getStaff().getPerson().getName() = " + bf.getStaff().getPerson().getName());
+//                System.out.println("name = " + name);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         return name;
 
@@ -1412,7 +1481,7 @@ public class ServiceSummery implements Serializable {
 
     }
 
-    public void createServiceCategorySummeryNew() {
+    public void createServiceCategorySummeryOP() {
         Date startTime = new Date();
 
         if (getCategory() == null) {
@@ -1424,25 +1493,62 @@ public class ServiceSummery implements Serializable {
 
         billItemWithFees = new ArrayList<>();
 
-        List<Object[]> list = getBillItemByCategory(category, BillType.OpdBill);
-//        List<BillItem> list = calBillItems(BillType.OpdBill, false);
+        System.err.println("Time list = " + new Date());
+        List<Object[]> list = calBillItemsOP(BillType.OpdBill, false);
+        System.err.println("Time list = " + new Date());
 
         System.out.println("list.size() = " + list.size());
-        
+
+        outSideFeeTotoal = 0.0;
+        hosFeeTotal = 0.0;
+        proFeeTotal = 0.0;
         for (Object[] ob : list) {
-            long id=(long) ob[0];
-            System.out.println("id = " + id);
-            String billId=(String) ob[1];
-            System.out.println("billId = " + billId);
-            String billedId=(String) ob[2];
-            System.out.println("billedId = " + billedId);
-            String ccName=(String) ob[3];
-            System.out.println("ccName = " + ccName);
-            Date billDate  =(Date) ob[4];
-            System.out.println("billDate = " + billDate);
-            String itemName=(String) ob[5];
-            System.out.println("itemName = " + itemName);
+            BillItemWithFee bi = new BillItemWithFee();
+            long id = (long) ob[0];
+            String billNo = (String) ob[1];
+//            String billedNo = (String) ob[2];
+            if (credit) {
+                Institution cc = (Institution) ob[2];
+                Date date = (Date) ob[3];
+                String name = (String) ob[4];
+                bi.setCreditCompany(cc);
+                bi.setCreatedAt(date);
+                bi.setItemName(name);
+            } else {
+                Date date = (Date) ob[2];
+                String name = (String) ob[3];
+                bi.setCreatedAt(date);
+                bi.setItemName(name);
+            }
+
+            bi.setId(id);
+            bi.setBillNo(billNo);
+//            bi.setBilledNo(billedNo);
+//            System.err.println("Time 1 = " + new Date());
+            bi.setProFee(calFee(id, FeeType.Staff));
+//            System.err.println("Time 2 = " + new Date());
+            bi.setHospitalFee(calFee(id, FeeType.OwnInstitution));
+//            System.err.println("Time 3 = " + new Date());
+            bi.setStaffsNames(fetchStaffs(id, FeeType.Staff));
+//            System.err.println("Time 4 = " + new Date());
+            bi.setOutSideFee(calFee(id, FeeType.OtherInstitution));
+//            System.err.println("Time 5 = " + new Date());
+            bi.setVatFee(calFeeVat(id));
+//            System.err.println("Time 6 = " + new Date());
+            bi.setStaffFee(calFee(id, FeeType.Staff));
+//            System.err.println("Time 7 = " + new Date());
+            billItemWithFees.add(bi);
+            outSideFeeTotoal += bi.getOutSideFee();
+            hosFeeTotal += bi.getHospitalFee();
+            proFeeTotal += bi.getProFee();
         }
+//        System.err.println("Time Total 1 = " + new Date());
+//        outSideFeeTotoal = calServiceTot(BillType.OpdBill, FeeType.OtherInstitution, false);
+        System.err.println("Time Total 2 = " + new Date());
+        calCountTotalCategory(BillType.OpdBill, false);
+        System.err.println("Time Total 3 = " + new Date());
+//        calServiceTot1(BillType.OpdBill, false);
+//        System.err.println("Time Total 4 = " + new Date());
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Summery by service OPD/ Summery by service category(/faces/reportInstitution/report_opd_service_summery_by_category.xhtml)");
 
@@ -1695,6 +1801,35 @@ public class ServiceSummery implements Serializable {
         return null;
     }
 
+    private List<Object[]> calBillItemsOP(BillType billType, boolean discharged) {
+        if (getCategory() instanceof ServiceSubCategory || getCategory() instanceof InvestigationCategory) {
+            return getBillItemByCategoryOP(category, billType, discharged);
+        }
+
+        if (getCategory() instanceof ServiceCategory) {
+            System.out.println("ServiceCategory");
+            getServiceSubCategoryController().setParentCategory(getCategory());
+            List<ServiceSubCategory> subCategorys = getServiceSubCategoryController().getItems();
+            if (subCategorys.isEmpty()) {
+                System.err.println("if");
+                return getBillItemByCategoryOP(getCategory(), billType, discharged);
+            } else {
+                List<Object[]> setBillItem = new ArrayList<>();
+                for (ServiceSubCategory ssc : subCategorys) {
+                    System.out.println("ssc.getName() = " + ssc.getName());
+                    setBillItem.addAll(getBillItemByCategoryOP(ssc, billType, discharged));
+                }
+                System.out.println("setBillItem = " + setBillItem);
+                List<Object[]> tmpBillItems = new ArrayList<>();
+                tmpBillItems.addAll(setBillItem);
+                tmpBillItems.addAll(getBillItemByCategoryOP(getCategory(), billType, discharged));
+                return tmpBillItems;
+            }
+        }
+
+        return null;
+    }
+
     private List<BillItem> getBillItemByCategory(Category cat, BillType billType, boolean discharged) {
         String sql;
         Map temMap = new HashMap();
@@ -1743,13 +1878,21 @@ public class ServiceSummery implements Serializable {
 
     }
 
-    private List<Object[]> getBillItemByCategory(Category cat, BillType billType) {
+    private List<Object[]> getBillItemByCategoryOP(Category cat, BillType billType, boolean discharged) {
         String sql;
         Map temMap = new HashMap();
 
-        sql = "select bi.id,bi.bill.insId,bi.bill.billedBill.insId,bi.bill.creditCompany.name,"
-                + " bi.createdAt,bi.item.name "
-                + " FROM BillItem bi "
+        if (billType != BillType.InwardBill && credit) {
+            sql = "select bi.id, bi.bill.insId, "
+//            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
+                    + " bi.bill.creditCompany, bi.createdAt, bi.item.name ";
+        } else {
+            sql = "select bi.id, bi.bill.insId, "
+//            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
+                    + " bi.createdAt, bi.item.name ";
+        }
+
+        sql += " FROM BillItem bi "
                 + " where  bi.bill.institution=:ins "
                 + " and  bi.bill.billType= :bTp  "
                 + " and bi.item.category=:cat "
@@ -1774,7 +1917,11 @@ public class ServiceSummery implements Serializable {
 
         }
 
-        sql += " and  bi.bill.createdAt between :fromDate and :toDate ";
+        if (discharged) {
+            sql += " and  bi.bill.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        } else {
+            sql += " and  bi.bill.createdAt between :fromDate and :toDate ";
+        }
 
         sql += " order by bi.item.name";
         temMap.put("toDate", getToDate());
