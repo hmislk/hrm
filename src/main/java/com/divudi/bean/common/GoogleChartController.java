@@ -1400,7 +1400,7 @@ public class GoogleChartController implements Serializable {
                 lastDate = d;
                 tot=l;
             } else {
-                if (lastDate == d) {
+                if (lastDate.equals(d)) {
                         tot += l;
                 } else {
                     subArray = new JSONArray();
@@ -1426,14 +1426,14 @@ public class GoogleChartController implements Serializable {
         return mainJSONArray.toString();
     }
     
-    public String drawlabCountLast12Months() {
+    public String drawlabCountLast6Months() {
         Date startTime = new Date();
         Date fd;
         Date td;
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, -1);
+//        cal.add(Calendar.MONTH, -1);
         td = commonFunctions.getEndOfMonth(cal.getTime());
-        cal.add(Calendar.MONTH, -12);
+        cal.add(Calendar.MONTH, -6);
         fd = commonFunctions.getStartOfMonth(cal.getTime());
 
         JSONArray mainJSONArray = new JSONArray();
