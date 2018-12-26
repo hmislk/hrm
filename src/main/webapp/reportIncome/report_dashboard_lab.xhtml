@@ -16,6 +16,66 @@
                 <h:form >
                     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                     <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawlabCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Date'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_lab_count_last_month'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawlabCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Month'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_lab_count_last_12_month'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawlabCountLast5Years()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Year'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_lab_count_last_5_years'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+<!--                    <script type="text/javascript">
                         google.charts.load('current', {'packages': ['corechart']});
                         google.charts.setOnLoadCallback(drawChart);
                         function drawChart() {
@@ -82,7 +142,7 @@
                             var chart = new google.visualization.ColumnChart(document.getElementById('chart_machine_count_last_month'));
                             chart.draw(data, options);
                         }
-                    </script>
+                    </script>-->
                     <center>
                         <p:panel>
                             <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
@@ -95,6 +155,21 @@
                             </h3>
                         </p:panel>
                         <p:panel>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 30 Days" >
+                                    <div id="chart_lab_count_last_month" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 12 Months" >
+                                    <div id="chart_lab_count_last_12_month" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 5 Years" >
+                                    <div id="chart_lab_count_last_5_years" style="width: 740px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
                             <h:panelGrid columns="2">
                                 <p:panel header="Investigation Count Yesterday">
                                     <div id="chart_investigation_count" style="width: 1500px; height: 500px;"></div>
