@@ -1044,7 +1044,7 @@ public class GoogleChartController implements Serializable {
         commonController.printTimeDefference(startTime, "Time(Investigation Count Yesterday)");
         return mainJSONArray.toString();
     }
-
+    
     public String drawInvestigationCountLast30Days() {
         Date startTime = new Date();
 //        System.out.println("1.Time(Investigation Count Last 30 Days) = " + new Date());
@@ -1361,6 +1361,197 @@ public class GoogleChartController implements Serializable {
         System.out.println("2.Time(Collecting Center Count Yesterday) = " + new Date());
         return mainJSONArray.toString();
     }
+    
+    public String drawlabCountLast30days() {
+        Date startTime = new Date();
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        cal.add(Calendar.DATE, -30);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Date");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountLab(fd, td, Arrays.asList(bts),"Date");
+//        System.out.println("objects.size() = " + objects.size());
+        Date lastDate = null;
+        double tot = 0.0;
+
+        for (Object[] ob : objects) {
+            Date d = (Date) ob[0];
+//            System.out.println("d = " + d);
+            BillClassType bct = (BillClassType) ob[1];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[2];
+            } else {
+                l = 0 - (long) ob[2];
+            }
+//            System.out.println("l = " + l);
+            if (lastDate == null) {
+                lastDate = d;
+                tot=l;
+            } else {
+                if (lastDate == d) {
+                        tot += l;
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, lastDate);
+                    subArray.put(1, tot);
+                    mainJSONArray.put(subArray);
+                    lastDate = d;
+                    tot = l;
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, lastDate);
+        subArray.put(1, tot);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Yesterday) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Lab Count Last 30 Days)");
+        return mainJSONArray.toString();
+    }
+    
+    public String drawlabCountLast12Months() {
+        Date startTime = new Date();
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -1);
+        td = commonFunctions.getEndOfMonth(cal.getTime());
+        cal.add(Calendar.MONTH, -12);
+        fd = commonFunctions.getStartOfMonth(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Month");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountLab(fd, td, Arrays.asList(bts),"Month");
+//        System.out.println("objects.size() = " + objects.size());
+        int lastDate = -1;
+        double tot = 0.0;
+
+        for (Object[] ob : objects) {
+            int d = (int) ob[0];
+//            System.out.println("d = " + d);
+            BillClassType bct = (BillClassType) ob[1];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[2];
+            } else {
+                l = 0 - (long) ob[2];
+            }
+//            System.out.println("l = " + l);
+            if (lastDate == -1) {
+                lastDate = d;
+                tot=l;
+            } else {
+                if (lastDate == d) {
+                        tot += l;
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, fetchMonth(lastDate));
+                    subArray.put(1, tot);
+                    mainJSONArray.put(subArray);
+                    lastDate = d;
+                    tot = l;
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, fetchMonth(lastDate));
+        subArray.put(1, tot);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Yesterday) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Lab Count Last 12 Months)");
+        return mainJSONArray.toString();
+    }
+    
+    public String drawlabCountLast5Years() {
+        Date startTime = new Date();
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        td = commonFunctions.getLastDayOfYear();
+        cal.add(Calendar.YEAR, -5);
+        fd = commonFunctions.getFirstDayOfYear(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Year");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        BillType[] bts = {BillType.OpdBill, BillType.LabBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        List<Object[]> objects = fetchCountLab(fd, td, Arrays.asList(bts),"Year");
+//        System.out.println("objects.size() = " + objects.size());
+        int lastYear = 0;
+        double tot = 0.0;
+
+        for (Object[] ob : objects) {
+            int d = (int) ob[0];
+//            System.out.println("d = " + d);
+            BillClassType bct = (BillClassType) ob[1];
+//            System.out.println("bct = " + bct);
+            long l = 0l;
+            if (bct == BillClassType.BilledBill) {
+                l = (long) ob[2];
+            } else {
+                l = 0 - (long) ob[2];
+            }
+//            System.out.println("l = " + l);
+            if (lastYear == 0) {
+                lastYear = d;
+                tot=l;
+            } else {
+                if (lastYear == d) {
+                        tot += l;
+                } else {
+                    subArray = new JSONArray();
+                    subArray.put(0, String.valueOf(lastYear));
+                    subArray.put(1, tot);
+                    mainJSONArray.put(subArray);
+                    lastYear = d;
+                    tot = l;
+                }
+            }
+
+        }
+        subArray = new JSONArray();
+        subArray.put(0, String.valueOf(lastYear));
+        subArray.put(1, tot);
+        mainJSONArray.put(subArray);
+
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+//
+//        System.out.println("2.Time(Investigation Count Yesterday) = " + new Date());
+        commonController.printTimeDefference(startTime, "Time(Lab Count Last 5 Years)");
+        return mainJSONArray.toString();
+    }
 
     private List<Object[]> fetchCountWithInvestigation(Date fd, Date td, List<BillType> bts) {
         String sql;
@@ -1373,6 +1564,25 @@ public class GoogleChartController implements Serializable {
                 + " and type(bi.item)=:iClass "
                 + " group by bi.item, bi.bill.billType, bi.bill.billClassType "
                 + " order by bi.item.name";
+        m.put("toDate", td);
+        m.put("fromDate", fd);
+        m.put("bts", bts);
+        m.put("iClass", Investigation.class);
+//        m.put("ins", getSessionController().getInstitution());
+        return getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+    }
+    private List<Object[]> fetchCountLab(Date fd, Date td, List<BillType> bts,String date) {
+        String sql;
+        Map m = new HashMap();
+        sql = "select FUNC('"+date+"',bi.bill.createdAt), bi.bill.billClassType, count(bi) "
+                + " FROM BillItem bi where"
+                + " bi.bill.billType in :bts "
+                //                + " and (bi.bill.toInstitution=:ins or bi.item.department.institution=:ins ) "
+                + " and bi.bill.createdAt between :fromDate and :toDate "
+                + " and type(bi.item)=:iClass "
+                + " group by FUNC('"+date+"',bi.bill.createdAt), bi.bill.billClassType "
+                + " order by bi.bill.createdAt,bi.bill.billClassType ";
         m.put("toDate", td);
         m.put("fromDate", fd);
         m.put("bts", bts);
