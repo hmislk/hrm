@@ -185,7 +185,8 @@
                                         <h:outputText rendered="#{myCli.ixItemType ne 'Label' and myCli.reportItemType eq 'ReferringDoctor' and myCli.retired eq false }"  value="#{patientReportController.currentPatientReport.patientInvestigation.billItem.bill.referredBy.person.nameWithTitle}" style="color: #{myCli.cssColor}" escape="false" ></h:outputText>
                                         <h:outputText rendered="#{myCli.ixItemType ne 'Label' and myCli.reportItemType eq 'ReferringInstitution' and myCli.retired eq false }"  value="#{patientReportController.currentPatientReport.patientInvestigation.billItem.bill.referredByInstitution.name}" style="color: #{myCli.cssColor}" escape="false" ></h:outputText>
 
-                                        <h:panelGroup rendered="#{patientReportController.currentPatientReport.approveUser.staff.baImage ne null}">
+                                        <h:panelGroup rendered="#{patientReportController.currentPatientReport.approveUser.staff.baImage ne null 
+                                                                  and patientReportController.currentPatientReport.item.staff.id ne patientReportController.currentPatientReport.approveUser.staff.id}">
                                             <p:graphicImage rendered="#{myCli.reportItemType eq 'AutherizedSignature' and myCli.retired eq false }"    value="#{staffImageController.signatureById}" style="width: #{myCli.cssWidth}; max-height: 100px!important;"  >
                                                 <f:param name="id" value="#{patientReportController.currentPatientReport.approveUser.staff.id}" />
                                             </p:graphicImage>
@@ -194,7 +195,8 @@
                                         </h:panelGroup>
                                         <p:graphicImage rendered="#{myCli.reportItemType eq 'DoctorSignature' and myCli.retired eq false 
                                                                     and patientReportController.currentPatientReport.item.staff.id ne null
-                                                                    and patientReportController.currentPatientReport.approved}" 
+                                                                    and patientReportController.currentPatientReport.approved 
+                                                                    and patientReportController.currentPatientReport.item.staff.id eq patientReportController.currentPatientReport.approveUser.staff.id}" 
                                                         value="#{staffImageController.signatureById}" style="min-width:50%;max-width:52%;width:100%;min-height:100%;max-height:100%;height:100%;padding:0px;margin:0px;border:0px;"  >
                                             <f:param name="id" value="#{patientReportController.currentPatientReport.item.staff.id}" />
                                         </p:graphicImage>

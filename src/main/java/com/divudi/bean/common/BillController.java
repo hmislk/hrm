@@ -1949,7 +1949,7 @@ public class BillController implements Serializable {
         }
 
         if (toStaff != null) {
-            paymentScheme = null;
+//            paymentScheme = null;
             creditCompany = null;
         }
 
