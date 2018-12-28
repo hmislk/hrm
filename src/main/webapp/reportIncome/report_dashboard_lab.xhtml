@@ -40,7 +40,7 @@
                         google.charts.setOnLoadCallback(drawCurveTypes);
 
                         function drawCurveTypes() {
-                            var rowdata =#{googleChartController.drawlabCountLast12Months()}
+                            var rowdata =#{googleChartController.drawlabCountLast6Months()}
                             var data = google.visualization.arrayToDataTable(rowdata);
                             var options = {
                                 hAxis: {
@@ -75,7 +75,47 @@
                             chart.draw(data, options);
                         }
                     </script>
-<!--                    <script type="text/javascript">
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawReferingDoctorViseCountYesterday()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Doctor'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_refering_docter_count_yesterday'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawReferingDoctorViseCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Doctor'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_refering_docter_count_last_month'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
                         google.charts.load('current', {'packages': ['corechart']});
                         google.charts.setOnLoadCallback(drawChart);
                         function drawChart() {
@@ -92,7 +132,7 @@
                             chart.draw(data, options);
                         }
                     </script>
-                    <script type="text/javascript">
+<!--                    <script type="text/javascript">
                         google.charts.load('current', {'packages': ['corechart']});
                         google.charts.setOnLoadCallback(drawChart);
                         function drawChart() {
@@ -108,7 +148,7 @@
                             var chart = new google.visualization.ColumnChart(document.getElementById('chart_investigation_count_last_month'));
                             chart.draw(data, options);
                         }
-                    </script>
+                    </script>-->
                     <script type="text/javascript">
                         google.charts.load('current', {'packages': ['corechart']});
                         google.charts.setOnLoadCallback(drawChart);
@@ -142,11 +182,11 @@
                             var chart = new google.visualization.ColumnChart(document.getElementById('chart_machine_count_last_month'));
                             chart.draw(data, options);
                         }
-                    </script>-->
+                    </script>
                     <center>
                         <p:panel>
                             <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
-                            <h1 style="color: #107710">Laboratory</h1>
+                            <h2 style="color: #107710">Laboratory</h2>
                             <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
                             <h3>
                                 <h:outputLabel value="#{commonController.currentDateTime}">
@@ -156,17 +196,15 @@
                         </p:panel>
                         <p:panel>
                             <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last 30 Days" >
+                                <p:panel header="Investgation Counts Of Last 30 Days" >
                                     <div id="chart_lab_count_last_month" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
-                            <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last 12 Months" >
-                                    <div id="chart_lab_count_last_12_month" style="width: 1500px; height: 500px;"></div>
+                            <h:panelGrid columns="2">
+                                <p:panel header="Investgation Counts Of Last 6 Months" >
+                                    <div id="chart_lab_count_last_12_month" style="width: 740px; height: 500px;"></div>
                                 </p:panel>
-                            </h:panelGrid>
-                            <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last 5 Years" >
+                                <p:panel header="Investgation Counts Of Last 5 Years" >
                                     <div id="chart_lab_count_last_5_years" style="width: 740px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
@@ -176,8 +214,13 @@
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid columns="2">
-                                <p:panel header="Investigation Count Last 30 Days">
-                                    <div id="chart_investigation_count_last_month" style="width: 1500px; height: 500px;"></div>
+                                <p:panel header="Refering Docter Count Yesterday">
+                                    <div id="chart_refering_docter_count_yesterday" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2">
+                                <p:panel header="Refering Docter Count Last 30 Days (Count > 50)">
+                                    <div id="chart_refering_docter_count_last_month" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid columns="2">

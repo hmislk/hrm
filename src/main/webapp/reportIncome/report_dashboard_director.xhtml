@@ -129,66 +129,81 @@
                             chart.draw(data, options);
                         }
                     </script>
+                    
                     <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
+                        google.charts.load('current', {'packages': ['bar']});
                         google.charts.setOnLoadCallback(drawChart);
+
                         function drawChart() {
-                            var rowdata =#{googleChartController.drawOPDCategoryIncomeYesterdayCashChart()}
+                            var rowdata =#{googleChartController.drawCCCountLast30days()}
                             var data = google.visualization.arrayToDataTable(rowdata);
+
                             var options = {
-//                                title: 'Employee Head Count',
-                                is3D: true,
+                                
                             };
-                            var chart = new google.visualization.PieChart(document.getElementById('piechart_opd_cat_in_yes_cash'));
-                            chart.draw(data, options);
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_cc_last_30_days'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
                         }
                     </script>
                     <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
+                        google.charts.load('current', {'packages': ['bar']});
                         google.charts.setOnLoadCallback(drawChart);
+
                         function drawChart() {
-                            var rowdata =#{googleChartController.drawOPDCategoryIncomeYesterdayCreditChart()}
+                            var rowdata =#{googleChartController.drawCCCountLast12Months()}
                             var data = google.visualization.arrayToDataTable(rowdata);
+
                             var options = {
-//                                title: 'Employee Head Count',
-                                is3D: true,
+                                
                             };
-                            var chart = new google.visualization.PieChart(document.getElementById('piechart_opd_cat_in_yes_credit'));
-                            chart.draw(data, options);
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_cc_last_12_months'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawAgencyCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_30_days'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
                         }
                     </script>
                     <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
+                        google.charts.load('current', {'packages': ['bar']});
                         google.charts.setOnLoadCallback(drawChart);
+
                         function drawChart() {
-                            var rowdata =#{googleChartController.drawInwardCashBHTCollection()}
+                            var rowdata =#{googleChartController.drawAgencyCountLast12Months()}
                             var data = google.visualization.arrayToDataTable(rowdata);
+
                             var options = {
-//                                title: 'Employee Head Count',
-                                is3D: true,
+                                
                             };
-                            var chart = new google.visualization.PieChart(document.getElementById('piechart_inward_cash'));
-                            chart.draw(data, options);
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_12_months'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
                         }
                     </script>
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages': ['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-                        function drawChart() {
-                            var rowdata =#{googleChartController.drawInwardCreditBHTCollection()}
-                            var data = google.visualization.arrayToDataTable(rowdata);
-                            var options = {
-//                                title: 'Employee Head Count',
-                                is3D: true,
-                            };
-                            var chart = new google.visualization.PieChart(document.getElementById('piechart_inward_credit'));
-                            chart.draw(data, options);
-                        }
-                    </script>
+                    
                     <center>
                         <p:panel>
                             <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
-                            <h2 style="color: #107710">Accounts</h2>
+                            <h2 style="color: #107710">Director</h2>
                             <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
                             <h3>
                                 <h:outputLabel value="#{commonController.currentDateTime}">
@@ -198,54 +213,59 @@
                         </p:panel>
                         <p:panel>
                             <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last 30 Days" >
+                                <p:panel header="Channel Counts Of Last 30 Days" toggleable="true" collapsed="false">
                                     <div id="chart_channel" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last 12 Months" >
+                                <p:panel header="Channel Counts Of Last 12 Months" toggleable="true" collapsed="false">
                                     <div id="chart_channel_12" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid>
-                                <p:panel header="Channel Counts Of Last Years" >
+                                <p:panel header="Channel Counts Of Last Years" toggleable="true" collapsed="false">
                                     <div id="chart_channel_years" style="width: 700px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
 
                             <h:panelGrid>
-                                <p:panel header="Addmission Counts Of Last 30 Days" >
+                                <p:panel header="Addmission Counts Of Last 30 Days" toggleable="true" collapsed="false">
                                     <div id="chart_addmission_last_30_Days" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid>
-                                <p:panel header="Addmission Counts Of Last 12 Months" >
+                                <p:panel header="Addmission Counts Of Last 12 Months" toggleable="true" collapsed="false">
                                     <div id="chart_addmission_last_12_months" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
 
-                            <h:panelGrid>
-                                <p:panel header="Pharmacy Sale Last Week Days" >
+                            <h:panelGrid >
+                                <p:panel header="Pharmacy Sale Last Week Days" toggleable="true" collapsed="false">
                                     <div id="chart_Pharmacy" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                <p:panel header="OPD Category Income Yesterday (Cash)">
-                                    <div id="piechart_opd_cat_in_yes_cash" style="width: 740px; height: 750px;"></div>
-                                </p:panel>
-                                <p:panel header="OPD Category Income Yesterday (Credit)">
-                                    <div id="piechart_opd_cat_in_yes_credit" style="width: 740px; height: 750px;"></div>
+                            
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 30 Days (Count > 40)" toggleable="true" collapsed="false">
+                                    <div id="chart_cc_last_30_days" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
-                            <h:panelGrid columns="2">
-                                <p:panel header="Inward Collection Yesterday (Cash BHT)">
-                                    <div id="piechart_inward_cash" style="width: 740px; height: 750px;"></div>
-                                </p:panel>
-                                <p:panel header="Inward Collection Yesterday (Credit BHT)">
-                                    <div id="piechart_inward_credit" style="width: 740px; height: 750px;"></div>
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 12 Months (count > 400)" toggleable="true" collapsed="false">
+                                    <div id="chart_cc_last_12_months" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
-
+                            
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_30_days" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 12 Months (count > 300)" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_12_months" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
 
                         </p:panel>
                     </center>

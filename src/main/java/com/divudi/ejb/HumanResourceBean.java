@@ -3165,7 +3165,7 @@ public class HumanResourceBean {
                 + " and ss.staff=:stf ";
         HashMap hm = new HashMap();
         hm.put("d", date);
-        hm.put("dts", Arrays.asList(new DayType[]{DayType.DayOff,DayType.Poya}));
+        hm.put("dts", Arrays.asList(new DayType[]{DayType.DayOff, DayType.Poya, DayType.MurchantileHoliday, DayType.SleepingDay}));
         hm.put("stf", staff);
 
         Long l = 0l;
