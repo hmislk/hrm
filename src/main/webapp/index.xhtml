@@ -20,12 +20,13 @@
                                          and sessionController.department ne null}">
                         <p:commandButton value="Channel Booking" action="/channel/channel_booking" ajax="false" />
                     </p:panel>.
-                    <p:panel rendered="#{webUserController.hasPrivilege('Developers') 
-                                         and (sessionController.loggedUser.id eq 3151
-                                         or  sessionController.loggedUser.id eq 1101795)
-                                         and sessionController.logged
-                                         and !sessionController.firstLogin 
-                                         and sessionController.department ne null}">
+                    <!--                    <p:panel rendered="#{webUserController.hasPrivilege('Developers') 
+                                                                 and (sessionController.loggedUser.id eq 3151
+                                                                 or  sessionController.loggedUser.id eq 1101795)
+                                                                 and sessionController.logged
+                                                                 and !sessionController.firstLogin 
+                                                                 and sessionController.department ne null}">-->
+                    <p:panel>
                         <p:commandLink ajax="false" action="/hr/hr_report_dashboard.xhtml">
                             <p:graphicImage library="image/dashboard" id="hr"
                                             name="hr.png" cache="false"
@@ -47,6 +48,20 @@
                                             style="height: 64px; width: 64px; margin: 5px;"  >
                             </p:graphicImage>
                             <poue:tooltip for="lab" value="Laboratory Dashboard" />
+                        </p:commandLink>
+<!--                        <p:commandLink ajax="false" action="">
+                            <p:graphicImage library="image/dashboard" id="lab"
+                                            name="marketing.png" cache="false"
+                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                            </p:graphicImage>
+                            <poue:tooltip for="lab" value="Marketing" />
+                        </p:commandLink>-->
+                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_director">
+                            <p:graphicImage library="image/dashboard" id="dirctor"
+                                            name="winner.png" cache="false"
+                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                            </p:graphicImage>
+                            <poue:tooltip for="dirctor" value="Director" />
                         </p:commandLink>
                     </p:panel>
                 </h:form>
