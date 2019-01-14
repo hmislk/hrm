@@ -25,6 +25,7 @@ import com.divudi.entity.hr.FingerPrintRecord;
 import com.divudi.entity.hr.FingerPrintRecordHistory;
 import com.divudi.entity.hr.HrForm;
 import com.divudi.entity.hr.Roster;
+import com.divudi.entity.hr.SalaryCycle;
 import com.divudi.entity.hr.StaffLeave;
 import com.divudi.entity.hr.StaffShift;
 import com.divudi.entity.hr.StaffShiftExtra;
@@ -101,6 +102,7 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
     boolean flag;
     boolean backButtonIsActive;
     String backButtonPage;
+    SalaryCycle salaryCycle;
 
     List<ShiftTable> shiftTables;
     private List<String> errorMessage = null;
@@ -298,6 +300,19 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
 
     private boolean errorCheck() {
         return getFromDate() == null || getToDate() == null;
+    }
+
+    public void listenSalaryCycle() {
+        if (getSalaryCycle() == null) {
+            return;
+        }
+        fromDate = getSalaryCycle().getDayOffPhFromDate();
+//        System.out.println("getSalaryCycle().getDayOffPhFromDate() = " + getSalaryCycle().getDayOffPhFromDate());
+//        System.out.println("fromDate = " + fromDate);
+        toDate = getSalaryCycle().getDayOffPhToDate();
+//        System.out.println("getSalaryCycle().getDayOffPhToDate() = " + getSalaryCycle().getDayOffPhToDate());
+//        System.out.println("toDate = " + toDate);
+//        System.err.println("Changed");
     }
 
 //    private AdditionalForm fetchAdditionalForm(StaffShift staffShift) {
@@ -551,7 +566,7 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
 
     public void createShiftTableByStaff() {
         Date startTime = new Date();
-        
+
         if (errorCheck()) {
             return;
         }
@@ -615,7 +630,6 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
         }
 
         // Long range = getCommonFunctions().getDayCount(getFromDate(), getToDate());
-        
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Working Time/Analys attendence by staff(Fill New)(/faces/hr/hr_shift_table_finger_print_by_staff.xhtml)");
     }
 
@@ -767,7 +781,7 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
 //    }
     public void createShiftTableAdditional() {
         Date startTime = new Date();
-        
+
         if (errorCheck()) {
             return;
         }
@@ -832,7 +846,6 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
         }
 
         // Long range = getCommonFunctions().getDayCount(getFromDate(), getToDate());
-        
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Working Time/Analys attendence(Fill Additional Only)(/faces/hr/hr_shift_table_finger_print.xhtml or /faces/hr/hr_shift_table_finger_print_by_staff.xhtml)");
     }
 
@@ -1559,6 +1572,17 @@ public class ShiftFingerPrintAnalysisController implements Serializable {
 
     public void setCommonController(CommonController commonController) {
         this.commonController = commonController;
+    }
+
+    public SalaryCycle getSalaryCycle() {
+        if (salaryCycle == null) {
+            salaryCycle = new SalaryCycle();
+        }
+        return salaryCycle;
+    }
+
+    public void setSalaryCycle(SalaryCycle salaryCycle) {
+        this.salaryCycle = salaryCycle;
     }
 
 }

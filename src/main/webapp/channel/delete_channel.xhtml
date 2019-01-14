@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ch="http://java.sun.com/jsf/composite/channel"
+                xmlns:pa="http://java.sun.com/jsf/composite/paymentMethod"
+                xmlns:au="http://java.sun.com/jsf/composite/autocomplete"
+                xmlns:poue="http://primefaces.org/ui/extensions">
+
+    <ui:define name="content">
+
+        <h:form id="form">
+            <p:panel header="Manage All Channels" >
+                <h:panelGrid columns="2" >
+                    <p:outputLabel value="From" ></p:outputLabel>
+                    <p:calendar value="#{bookingController.fromDate}" navigator="true" pattern="yyyy MM dd hh:mm:ss a" ></p:calendar>
+                    <p:outputLabel value="To" ></p:outputLabel>
+                    <p:calendar value="#{bookingController.toDate}" navigator="true" pattern="yyyy MM dd hh:mm:ss a" ></p:calendar>
+                    <p:commandButton value="Manage All" ajax="false" action="#{bookingController.deleteBulkOptimize()}" />
+                    <p:commandButton value="Manage All" ajax="false" action="#{bookingController.deleteBulkOptimizeCheckBills()}" />
+                </h:panelGrid>
+                <p:poll interval="10" update="msg err" ></p:poll>
+                <h2><p:outputLabel id="msg" value="Records Managed : #{bookingController.di} / #{bookingController.diTot}" style="color: green;" ></p:outputLabel></h2>
+                <h2><p:outputLabel id="err" value="Records Managed (Error) : #{bookingController.diErr} / #{bookingController.diTot}" style="color: red;" ></p:outputLabel></h2>
+            </p:panel>
+        </h:form>
+    </ui:define>
+
+
+</ui:composition>
+

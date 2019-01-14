@@ -9,45 +9,58 @@
     <ui:define name="content">
 
         <h:form>
-            <p:panel header="Cannel Management" >
-
-                <p:panelGrid columns="3" >
-
-                    <p:panel header="Agency" >
-                        <p:panelGrid columns="1" >
-                            <p:commandButton value="Agencies" action="/channel/institutions" ajax="false" ></p:commandButton>
-                            <p:commandButton value="Agenciey Credit Limit Update" action="/channel/institutions_udate_credit_limit" ajax="false" ></p:commandButton>
-                            <p:commandButton value="Agenciey Credit Limit Update(Bulk)" action="/channel/channel_agent_credit_bulk_update" ajax="false" ></p:commandButton>
-                            <p:commandButton value="Add Channel Book to Agency" ajax="false" action="/channel/channel_agent_referece_book" />
-                        </p:panelGrid>
-                    </p:panel>
-
-                    <p:panel header="Staff" >
-                        <p:panelGrid columns="1" >
-                            <p:commandButton value="Manage Specialities" ajax="false"
-                                             action="/channel/maintanance/doctorSpeciality/List" ></p:commandButton>
-                            <p:commandButton value="Manage Consultants" ajax="false"
-                                             action="/channel/maintanance/doctorSpeciality/List" ></p:commandButton>
-                        </p:panelGrid>
-                    </p:panel>
-                    
-                    <p:panel header="Channelling" >
-                        <p:panelGrid columns="1" >
-                            <p:commandButton value="Editing Appoinment Count" action="/channel/channel_booking_editing_appoinment_count" ajax="false" ></p:commandButton>
-                        </p:panelGrid>
-                    </p:panel>
-                    
-                    <p:panel header="Consultants" >
-                        <p:panelGrid columns="1" >
-                            <p:commandButton  styleClass="linkButton" ajax="false" value="Add Channelling Consultants to Institutions" action="/channel/person_institution"/>
-                        </p:panelGrid>
-                    </p:panel>
-                    <p:panel header="Shedule" >
-                        <p:panelGrid columns="1" >
-                            <p:commandButton  styleClass="linkButton" ajax="false" value="Channel Fee Update" action="/channel/channel_fee_change" actionListener="#{sheduleController.prepareAddFeeChange}" />
-                        </p:panelGrid>
-                    </p:panel>
-                </p:panelGrid>
+            <p:panel header="Channel Management" >
+                <h:panelGrid columns="3" styleClass="alignTop" style="margin: auto;">
+                    <h:panelGrid columns="1">
+                        <p:panel header="Agency" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton value="Agencies" action="/channel/institutions" ajax="false" ></p:commandButton>
+                                <p:commandButton value="Agenciey Credit Limit Update" action="/channel/institutions_udate_credit_limit" ajax="false" ></p:commandButton>
+                                <p:commandButton value="Agenciey Credit Limit Update(Bulk)" action="/channel/channel_agent_credit_bulk_update" ajax="false" ></p:commandButton>
+                                <p:commandButton value="Add Channel Book to Agency" ajax="false" action="/channel/channel_agent_referece_book" />
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:panel header="Staff" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton value="Manage Specialities" ajax="false"
+                                                 action="/channel/maintanance/doctorSpeciality/List" ></p:commandButton>
+                                <p:commandButton value="Manage Consultants" ajax="false"
+                                                 action="/channel/maintanance/doctorSpeciality/List" ></p:commandButton>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:panel header="Channelling" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton value="Editing Appoinment Count" action="/channel/channel_booking_editing_appoinment_count" ajax="false" ></p:commandButton>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:panel header="Consultants" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton  styleClass="linkButton" ajax="false" value="Add Channelling Consultants to Institutions" action="/channel/person_institution"/>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:panel header="Shedule" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton  styleClass="linkButton" ajax="false" value="Channel Fee Update" action="/channel/channel_fee_change" 
+                                                  actionListener="#{sheduleController.prepareAddFeeChange}" />
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:panel header="Message" style="width: 400px;margin: auto;"  toggleable="true">
+                            <h:panelGrid columns="1">
+                                <p:commandButton  styleClass="linkButton" ajax="false" value="Channel Message" action="/channel/channel_message" />
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:panelGrid>
+                </h:panelGrid>
             </p:panel>
 
         </h:form>

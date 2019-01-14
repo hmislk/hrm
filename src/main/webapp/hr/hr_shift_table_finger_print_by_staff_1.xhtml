@@ -23,80 +23,52 @@
                 <h:panelGroup >
 
                     <h:panelGrid columns="2">
-                        <h:outputLabel value="From"/>
-                        <p:calendar id="frmDate" 
-                                    value="#{shiftFingerPrintAnalysisController.fromDate}"
-                                    pattern="dd MMMM yyyy" />
-                        <h:outputLabel value="To"/>
-                        <p:calendar id="toDate" 
-                                    value="#{shiftFingerPrintAnalysisController.toDate}" 
-                                    pattern="dd MMMM yyyy" />
+                        <p:outputLabel value="Salary Cycle"/>
+                        <p:selectOneMenu id="advanced" 
+                                         value="#{shiftFingerPrintAnalysisController.salaryCycle}" 
+                                         converter="salaryCycleConverter" 
+                                         effect="fade" var="t" 
+                                         filter="true" 
+                                         filterMatchMode="startsWith">
+                            <f:selectItem itemLabel="Select Salary Cycle" />
+                            <f:selectItems value="#{salaryCycleController.salaryCycles}" 
+                                           var="theme" 
+                                           itemLabel="#{theme.name}" 
+                                           itemValue="#{theme}" ></f:selectItems>
 
-                        <h:outputLabel value="Staff "/>
+                            <p:column style="width:10%" headerText="Name">
+                                <h:outputText value="#{t.name}" />
+                            </p:column>
+
+                            <p:column headerText="Year">
+                                <h:outputText value="#{t.salaryYear}" />
+                            </p:column>
+                            <p:column headerText="Month">
+                                <h:outputText value="#{t.salaryMonth}" />
+                            </p:column>
+                            <f:ajax event="change" execute="@this" render="frmDate toDate" listener="#{shiftFingerPrintAnalysisController.listenSalaryCycle}" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="From"/>
+                        <p:outputLabel id="frmDate" value="#{shiftFingerPrintAnalysisController.fromDate}" >
+                            <f:convertDateTime pattern="yyyy MM dd" />
+                        </p:outputLabel>
+                        <p:outputLabel value="To"/>
+                        <p:outputLabel id="toDate" value="#{shiftFingerPrintAnalysisController.toDate}" >
+                            <f:convertDateTime pattern="yyyy MM dd" />
+                        </p:outputLabel>
+                        <p:outputLabel value="Staff "/>
                         <hr:completeStaff id="roster" value="#{shiftFingerPrintAnalysisController.staff}"/>
-                        <h:panelGroup>
-                            <p:commandButton value="Fill"
-                                             process="@this frmDate toDate roster"
-                                             update="lst"
-                                             actionListener="#{shiftFingerPrintAnalysisController.makeTableNull()}"
-                                             action="#{shiftFingerPrintAnalysisController.createShiftTableByStaff()}" 
-                                             onclick="onSubmitButton();" /> 
-
-                            <p:commandButton value="Fill Additional Only"
-                                             process="@this frmDate toDate roster"
-                                             update="lst"
-                                             actionListener="#{shiftFingerPrintAnalysisController.makeTableNull()}"
-                                             action="#{shiftFingerPrintAnalysisController.createShiftTableAdditional()}" 
-                                             onclick="onSubmitButton();" /> 
-
-                        </h:panelGroup>
-
-                        <h:panelGroup >
-                            <p:commandButton value="SAVE"
-                                             process="lst"
-                                             update="lst"
-                                             action="#{shiftFingerPrintAnalysisController.save()}" 
-                                             onclick="onSubmitButton();"/>
-
-                            <p:commandButton value="Back" ajax="false" 
-                                             action="#{shiftFingerPrintAnalysisController.back()}" 
-                                             rendered="#{shiftFingerPrintAnalysisController.backButtonIsActive}"
-                                             style="float: right;"></p:commandButton>
-                        </h:panelGroup>
+                        <p:commandButton value="Fill"
+                                         process="@this frmDate toDate roster"
+                                         update="lst"
+                                         actionListener="#{shiftFingerPrintAnalysisController.makeTableNull()}"
+                                         action="#{shiftFingerPrintAnalysisController.createShiftTableByStaff()}" 
+                                         onclick="onSubmitButton();" /> 
                     </h:panelGrid>
-
-                    <p:commandButton value="Reset and Fill"
-                                     process="@this frmDate toDate roster"
-                                     update="lst"
-                                     actionListener="#{shiftFingerPrintAnalysisController.makeTableNull()}"
-                                     action="#{shiftFingerPrintAnalysisController.createShiftTableResetByStaff()}" 
-                                     onclick="onSubmitButton();" 
-                                     style="float: right;" ajax="false"/> 
-
-                    <p:commandButton value="Back" rendered="#{hrReportController.backButtonPage ne null}" 
-                                     action="#{hrReportController.back()}" ></p:commandButton>
-
                 </h:panelGroup>
                 <p:panel header="Links" style="float: right;" >
-                    <p:panelGrid columns="2" styleClass="alignTop" >
-                        <p:commandLink ajax="false" value="Leave Forms" action="/hr/hr_form_staff_leave" 
-                                       actionListener="#{shiftFingerPrintAnalysisController.toStaffLeaveApplicationFormController}"></p:commandLink>
-                        <p:commandLink ajax="false" value="Extra Time Forms" action="/hr/hr_form_staff_additional_extra" 
-                                       actionListener="#{shiftFingerPrintAnalysisController.toStaffAdditionalFormController}"></p:commandLink>
-
-                        <p:commandLink ajax="false" value="Extra Shift Forms" action="/hr/hr_form_staff_additional_shift" 
-                                       actionListener="#{shiftFingerPrintAnalysisController.toStaffAdditionalFormController}"></p:commandLink>
-
-                        <p:commandLink ajax="false" value="Holiday Forms" action="/hr/hr_form_staff_additional_shift_day_off" 
-                                       actionListener="#{shiftFingerPrintAnalysisController.toStaffAdditionalFormController}"></p:commandLink>
-
-
-                        <p:commandLink ajax="false" value="Roster" 
-                                       action="/hr/hr_shift_table_by_staff" 
-                                       actionListener="#{shiftFingerPrintAnalysisController.toShiftTableController}"></p:commandLink>
-
-
-
+                    <p:panelGrid columns="2" styleClass="alignTop" > 
+                        <p:commandLink ajax="false" value="Over 45 Time " target="_blank" action="/hr/hr_report_month_end_work_time_miniuts_summery" ></p:commandLink>
                     </p:panelGrid>
                 </p:panel>
             </h:panelGrid>

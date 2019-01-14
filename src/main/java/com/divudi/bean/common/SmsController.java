@@ -5,6 +5,7 @@
  */
 package com.divudi.bean.common;
 
+import com.divudi.bean.common.util.JsfUtil;
 import com.divudi.data.ApplicationInstitution;
 import com.divudi.data.SmsType;
 import com.divudi.data.hr.ReportKeyWord;
@@ -90,6 +91,7 @@ public class SmsController implements Serializable {
                 stringResponse = Unirest.post(request.toString()).field("message", messageBody2).asString();
 
             } catch (Exception ex) {
+                JsfUtil.addErrorMessage("Message Not Sent - " + sendingNo);
                 ex.printStackTrace();
                 return;
             }
