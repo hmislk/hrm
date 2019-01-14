@@ -996,8 +996,8 @@ public class QuickBookReportController implements Serializable {
 
         List<PaymentMethod> paymentMethods = Arrays.asList(PaymentMethod.Credit);
 
-        quickBookFormats.addAll(fetchPharmacySaleTable(Arrays.asList(new PaymentMethod[]{PaymentMethod.Credit}), fromDate,
-                toDate, institution, Arrays.asList(new BillType[]{BillType.PharmacySale, BillType.PharmacyWholeSale})));
+        quickBookFormats.addAll(fetchPharmacySaleTable(Arrays.asList(new PaymentMethod[]{PaymentMethod.Credit}), commonFunctions.getStartOfDay(fromDate), commonFunctions.getEndOfDay(toDate)
+                , institution, Arrays.asList(new BillType[]{BillType.PharmacySale, BillType.PharmacyWholeSale})));
     }
 
     //-------Main Functions

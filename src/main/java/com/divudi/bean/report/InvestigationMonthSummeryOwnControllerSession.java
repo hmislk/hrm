@@ -11,6 +11,7 @@ import com.divudi.bean.lab.InvestigationController;
 import com.divudi.bean.lab.PatientInvestigationController;
 import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
+import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.InvestigationSummeryData;
 import com.divudi.data.dataStructure.ItemInstitutionCollectingCentreCountRow;
@@ -333,7 +334,8 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             }
             progressValue += (int) singleItem;
 //            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department);
-            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts);
+//            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts);
+            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts,getReportKeyWord().getString());
             if (temp.getTotal() != 0) {
                 grantTotal += temp.getTotal();
                 items.add(temp);
@@ -1725,6 +1727,26 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
         double net = billed + cancelled + refunded;
         is.setTotal(net);
         return is;
+    }
+
+    private InvestigationSummeryData setIxSummeryTotalBilledDep(Item w, Department d, BillType[] billTypes, String s) {
+        InvestigationSummeryData is = new InvestigationSummeryData();
+        is.setInvestigation(w);
+        if (s.equals("0")) {
+            double billed = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null);
+            double cancelled = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null);
+            double refunded = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null);
+            double net = billed + cancelled + refunded;
+            is.setTotal(net);
+            return is;
+        } else {
+            double billed = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double cancelled = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double refunded = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double net = billed + cancelled + refunded;
+            is.setTotal(net);
+            return is;
+        }
     }
 
     private InvestigationSummeryData setIxSummeryCountReportedDep(Item w, Department d) {

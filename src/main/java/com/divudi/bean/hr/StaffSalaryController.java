@@ -1712,7 +1712,13 @@ public class StaffSalaryController implements Serializable {
                     fetchAndSetBankData();
                     addSalaryComponent();
                 } else {
-                    Date nowDate = salaryCycle.getDayOffPhFromDate();
+                    Date nowDate;
+                    if (checkDateRange(commonFunctions.getEndOfDay(getCurrent().getStaff().getDateJoined()))) {
+                        nowDate = getCurrent().getStaff().getDateJoined();
+                    } else {
+                        nowDate = salaryCycle.getDayOffPhFromDate();
+                    }
+                    System.out.println("Start - nowDate = " + nowDate);
                     boolean error = false;
                     System.out.println("salaryCycle.getDayOffPhToDate() = " + salaryCycle.getDayOffPhToDate());
                     while (nowDate.before(salaryCycle.getDayOffPhToDate())) {

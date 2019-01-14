@@ -36,6 +36,11 @@
                         <f:selectItem itemLabel="Only Inward" itemValue="3" />
                         <f:selectItem itemLabel="Only Collecting Center" itemValue="4" />
                     </p:selectOneRadio>
+                    <h:outputLabel  value="Search By" />
+                    <p:selectOneRadio value="#{investigationMonthSummeryOwnControllerSession.reportKeyWord.string}" >
+                        <f:selectItem itemLabel="With Staff Fee" itemValue="0" />
+                        <f:selectItem itemLabel="Without Staff Fee" itemValue="1" />
+                    </p:selectOneRadio>
 
                 </h:panelGrid>
 
@@ -70,8 +75,10 @@
 
 
                         <p:column >
+                            <f:facet name="header">
+                                <h:outputLabel value="No"/>
+                            </f:facet>
                             <h:outputLabel value="#{i+1}"  />
-
                         </p:column>
 
                         <p:column headerText="Test Name" 
@@ -87,6 +94,9 @@
                         </p:column>
                         <p:column headerText="Count" style="text-align:right" rendered="#{investigationMonthSummeryOwnControllerSession.count}"
                                   sortBy="#{c.count}">
+                            <f:facet name="header">
+                                <h:outputLabel value="Count"/>
+                            </f:facet>
                             <h:outputLabel value="#{c.count}" />
                             <f:facet name="footer">
                                 <h:outputLabel value="#{investigationMonthSummeryOwnControllerSession.totalCount}">
@@ -95,6 +105,9 @@
                         </p:column>
                         <p:column headerText="Total" style="text-align:right" rendered="#{!investigationMonthSummeryOwnControllerSession.count}"
                                   sortBy="#{c.total}">
+                            <f:facet name="header">
+                                <h:outputLabel value="Total"/>
+                            </f:facet>
                             <h:outputLabel value="#{c.total}" >
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>

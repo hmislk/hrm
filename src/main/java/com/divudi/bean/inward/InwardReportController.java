@@ -8,8 +8,11 @@ package com.divudi.bean.inward;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
+import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
+import com.divudi.data.dataStructure.ItemWithFee;
 import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.inward.InwardChargeType;
 import com.divudi.ejb.CommonFunctions;
@@ -18,7 +21,9 @@ import com.divudi.entity.BillItem;
 import com.divudi.entity.BilledBill;
 import com.divudi.entity.CancelledBill;
 import com.divudi.entity.Category;
+import com.divudi.entity.Department;
 import com.divudi.entity.Institution;
+import com.divudi.entity.Item;
 import com.divudi.entity.PatientEncounter;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.inward.Admission;
@@ -91,6 +96,8 @@ public class InwardReportController implements Serializable {
     List<BillItem> billedBill;
     List<BillItem> cancelledBill;
     List<BillItem> refundBill;
+    List<Bill> bills;
+    List<ItemWithFee> itemWithFees;
     List<PatientInvestigation> patientInvestigations;
     double totalBilledBill;
     double totalCancelledBill;
@@ -124,6 +131,9 @@ public class InwardReportController implements Serializable {
     boolean withoutCancelBHT = true;
 
     private ReportKeyWord reportKeyWord;
+
+    boolean paginator = true;
+    int rows = 20;
 
     public List<PatientEncounter> getPatientEncounters() {
         return patientEncounters;
@@ -381,7 +391,7 @@ public class InwardReportController implements Serializable {
             p.setTransPaidByCompany(calPaidByCompany(p));
             System.out.println("p.getBhtNo() = " + p.getBhtNo());
             System.out.println("p.getFinalBill() = " + p.getFinalBill());
-            if (p.getFinalBill()==null) {
+            if (p.getFinalBill() == null) {
                 continue;
             }
             for (BillItem bi : p.getFinalBill().getBillItems()) {
@@ -570,7 +580,6 @@ public class InwardReportController implements Serializable {
         patientEncounters = getPeFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
 
 //        calTotalDischargedNoChanges();
-
         List<PatientEncounter> list = patientEncounters;
         patientEncounters = null;
         patientEncounters = new ArrayList<>();
@@ -582,7 +591,7 @@ public class InwardReportController implements Serializable {
         for (PatientEncounter p : list) {
             System.out.println("p.getBhtNo() = " + p.getBhtNo());
             System.out.println("p.getFinalBill() = " + p.getFinalBill());
-            if (p.getFinalBill()==null) {
+            if (p.getFinalBill() == null) {
                 continue;
             }
             p.setTransPaidByPatient(calPaidByPatient(p));
@@ -776,7 +785,7 @@ public class InwardReportController implements Serializable {
             sql += "and pi.encounter=:en";
             temMap.put("en", patientEncounter);
         }
-        
+
         if (withFooter) {
             sql += " and  b.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
         } else {
@@ -791,6 +800,312 @@ public class InwardReportController implements Serializable {
         patientInvestigations = getPatientInvestigationFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Investigation Trace(/faces/inward/investigation_search_for_reporting_bht.xhtml)");
+
+    }
+
+    public void createServiceBills() {
+        Date startTime = new Date();
+
+        bills = fetchServiceBills();
+        total = fetchServiceTotals();
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Inward Report/service report/Report by bill(/faces/inward/report_md_inward_bill.xhtml)");
+
+    }
+
+    public List<Bill> fetchServiceBills() {
+        makeListNull();
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select b from Bill b "
+                + " where b.billType = :billType "
+                + "  and b.retired=false ";
+
+        if (getReportKeyWord().getString().equals("0")) {
+            sql += " and b.createdAt between :fromDate and :toDate ";
+        } else {
+            sql += " and b.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        }
+
+        temMap.put("billType", BillType.InwardBill);
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+
+        bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        return bills;
+    }
+
+    public double fetchServiceTotals() {
+        Date startTime = new Date();
+
+        makeListNull();
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select sum(b.netTotal) from Bill b "
+                + " where b.billType = :billType "
+                + "  and b.retired=false ";
+
+        if (getReportKeyWord().getString().equals("0")) {
+            sql += " and b.createdAt between :fromDate and :toDate ";
+        } else {
+            sql += " and b.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        }
+
+        temMap.put("billType", BillType.InwardBill);
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+
+        double d = getBillFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+        System.out.println("d = " + d);
+        commonController.printReportDetails(fromDate, toDate, startTime, "Inward Report/service report/Report by bill(/faces/inward/report_md_inward_bill.xhtml)");
+
+        return d;
+    }
+
+    public void createItemWithFeeByAddedDate() {
+        Date startTime = new Date();
+        itemWithFees = new ArrayList<>();
+        List<Object[]> objects = fetchItemWithCountandTotal();
+        ItemWithFee lasItemWithFee = null;
+        BillClassType lastType = null;
+        netPaid = 0.0;
+        netTotal = 0.0;
+        for (Object[] ob : objects) {
+            Item i = (Item) ob[0];
+            System.out.println("i = " + i.getName());
+            BillClassType bct = (BillClassType) ob[1];
+            System.out.println("bct = " + bct);
+            long count = (long) ob[2];
+            System.out.println("count = " + count);
+            FeeType ft = (FeeType) ob[3];
+            System.out.println("ft = " + ft);
+            double total = (double) ob[4];
+            System.out.println("total = " + total);
+            if (lasItemWithFee == null) {
+                lasItemWithFee = new ItemWithFee();
+                lasItemWithFee.setItem(i);
+                if (bct == BillClassType.BilledBill) {
+                    lasItemWithFee.setCount(count);
+                } else {
+                    lasItemWithFee.setCount(0 - count);
+                }
+                if (ft == FeeType.Staff) {
+                    lasItemWithFee.setProFee(total);
+                    netPaid += total;
+                } else {
+                    lasItemWithFee.setHospitalFee(total);
+                    netTotal += total;
+                }
+                lasItemWithFee.setTotal(total);
+                lastType = bct;
+            } else {
+                if (lastType == bct && lasItemWithFee.getItem() == i) {
+                    if (ft == FeeType.Staff) {
+                        lasItemWithFee.setProFee(lasItemWithFee.getProFee() + total);
+                        netPaid += total;
+                    } else {
+                        lasItemWithFee.setHospitalFee(lasItemWithFee.getHospitalFee() + total);
+                        netTotal += total;
+                    }
+                    lasItemWithFee.setTotal(lasItemWithFee.getTotal() + total);
+                } else {
+                    if (lasItemWithFee.getItem() == i) {
+                        if (bct == BillClassType.BilledBill) {
+                            lasItemWithFee.setCount(lasItemWithFee.getCount() + count);
+                        } else {
+                            lasItemWithFee.setCount(lasItemWithFee.getCount() - count);
+                        }
+                        if (ft == FeeType.Staff) {
+                            lasItemWithFee.setProFee(lasItemWithFee.getProFee() + total);
+                            netPaid += total;
+                        } else {
+                            lasItemWithFee.setHospitalFee(lasItemWithFee.getHospitalFee() + total);
+                            netTotal += total;
+                        }
+                        lasItemWithFee.setTotal(lasItemWithFee.getTotal() + total);
+                        if (ft == FeeType.Staff) {
+                            lasItemWithFee.setProFee(lasItemWithFee.getProFee() + total);
+                            netPaid += total;
+                        } else {
+                            lasItemWithFee.setHospitalFee(lasItemWithFee.getHospitalFee() + total);
+                            netTotal += total;
+                        }
+                        lasItemWithFee.setTotal(lasItemWithFee.getTotal() + total);
+                        lastType = bct;
+                    } else {
+                        itemWithFees.add(lasItemWithFee);
+                        System.err.println("****Added****");
+                        System.out.println("lasItemWithFee.getItem().getName() = " + lasItemWithFee.getItem().getName());
+                        System.out.println("lasItemWithFee.getCount() = " + lasItemWithFee.getCount());
+                        System.out.println("lasItemWithFee.getTotal() = " + lasItemWithFee.getTotal());
+                        System.err.println("****Added****");
+                        lasItemWithFee = new ItemWithFee();
+                        lasItemWithFee.setItem(i);
+                        if (bct == BillClassType.BilledBill) {
+                            lasItemWithFee.setCount(count);
+                        } else {
+                            lasItemWithFee.setCount(0 - count);
+                        }
+                        if (ft == FeeType.Staff) {
+                            lasItemWithFee.setProFee(total);
+                            netPaid += total;
+                        } else {
+                            lasItemWithFee.setHospitalFee(total);
+                            netTotal += total;
+                        }
+                        lasItemWithFee.setTotal(total);
+                        lastType = bct;
+                    }
+                }
+            }
+        }
+        itemWithFees.add(lasItemWithFee);
+        commonController.printReportDetails(fromDate, toDate, startTime, "Inward Reports/Service Report/Report by item(Count)(/faces/inward/report_md_inward_item.xhtml)");
+    }
+
+    public void createBillItemList() {
+        billItems = new ArrayList<>();
+        List<Object[]> objects = fetchBillItemDetails();
+        BillItem lastBillItem = null;
+        for (Object[] ob : objects) {
+            BillItem bi = (BillItem) ob[0];
+            System.out.println("bi.getId() = " + bi.getId());
+            System.out.println("bi.getInsId() = " + bi.getBill().getInsId());
+            System.out.println("bi.getItem().getName() = " + bi.getItem().getName());
+            FeeType ft = (FeeType) ob[1];
+            System.out.println("ft = " + ft);
+            double d = (double) ob[2];
+            System.out.println("d = " + d);
+            if (lastBillItem == null) {
+                lastBillItem = bi;
+                if (ft == FeeType.Staff) {
+                    lastBillItem.setStaffFee(d);
+                    netPaid = d;
+                } else {
+                    lastBillItem.setHospitalFee(d);
+                    netTotal = d;
+                }
+            } else {
+                if (lastBillItem.getBill().equals(bi.getBill()) && lastBillItem.getItem().equals(bi.getItem())) {
+                    if (ft == FeeType.Staff) {
+                        lastBillItem.setStaffFee(lastBillItem.getStaffFee() + d);
+                        netPaid += d;
+                    } else {
+                        lastBillItem.setHospitalFee(lastBillItem.getHospitalFee() + d);
+                        netTotal += d;
+                    }
+                } else {
+                    billItems.add(lastBillItem);
+                    lastBillItem = new BillItem();
+                    lastBillItem = bi;
+                    if (ft == FeeType.Staff) {
+                        lastBillItem.setStaffFee(d);
+                        netPaid += d;
+                    } else {
+                        lastBillItem.setHospitalFee(d);
+                        netTotal += d;
+                    }
+                }
+            }
+
+        }
+        billItems.add(lastBillItem);
+        System.out.println("billItems.size() = " + billItems.size());
+    }
+
+    public List<Object[]> fetchItemWithCountandTotal() {
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select bi.item,bi.bill.billClassType, "
+                + " count(bi.item),bf.fee.feeType,sum(bf.feeValue) "
+                + " FROM BillFee bf join bf.billItem bi "
+                + " where bi.bill.billType= :bTp "
+                + " and bi.bill.retired=false ";
+
+        if (getReportKeyWord().getString().equals("0")) {
+            sql += " and  bi.bill.createdAt between :fromDate and :toDate ";
+        } else {
+            sql += " and  bi.bill.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        }
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and  bi.item.institution=:ins ";
+            m.put("ins", getReportKeyWord().getInstitution());
+        }
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and  bi.item.department=:dept ";
+            m.put("dept", getReportKeyWord().getDepartment());
+        }
+        if (getReportKeyWord().getCategory() != null) {
+            sql += " and  bi.item.category=:cat ";
+            m.put("cat", getReportKeyWord().getCategory());
+        }
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and  bi.item=:item ";
+            m.put("item", getReportKeyWord().getItem());
+        }
+        if (getReportKeyWord().getPaymentMethod() != null) {
+            sql += " and bi.bill.paymentMethod=:p ";
+            m.put("p", getReportKeyWord().getPaymentMethod());
+        }
+        sql += " group by bi.item,bi.bill.billClassType,bf.fee.feeType "
+                + " order by bi.item.name,bi.bill.billClassType,bf.fee.feeType  ";
+
+        m.put("toDate", getReportKeyWord().getToDate());
+        m.put("fromDate", getReportKeyWord().getFromDate());
+        m.put("bTp", BillType.InwardBill);
+        List<Object[]> list = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("list.size() = " + list.size());
+        return list;
+
+    }
+
+    public List<Object[]> fetchBillItemDetails() {
+        String sql;
+        Map m = new HashMap();
+
+//        sql = "select pe.bhtNo, b.insId, b.billClassType, i.institution.name, "
+//                + " i.department.name, b.createdAt, pe.dateOfDischarge, i.category.name, "
+//                + " i.name, bi.descreption, "
+        sql = "select bi, bf.fee.feeType, sum(bf.feeValue) "
+                + " FROM BillFee bf join bf.billItem bi "
+                + " where bi.bill.billType=:bTp "
+                + " and bi.bill.retired=false ";
+
+        if (getReportKeyWord().getString().equals("0")) {
+            sql += " and  bi.bill.createdAt between :fromDate and :toDate ";
+        } else {
+            sql += " and  bi.bill.patientEncounter.dateOfDischarge between :fromDate and :toDate ";
+        }
+        if (getReportKeyWord().getInstitution() != null) {
+            sql += " and  bi.item.institution=:ins ";
+            m.put("ins", getReportKeyWord().getInstitution());
+        }
+        if (getReportKeyWord().getDepartment() != null) {
+            sql += " and  bi.item.department=:dept ";
+            m.put("dept", getReportKeyWord().getDepartment());
+        }
+        if (getReportKeyWord().getCategory() != null) {
+            sql += " and  bi.item.category=:cat ";
+            m.put("cat", getReportKeyWord().getCategory());
+        }
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and  bi.item=:item ";
+            m.put("item", getReportKeyWord().getItem());
+        }
+        if (getReportKeyWord().getPaymentMethod() != null) {
+            sql += " and bi.bill.paymentMethod=:p ";
+            m.put("p", getReportKeyWord().getPaymentMethod());
+        }
+        sql += " group by bi.id,bf.fee.feeType "
+                + " order by bi.id,bf.fee.feeType  ";
+
+        m.put("toDate", getReportKeyWord().getToDate());
+        m.put("fromDate", getReportKeyWord().getFromDate());
+        m.put("bTp", BillType.InwardBill);
+        List<Object[]> list = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("list.size() = " + list.size());
+        return list;
 
     }
 
@@ -1263,6 +1578,16 @@ public class InwardReportController implements Serializable {
         }
     }
 
+    public void prepareForPrint() {
+        paginator = false;
+        rows = getBills().size();
+    }
+
+    public void prepareForView() {
+        paginator = true;
+        rows = 20;
+    }
+
     public Institution getInstitution() {
         return institution;
     }
@@ -1434,6 +1759,38 @@ public class InwardReportController implements Serializable {
 
     public void setReportKeyWord(ReportKeyWord reportKeyWord) {
         this.reportKeyWord = reportKeyWord;
+    }
+
+    public List<Bill> getBills() {
+        return bills;
+    }
+
+    public void setBills(List<Bill> bills) {
+        this.bills = bills;
+    }
+
+    public boolean isPaginator() {
+        return paginator;
+    }
+
+    public void setPaginator(boolean paginator) {
+        this.paginator = paginator;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public List<ItemWithFee> getItemWithFees() {
+        return itemWithFees;
+    }
+
+    public void setItemWithFees(List<ItemWithFee> itemWithFees) {
+        this.itemWithFees = itemWithFees;
     }
 
     public class IncomeByCategoryRecord {

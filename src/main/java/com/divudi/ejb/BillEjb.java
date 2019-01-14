@@ -1,9 +1,11 @@
 package com.divudi.ejb;
 
 import com.divudi.data.BillType;
+import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.BillListWithTotals;
 import com.divudi.entity.Bill;
+import com.divudi.entity.BillFee;
 import com.divudi.entity.BillItem;
 import com.divudi.entity.BilledBill;
 import com.divudi.entity.CancelledBill;
@@ -175,6 +177,76 @@ public class BillEjb implements Serializable {
         if (!allItemDepartments) {
             sql += " and (bi.item.department=:idep ) ";
             temMap.put("idep", itemDepartment);
+        }
+        /*List<BillItem> billitems=getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+         double d=0.0;
+         for (BillItem bi : billitems) {
+         d+=bi.getNetValue();
+         }
+         System.out.println("d = " + d);*/
+        return getBillItemFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+    }
+    
+    public double getBillFeeTotal(Item item, Date fromDate,
+            Date toDate,
+            BillType[] billTypes,
+            Class[] classes,
+            boolean allBilledInstitutions,
+            Institution billedInstitution,
+            boolean allBilledDepartments,
+            Department billedDepartment,
+            boolean allItemInstitutions,
+            Institution itemInstitution,
+            boolean allItemDepartments,
+            Department itemDepartment,
+            boolean allFeeTypes,
+            FeeType feeType,
+            FeeType[] notFeeTypes
+    ) {
+        List<Class> arrayClasses = Arrays.asList(classes);
+        List<BillType> arrayBillTypes = Arrays.asList(billTypes);
+        List<FeeType> arrayfFeeTypes = Arrays.asList(notFeeTypes);
+        String sql;
+        Map temMap = new HashMap();
+        //sql = "select bi FROM BillItem bi "/
+        sql = "select sum(bf.feeValue) FROM BillFee bf join bf.billItem bi "
+                + " where bi.bill.billType in :bts "
+                + " and bi.item =:itm"
+                + " and type(bi.bill) in :bcs "
+                + " and bi.bill.createdAt between :fromDate and :toDate ";
+
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+        temMap.put("itm", item);
+        temMap.put("bcs", arrayClasses);
+        temMap.put("bts", arrayBillTypes);
+
+        if (!allBilledInstitutions) {
+            sql += " and (bi.bill.institution=:bins or bi.bill.department.institution=:bins) ";
+            temMap.put("bins", billedInstitution);
+        }
+
+        if (!allItemInstitutions) {
+            sql += " and (bi.item.institution=:iins or bi.item.department.institution=:iins) ";
+            temMap.put("iins", itemInstitution);
+        }
+
+        if (!allBilledDepartments) {
+            sql += " and bi.bill.department=:bdep ";
+            temMap.put("bdep", billedDepartment);
+        }
+
+        if (!allItemDepartments) {
+            sql += " and bi.item.department=:idep ";
+            temMap.put("idep", itemDepartment);
+        }
+        if (!allFeeTypes) {
+            sql += " and bf.fee.feeType=:ft ";
+            temMap.put("ft", feeType);
+        }
+        if (arrayfFeeTypes!=null) {
+            sql += " and bf.fee.feeType not in :fts ";
+            temMap.put("fts", arrayfFeeTypes);
         }
         /*List<BillItem> billitems=getBillItemFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
          double d=0.0;

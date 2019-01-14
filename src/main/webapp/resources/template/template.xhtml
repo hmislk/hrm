@@ -82,6 +82,7 @@
                                     <p:submenu label="Packages">
                                         <p:menuitem ajax="false" action="/opd_bill_package" actionListener="#{billPackageController.clearBillValues}" value="Packages" rendered="#{webUserController.hasPrivilege('OpdBilling')}" ></p:menuitem>
                                         <p:menuitem ajax="false" action="/opd_bill_package_medical" actionListener="#{billPackageController.clearBillValues}" value="Medical Packages" rendered="#{webUserController.hasPrivilege('OpdBilling')}" ></p:menuitem>
+                                        <p:menuitem ajax="false" action="/opd_search_bill_own_1"  value="Package Bill Reprint" actionListener="#{searchController.makeListNull()}" ></p:menuitem>
                                     </p:submenu>
                                     <p:submenu label="Pharmacy">
                                         <p:menuitem ajax="false" action="/pharmacy/pharmacy_search_pre_bill" actionListener="#{searchController.makeListNull}"  value="Accept Payment" ></p:menuitem>

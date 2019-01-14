@@ -19,33 +19,33 @@
                     </p:calendar>
                     <p:commandButton ajax="false" value="Process" style="float: right;" action="#{pharmacySaleReport.createPharmacyReport()}"/>
                     <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                        <pe:exporter type="xlsx" target="sum1" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
+                        <pe:exporter type="xlsx" target="tbl1,tbl2,tbl3,tbl4,tbl5,tbl6,tbl7,tbl8,tbl9,tbl10,tbl11,tbl12" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
                     </p:commandButton>
                     <p:commandButton ajax="false" value="Print" style="float: right;" styleClass="noPrintButton" >
                         <p:printer target="panelPrint" />
                     </p:commandButton>
                 </h:panelGrid>
-                    
-<!--                <h:panelGrid styleClass="printBlock" columns="2">                   
-                    <h:outputLabel/>
-                    <h:outputLabel value="PHARMACY REPORT SUMMERY"/>                   
-                    <h:outputLabel value="From Date :  "/>
-                    <h:outputLabel value="#{pharmacySaleReport.fromDate}"  >
-                        <f:convertDateTime pattern="dd MMMM yyyy" />
-                    </h:outputLabel>
-                    <h:outputLabel value="To Date"/>
-                    <h:outputLabel value="#{pharmacySaleReport.toDate}"  >
-                        <f:convertDateTime pattern="dd MMMM yyyy" />
-                    </h:outputLabel>                       
-                </h:panelGrid>-->
+
+                <!--                <h:panelGrid styleClass="printBlock" columns="2">                   
+                                    <h:outputLabel/>
+                                    <h:outputLabel value="PHARMACY REPORT SUMMERY"/>                   
+                                    <h:outputLabel value="From Date :  "/>
+                                    <h:outputLabel value="#{pharmacySaleReport.fromDate}"  >
+                                        <f:convertDateTime pattern="dd MMMM yyyy" />
+                                    </h:outputLabel>
+                                    <h:outputLabel value="To Date"/>
+                                    <h:outputLabel value="#{pharmacySaleReport.toDate}"  >
+                                        <f:convertDateTime pattern="dd MMMM yyyy" />
+                                    </h:outputLabel>                       
+                                </h:panelGrid>-->
 
                 <p:spacer height="30"/>
-                <p:dataTable value="#{pharmacySaleReport.saleValuesCash}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}" >
-                   
-                    
+                <p:dataTable id="tbl1" value="#{pharmacySaleReport.saleValuesCash}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}" >
+
+
                     <f:facet name="header">
                         <h:outputLabel value="All Department Sale Report : "/>
-                        
+
                         <h:outputLabel value="From  "/>
                         <h:outputLabel value="#{pharmacySaleReport.fromDate}">
                             <f:convertDateTime pattern="dd MM yyyy" ></f:convertDateTime>
@@ -57,45 +57,69 @@
                         </h:outputLabel>
                         <br/>
                     </f:facet>
-                   
-                    
+
+
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Sale  - CASH"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -161,44 +185,68 @@
                 </p:dataTable>
 
 
-                <p:dataTable value="#{pharmacySaleReport.saleValuesCheque}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl2" value="#{pharmacySaleReport.saleValuesCheque}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Sale - CHEQUE"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -263,44 +311,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.saleValuesSlip}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl3" value="#{pharmacySaleReport.saleValuesSlip}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Sale - SLIP"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -365,44 +437,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.saleValuesCard}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl4" value="#{pharmacySaleReport.saleValuesCard}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Sale - CARD"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -467,44 +563,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.saleValuesCredit}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl5" value="#{pharmacySaleReport.saleValuesCredit}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Sale - CREDIT"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -568,45 +688,69 @@
                         </p:row>
                     </p:columnGroup>
                 </p:dataTable>
-                
-                 <p:dataTable value="#{pharmacySaleReport.wholeSaleValuesCash}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}" >
+
+                <p:dataTable id="tbl6" value="#{pharmacySaleReport.wholeSaleValuesCash}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}" >
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Whole Sale  - CASH"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return ValueReturn Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -672,44 +816,68 @@
                 </p:dataTable>
 
 
-                <p:dataTable value="#{pharmacySaleReport.wholeSaleValuesCheque}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl7" value="#{pharmacySaleReport.wholeSaleValuesCheque}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Whole Sale - CHEQUE"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -774,44 +942,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.wholeSaleValuesSlip}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl8" value="#{pharmacySaleReport.wholeSaleValuesSlip}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Whole Sale - SLIP"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -876,44 +1068,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.wholeSaleValuesCard}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl9" value="#{pharmacySaleReport.wholeSaleValuesCard}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Whole Sale - CARD"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -978,44 +1194,68 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.wholeSaleValuesCredit}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl10" value="#{pharmacySaleReport.wholeSaleValuesCredit}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Whole Sale - CREDIT"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Cancelled Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Cancelled Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value7}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -1080,39 +1320,60 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.bhtIssues}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl11" value="#{pharmacySaleReport.bhtIssues}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Bht Issue"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
@@ -1170,39 +1431,60 @@
                     </p:columnGroup>
                 </p:dataTable>
 
-                <p:dataTable value="#{pharmacySaleReport.unitIssues}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
+                <p:dataTable id="tbl12" value="#{pharmacySaleReport.unitIssues}" var="i" rowStyleClass="#{(i.value3 ne 0.0 and i.value6 ne 0.0 )? '':'noDisplayRow'}">
                     <f:facet name="header">
                         <h:outputLabel value="Pharmacy Unit Issue"/>
                     </f:facet>
                     <p:column headerText="Department">
+                        <f:facet name="header">
+                            <h:outputLabel value="Department"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.string}"/>
                     </p:column>
                     <p:column headerText="Billed Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value1}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value2}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Value">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Value"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value3}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>     
                     <p:column headerText="Billed Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Billed Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value4}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Return Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Return Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value5}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
                     <p:column headerText="Net Count">
+                        <f:facet name="header">
+                            <h:outputLabel value="Net Count"/>
+                        </f:facet>
                         <h:outputLabel value="#{i.value6}">
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>

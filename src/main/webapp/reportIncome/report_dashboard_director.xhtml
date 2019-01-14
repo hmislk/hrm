@@ -200,6 +200,41 @@
                         }
                     </script>
                     
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawOnlineAgencyCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_30_days_on'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawOnlineAgencyCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_12_months_on'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    
                     <center>
                         <p:panel>
                             <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
@@ -257,13 +292,24 @@
                             </h:panelGrid>
                             
                             <h:panelGrid>
-                                <p:panel header="Collecting Center Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                <p:panel header="Channel Center Counts Of Last 30 Days" toggleable="true" collapsed="false">
                                     <div id="chart_agency_last_30_days" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
                             <h:panelGrid>
-                                <p:panel header="Collecting Center Counts Of Last 12 Months (count > 300)" toggleable="true" collapsed="false">
+                                <p:panel header="Channel Center Counts Of Last 12 Months (count > 300)" toggleable="true" collapsed="false">
                                     <div id="chart_agency_last_12_months" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            
+                            <h:panelGrid>
+                                <p:panel header="Online Channel Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_30_days_on" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Online Channel Counts Of Last 12 Months" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_12_months_on" style="width: 1500px; height: 500px;"></div>
                                 </p:panel>
                             </h:panelGrid>
 

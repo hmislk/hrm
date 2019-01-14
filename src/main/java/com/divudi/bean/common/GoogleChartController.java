@@ -1803,7 +1803,7 @@ public class GoogleChartController implements Serializable {
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
-        subArray.put(0, "Date");
+        subArray.put(0, "Month");
         subArray.put(1, "Inward");
         subArray.put(2, "Day Case");
         mainJSONArray.put(subArray);
@@ -1878,8 +1878,8 @@ public class GoogleChartController implements Serializable {
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
-        subArray.put(0, "Count");
-        subArray.put(1, "Collecting Center");
+        subArray.put(0, "Collecting Center");
+        subArray.put(1, "Count");
         mainJSONArray.put(subArray);
 
         List<Object[]> objects = fetchCollectingCenterCounts(fd, td);
@@ -1943,8 +1943,8 @@ public class GoogleChartController implements Serializable {
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
-        subArray.put(0, "Count");
-        subArray.put(1, "Collecting Center");
+        subArray.put(0, "Collecting Center");
+        subArray.put(1, "Count");
         mainJSONArray.put(subArray);
 
         List<Object[]> objects = fetchCollectingCenterCounts(fd, td);
@@ -2008,8 +2008,8 @@ public class GoogleChartController implements Serializable {
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
-        subArray.put(0, "Count");
-        subArray.put(1, "Collecting Center");
+        subArray.put(0, "Channel Agency");
+        subArray.put(1, "Count");
         mainJSONArray.put(subArray);
 
         List<Object[]> objects = fetchAgencyBillCounts(fd, td, true);
@@ -2046,7 +2046,7 @@ public class GoogleChartController implements Serializable {
                     subArray.put(1, tot);
                     mainJSONArray.put(subArray);
                 }
-                add=false;
+                add = false;
             }
         }
 //        if (lastCC != null && tot > 40) {
@@ -2062,7 +2062,7 @@ public class GoogleChartController implements Serializable {
         commonController.printTimeDefference(startTime, "Time(Agency Count Last 30 Days)");
         return mainJSONArray.toString();
     }
-    
+
     public String drawAgencyCountLast12Months() {
         Date startTime = new Date();
         Date fd;
@@ -2075,8 +2075,8 @@ public class GoogleChartController implements Serializable {
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
-        subArray.put(0, "Count");
-        subArray.put(1, "Collecting Center");
+        subArray.put(0, "Channel Agency");
+        subArray.put(1, "Count");
         mainJSONArray.put(subArray);
 
         List<Object[]> objects = fetchAgencyBillCounts(fd, td, true);
@@ -2113,7 +2113,7 @@ public class GoogleChartController implements Serializable {
                     subArray.put(1, tot);
                     mainJSONArray.put(subArray);
                 }
-                add=false;
+                add = false;
             }
         }
 //        if (lastCC != null && tot > 40) {
@@ -2127,6 +2127,121 @@ public class GoogleChartController implements Serializable {
 //        System.out.println("jSONArray.toString = " + mainJSONArray.toString());
 //
         commonController.printTimeDefference(startTime, "Time(Agency Count Last 12 Months)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawOnlineAgencyCountLast30days() {
+        Date startTime = new Date();
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfDay(cal.getTime());
+        cal.add(Calendar.DATE, -30);
+        fd = commonFunctions.getStartOfDay(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Date");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        List<Object[]> objects = fetchAgencyBillCounts(fd, td, true, "Date", 20385287);
+        List<Object[]> objectsCan = fetchAgencyBillCounts(fd, td, false, "Date", 20385287);
+        double tot = 0.0;
+        boolean add = false;
+        Date now = fd;
+        DateFormat df = new SimpleDateFormat("MM-dd");
+        while (now.before(td)) {
+            tot = 0.0;
+//            System.out.println("******now = " + now);
+//            System.out.println("******now = " + now.getTime());
+            for (Object[] ob : objects) {
+                Date d = (Date) ob[0];
+//                System.out.println("d = " + d);
+                long l = (long) ob[1];
+//                System.out.println("l = " + l);
+                d = commonFunctions.getStartOfDay(d);
+//                System.out.println("d = " + d);
+//                System.out.println("d.getTime() = " + d.getTime());
+                if (d.equals(now)) {
+//                    System.err.println("******Equals*****");
+                    tot += l;
+                    break;
+                }
+            }
+            for (Object[] obc : objectsCan) {
+                Date d = (Date) obc[0];
+//                System.out.println("d = " + d);
+                long l = (long) obc[1];
+//                System.out.println("l = " + l);
+                d = commonFunctions.getStartOfDay(d);
+//                System.out.println("d = " + d);
+//                System.out.println("d.getTime() = " + d.getTime());
+                if (d.equals(now)) {
+//                    System.err.println("******Equals*****");
+                    tot -= l;
+                    break;
+                }
+            }
+            subArray = new JSONArray();
+            subArray.put(0, df.format(now));
+            subArray.put(1, tot);
+            mainJSONArray.put(subArray);
+
+            cal.setTime(now);
+            cal.add(Calendar.DATE, 1);
+            now = cal.getTime();
+        }
+
+//
+        commonController.printTimeDefference(startTime, "Time(Online Agency Count Last 30 days)");
+        return mainJSONArray.toString();
+    }
+
+    public String drawOnlineAgencyCountLast12Months() {
+        Date startTime = new Date();
+        Date fd;
+        Date td;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        td = commonFunctions.getEndOfMonth(cal.getTime());
+        cal.add(Calendar.MONTH, -11);
+        fd = commonFunctions.getStartOfMonth(cal.getTime());
+
+        JSONArray mainJSONArray = new JSONArray();
+        JSONArray subArray = new JSONArray();
+        subArray.put(0, "Month");
+        subArray.put(1, "Count");
+        mainJSONArray.put(subArray);
+
+        List<Object[]> objects = fetchAgencyBillCounts(fd, td, true, "Month", 20385287);
+        List<Object[]> objectsCan = fetchAgencyBillCounts(fd, td, false, "Month", 20385287);
+        double tot = 0.0;
+        for (Object[] ob : objects) {
+            int d = (int) ob[0];
+//            System.out.println("d = " + d);
+            long l = (long) ob[1];
+//            System.out.println("l = " + l);
+            tot = l;
+            for (Object[] obc : objectsCan) {
+                int dc = (int) obc[0];
+//                System.out.println("dc = " + dc);
+                long lc = (long) obc[1];
+//                System.out.println("lc = " + lc);
+                if (d == dc) {
+                    tot -= lc;
+                    break;
+                }
+            }
+            subArray = new JSONArray();
+            subArray.put(0, fetchMonth(d));
+//            System.out.println("fetchMonth(d) = " + fetchMonth(d) + " - " + tot);
+            subArray.put(1, tot);
+            mainJSONArray.put(subArray);
+        }
+
+        commonController.printTimeDefference(startTime, "Time(Online Agency Count Last 12 Months)");
         return mainJSONArray.toString();
     }
 
@@ -2299,10 +2414,55 @@ public class GoogleChartController implements Serializable {
                     + " and type(b) in :class ";
             m.put("class", Arrays.asList(new Class[]{CancelledBill.class, RefundBill.class}));
         }
-        
+
         sql += " group by b.creditCompany"
                 + " order by b.creditCompany.name ";
-        
+
+        m.put("bt", BillType.ChannelAgent);
+        m.put("fromDate", fd);
+        m.put("toDate", td);
+
+        System.out.println("m = " + m);
+        System.err.println("Sql " + sql);
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        return objects;
+
+    }
+
+    private List<Object[]> fetchAgencyBillCounts(Date fd, Date td, boolean billedBill, String date, long id) {
+        String sql;
+        Map m = new HashMap();
+        if (billedBill) {
+            sql = " select FUNC('" + date + "',b.singleBillSession.sessionDate)";
+        } else {
+            sql = " select FUNC('" + date + "',b.createdAt)";
+        }
+        sql += " ,count(b) "
+                + " from Bill b "
+                + " where b.retired=false"
+                + " and b.billType=:bt "
+                + " and b.creditCompany.id=:agency ";
+
+        if (billedBill) {
+            sql += " and b.singleBillSession.sessionDate between :fromDate and :toDate "
+                    + " and type(b)=:class ";
+            m.put("class", BilledBill.class);
+        } else {
+            sql += " and b.createdAt between :fromDate and :toDate "
+                    + " and type(b) in :class ";
+            m.put("class", Arrays.asList(new Class[]{CancelledBill.class, RefundBill.class}));
+        }
+
+        if (billedBill) {
+            sql += " group by FUNC('" + date + "',b.singleBillSession.sessionDate) "
+                    + " order by b.singleBillSession.sessionDate ";
+        } else {
+            sql += " group by FUNC('" + date + "',b.createdAt) "
+                    + " order by b.createdAt ";
+        }
+
+        m.put("agency", id);
         m.put("bt", BillType.ChannelAgent);
         m.put("fromDate", fd);
         m.put("toDate", td);

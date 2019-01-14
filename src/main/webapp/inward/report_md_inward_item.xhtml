@@ -8,31 +8,35 @@
                 xmlns:pe="http://primefaces.org/ui/extensions">
 
     <ui:define name="content">
-        <h:form>
+        <h:form id="frm">
             <p:panel>
-
                 <p:panel header="Item Report (Count)">                    
-                    <h:outputLabel value="From"/>
-                    <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{mdInwardReportController.fromDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >
-                        <f:ajax event="dateSelect"   render="tbl" execute="@this toDate" listener="#{mdInwardReportController.makeBillNull}"/>
-                    </p:calendar>
-
-                    <h:outputLabel value="To"/>
-                    <p:calendar id="toDate" value="#{mdInwardReportController.toDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >
-                        <f:ajax event="dateSelect"   render="tbl" execute="@this fromDate" listener="#{mdInwardReportController.makeBillNull}"/>
-                    </p:calendar>
                     <h:panelGrid columns="2" >
-                        <p:autoComplete id="ins" value="#{mdInwardReportController.institution}"
-                                        completeMethod="#{institutionController.completeIns}"
+                        <h:outputLabel value="From"/>
+                        <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{inwardReportController.reportKeyWord.fromDate}" 
+                                    navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
+
+                        <h:outputLabel value="To"/>
+                        <p:calendar styleClass="dateTimePicker" id="toDate" value="#{inwardReportController.reportKeyWord.toDate}" 
+                                    navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
+
+                        <h:outputLabel value="Item Institution"/>
+                        <p:autoComplete id="ins" value="#{inwardReportController.reportKeyWord.institution}"
+                                        completeMethod="#{institutionController.completeIns}" placeholder="Institution"
                                         var="ix" itemLabel="#{ix.name}" itemValue="#{ix}" size="30"  style="width: 400px;">
                             <p:column>
                                 #{ix.name}
                             </p:column>
                         </p:autoComplete>
-                        <p:autoComplete id="dept" completeMethod="#{departmentController.completeDept}" var="dept" itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" value="#{mdInwardReportController.dept}" converter="departmentConverter" >
-                        </p:autoComplete>
-                        <p:autoComplete value="#{mdInwardReportController.category}" id="ct" 
-                                        forceSelection="true"
+
+                        <h:outputLabel value="Item Department"/>
+                        <p:autoComplete id="dept" completeMethod="#{departmentController.completeDept}" var="dept" 
+                                        itemLabel="#{dept.name}" itemValue="#{dept}" forceSelection="true" placeholder="Department"
+                                        value="#{inwardReportController.reportKeyWord.institution}" converter="departmentConverter" />
+
+                        <h:outputLabel value="Item Category"/>
+                        <p:autoComplete value="#{inwardReportController.reportKeyWord.category}" id="ct" 
+                                        forceSelection="true" placeholder="Category"
                                         completeMethod="#{categoryController.completeCategoryService}"
                                         converter="categoryConverter"
                                         var="cat" itemLabel="#{cat.name}" 
@@ -48,12 +52,12 @@
                                                rendered="#{cat.categoryClass eq 'class com.divudi.entity.ServiceCategory'}"/>
                                 <h:outputLabel value="Child Category" 
                                                rendered="#{cat.categoryClass eq 'class com.divudi.entity.ServiceSubCategory'}"/>
-
                             </p:column> 
-
                         </p:autoComplete>
+
+                        <p:outputLabel value="Item" />
                         <p:autoComplete  widgetVar="aIx" id="acIx" forceSelection="true" 
-                                         value="#{mdInwardReportController.item}"
+                                         value="#{inwardReportController.reportKeyWord.item}" placeholder="Item"
                                          completeMethod="#{itemController.completeInwardItemsCategory}"
                                          var="ix" itemLabel="#{ix.name}" itemValue="#{ix}" 
                                          size="30"  style="width: 400px;">
@@ -69,38 +73,52 @@
                                     <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </p:column>  
-                            <p:ajax event="itemSelect" process="acIx ct" update="@all" />
-                            <p:ajax event="focus" process="ct"/>
                         </p:autoComplete>
-                        <p:watermark for="ct" value="Category"/>
-                        <p:watermark for="acIx" value="Item"/>
-                        <p:watermark for="dept" value="Department"/>
-                        <p:watermark for="ins" value="Institution"/>
+                        <h:outputLabel value="Process By"/>
+                        <p:selectOneRadio value="#{inwardReportController.reportKeyWord.string}" >
+                            <f:selectItem itemLabel="Added Date" itemValue="0" />
+                            <f:selectItem itemLabel="Discharge Date" itemValue="1" />
+                        </p:selectOneRadio>
 
-
-                        <p:panelGrid columns="2">
-                            <p:commandButton ajax="false" value="Process by Added Date" 
-                                             action="#{mdInwardReportController.createItemWithFeeByAddedDate}" style="float: right;" onclick="onSubmitButton();" />
-                            <p:commandButton ajax="false" value="Process by Discharge Date" 
-                                             action="#{mdInwardReportController.createItemWithFeeByDischargeDate}" style="float: right;" onclick="onSubmitButton();" />
-                            <p:commandButton ajax="false" value="Excel Admit Date" styleClass="noPrintButton" onclick="onSubmitButton();"
-                                             actionListener="#{mdInwardReportController.createItemWithFeeByAddedDate}">
-                                <pe:exporter type="xlsx" target="tbl" fileName="report_md_inward_item" />
-                            </p:commandButton>
-                            <p:commandButton ajax="false" value="Excel Discharge Date" styleClass="noPrintButton" onclick="onSubmitButton();" 
-                                             actionListener="#{mdInwardReportController.createItemWithFeeByDischargeDate}">
-                                <pe:exporter type="xlsx" target="tbl" fileName="report_md_inward_item" />
-                            </p:commandButton>
-                            <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
-                                <p:printer target="reportPrint"/>
-                            </p:commandButton>
-                        </p:panelGrid>
+                    </h:panelGrid>
+                    <h:panelGrid columns="4">
+                        <p:commandButton ajax="false" value="Process" action="#{inwardReportController.createItemWithFeeByAddedDate}" 
+                                         onclick="onSubmitButton();" />
+                        <p:commandButton value="Print" actionListener="#{inwardReportController.prepareForPrint()}" 
+                                         oncomplete="$('#frm\\:print').click()"
+                                         update=":frm:tbl"/>
+                        <p:commandButton id="print" value="Actual print" style="display: none">
+                            <p:ajax event="click" listener="#{inwardReportController.prepareForView()}" update=":frm:tbl"/>
+                            <p:printer target=":frm:tbl" />
+                        </p:commandButton>
+                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" >
+                            <pe:exporter type="xlsx" target="tbl" fileName="report_md_inward_item" />
+                        </p:commandButton>
+                        <!--                        <p:commandButton ajax="false" value="Process by Added Date" 
+                                                                 action="#{mdInwardReportController.createItemWithFeeByAddedDate}" style="float: right;" onclick="onSubmitButton();" />
+                                                <p:commandButton ajax="false" value="Process by Discharge Date" 
+                                                                 action="#{mdInwardReportController.createItemWithFeeByDischargeDate}" style="float: right;" onclick="onSubmitButton();" />
+                                                <p:commandButton ajax="false" value="Excel Admit Date" styleClass="noPrintButton" onclick="onSubmitButton();"
+                                                                 actionListener="#{mdInwardReportController.createItemWithFeeByAddedDate}">
+                                                    <pe:exporter type="xlsx" target="tbl" fileName="report_md_inward_item" />
+                                                </p:commandButton>
+                                                <p:commandButton ajax="false" value="Excel Discharge Date" styleClass="noPrintButton" onclick="onSubmitButton();" 
+                                                                 actionListener="#{mdInwardReportController.createItemWithFeeByDischargeDate}">
+                                                    <pe:exporter type="xlsx" target="tbl" fileName="report_md_inward_item" />
+                                                </p:commandButton>
+                                                <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
+                                                    <p:printer target="reportPrint"/>
+                                                </p:commandButton>-->
                     </h:panelGrid>
 
                 </p:panel>   
 
-                <p:panel id="reportPrint">
-                    <p:dataTable id="tbl" value="#{mdInwardReportController.itemWithFees}" rowIndexVar="i" var="iwf" >
+                <p:panel id="reportPrint" styleClass="noBorder summeryBorder">
+                    <p:dataTable id="tbl" value="#{inwardReportController.itemWithFees}" rowIndexVar="i" var="iwf" 
+                                 rows="#{inwardReportController.rows}"
+                                 paginator="#{inwardReportController.paginator}"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="20,50,100" >
                         <p:column headerText="No">
                             <h:outputLabel value="#{i+1}"/>
                         </p:column>
@@ -127,7 +145,7 @@
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                             <f:facet name="footer">
-                                <h:outputLabel value="#{mdInwardReportController.itemHospitalTotal}">
+                                <h:outputLabel value="#{inwardReportController.netPaid}">
                                     <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </f:facet>
@@ -137,7 +155,7 @@
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                             <f:facet name="footer">
-                                <h:outputLabel value="#{mdInwardReportController.itemProfessionalTotal}">
+                                <h:outputLabel value="#{inwardReportController.netTotal}">
                                     <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </f:facet>
@@ -147,7 +165,7 @@
                                 <f:convertNumber pattern="#,##0.00" />
                             </h:outputLabel>
                             <f:facet name="footer">
-                                <h:outputLabel value="#{mdInwardReportController.itemHospitalTotal+mdInwardReportController.itemProfessionalTotal}">
+                                <h:outputLabel value="#{inwardReportController.netPaid+inwardReportController.netTotal}">
                                     <f:convertNumber pattern="#,##0.00" />
                                 </h:outputLabel>
                             </f:facet>
