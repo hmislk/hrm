@@ -2953,6 +2953,7 @@ public class SearchController implements Serializable {
                 + " and b.billType= :bTp"
                 + " and b.toInstitution.institutionType=:insTp "
                 + " and  b.referenceBill.institution=:ins "
+                + " and  b.referenceBill.department=:dept "
                 + " and  b.createdAt between :fromDate and :toDate ";
 
         if (getSearchKeyword().getBillNo() != null && !getSearchKeyword().getBillNo().trim().equals("")) {
@@ -2976,6 +2977,7 @@ public class SearchController implements Serializable {
         tmp.put("fromDate", getFromDate());
         tmp.put("insTp", institutionType);
         tmp.put("ins", getSessionController().getInstitution());
+        tmp.put("dept", getSessionController().getDepartment());
         tmp.put("bTp", bt);
         if (getReportKeyWord() != null) {
             if (getReportKeyWord().isAdditionalDetails()) {
@@ -5240,6 +5242,64 @@ public class SearchController implements Serializable {
         createTableByKeyword(BillType.CollectingCentreBill);
         checkLabReportsApproved(bills);
         commonController.printReportDetails(fromDate, toDate, startTime, "Collecting Center Bill Search(/opd_search_pre_batch_bill.xhtml)");
+    }
+    
+    public void createOpdPackageBillSearch() {
+        Date startTime = new Date();
+        bills = null;
+        String sql;
+        Map temMap = new HashMap();
+
+        sql = "select b.backwardReferenceBill from BilledBill b where "
+                + " b.retired=false "
+                + " and b.billPackege is not null "
+                + " and b.cancelled=false "
+                + " and b.billType =:bt "
+                + " and b.backwardReferenceBill.billType = :rbt "
+                + " and b.createdAt between :fromDate and :toDate ";
+
+        if (getSearchKeyword().getPatientName() != null && !getSearchKeyword().getPatientName().trim().equals("")) {
+            sql += " and  (upper(b.patient.person.name) like :patientName )";
+            temMap.put("patientName", "%" + getSearchKeyword().getPatientName().trim().toUpperCase() + "%");
+        }
+
+        if (getSearchKeyword().getPatientPhone() != null && !getSearchKeyword().getPatientPhone().trim().equals("")) {
+            sql += " and  (upper(b.patient.person.phone) like :patientPhone )";
+            temMap.put("patientPhone", "%" + getSearchKeyword().getPatientPhone().trim().toUpperCase() + "%");
+        }
+
+        if (getSearchKeyword().getBillNo() != null && !getSearchKeyword().getBillNo().trim().equals("")) {
+            sql += " and  ((upper(b.insId) like :billNo )or(upper(b.deptId) like :billNo ))";
+            temMap.put("billNo", "%" + getSearchKeyword().getBillNo().trim().toUpperCase() + "%");
+        }
+
+        if (getSearchKeyword().getNetTotal() != null && !getSearchKeyword().getNetTotal().trim().equals("")) {
+            sql += " and  (upper(b.netTotal) like :netTotal )";
+            temMap.put("netTotal", "%" + getSearchKeyword().getNetTotal().trim().toUpperCase() + "%");
+        }
+
+        if (getSearchKeyword().getTotal() != null && !getSearchKeyword().getTotal().trim().equals("")) {
+            sql += " and  (upper(b.total) like :total )";
+            temMap.put("total", "%" + getSearchKeyword().getTotal().trim().toUpperCase() + "%");
+        }
+        if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
+            sql += " and b.institution=:ins";
+            temMap.put("ins", getSessionController().getInstitution());
+        }
+
+        sql += " group by b.backwardReferenceBill "
+                + " order by b.backwardReferenceBill.id ";
+        temMap.put("bt", BillType.OpdBill);
+        temMap.put("rbt", BillType.OpdBathcBill);
+        temMap.put("toDate", getToDate());
+        temMap.put("fromDate", getFromDate());
+
+        System.err.println("Sql " + sql);
+        System.out.println("temMap = " + temMap);
+        bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
+        System.out.println("size" + bills.size());
+        
+        commonController.printReportDetails(fromDate, toDate, startTime, "OPD Bill Search(Package)(/opd_search_bill_own_pack.xhtml)");
     }
 
     public void createTableByKeyword(BillType billType) {

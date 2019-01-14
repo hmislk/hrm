@@ -122,6 +122,12 @@
                                         <h:outputLabel value="Backword ref Bill(Dept Id) :" rendered="#{billSearch.billSearch.backwardReferenceBill ne null}" ></h:outputLabel>
                                         <h:outputLabel value="#{billSearch.billSearch.backwardReferenceBill.deptId}" rendered="#{billSearch.billSearch.backwardReferenceBill ne null}" ></h:outputLabel>
 
+                                        <h:outputLabel value="Batch Bill(Id) :" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.batchBill.id}"  />
+                                        
+                                        <h:outputLabel value="Batch Bill(Ins Id) :" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.batchBill.insId}"  />
+                                        
                                         <h:outputLabel value="Bill Date :" ></h:outputLabel>
                                         <h:outputLabel value="#{billSearch.billSearch.createdAt}" >
                                             <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>

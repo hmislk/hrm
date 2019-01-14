@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:panel>
+                        <f:facet name="header" >
+                            <h:outputLabel value="OPD BILL SEARCH "/>                          
+                            <h:panelGrid columns="6" >
+                                <h:outputLabel value="From Date"/>
+                                <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{searchController.fromDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >      
+                                </p:calendar>
+                                <h:outputLabel value="To Date"/>
+                                <p:calendar id="toDate" value="#{searchController.toDate}" navigator="false" pattern="dd MMMM yyyy hh mm ss a" >                                                                              
+                                </p:calendar>
+                                <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createOpdPackageBillSearch()}"/>
+                                <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                                    <pe:exporter type="xlsx" target="tblBills" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
+                                </p:commandButton>
+                            </h:panelGrid>
+                            <h:panelGrid columns="5" >
+                                <h:outputLabel value="Bill No"/>
+                                <h:outputLabel value="Patient Name"/>
+                                <h:outputLabel value="Patient Phone"/>
+                                <h:outputLabel value="Total"/>
+                                <h:outputLabel value="Net Total"/>
+                                <p:inputText autocomplete="off"  value="#{searchController.searchKeyword.billNo}" />
+                                <p:inputText autocomplete="off" value="#{searchController.searchKeyword.patientName}" />
+                                <p:inputText autocomplete="off"  value="#{searchController.searchKeyword.patientPhone}" />
+                                <p:inputText autocomplete="off"  value="#{searchController.searchKeyword.total}" />
+                                <p:inputText autocomplete="off" value="#{searchController.searchKeyword.netTotal}"/>
+
+                            </h:panelGrid>
+
+
+
+                            <p:defaultCommand target="btnSearch" />
+
+
+                        </f:facet>
+
+                        <p:dataTable rowIndexVar="i" id="tblBills" value="#{searchController.bills}" 
+                                     var="bill"  
+                                     style="min-width: 100%;"  
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15"
+                                     >
+                            <p:column headerText="No" styleClass="alignTop">
+                                <f:facet name="header">
+                                    <p:outputLabel value="No" />
+                                </f:facet>
+                                <h:outputLabel value="#{i+1}"/>
+                            </p:column>
+                            <p:column headerText="View" exportable="false">
+                                <p:commandButton ajax="false" value="View Bill" action="bill_reprint_pack_1">
+                                    <f:setPropertyActionListener value="#{bill}" target="#{billSearch.billSearch}"/>
+                                </p:commandButton>
+                            </p:column>
+                            <p:column headerText="Bill No" rendered="#{sessionController.institutionPreference.opdBillPaperType ne 'PosPaper'}">                                
+                                <f:facet name="header">
+                                    <p:outputLabel value="Bill No" />
+                                </f:facet>
+                                <ui:repeat var="bb" value="#{bill.forwardReferenceBills}" >
+                                    <h:outputLabel   value="#{bb.insId}"/><br></br>
+                                </ui:repeat>
+                            </p:column>
+
+                            <p:column>
+                                <!--#{bill.get(0).billDate}-->
+                            </p:column>
+
+                            <p:column headerText="Bill No" rendered="#{sessionController.institutionPreference.opdBillPaperType eq 'PosPaper'}" >                                
+                                <f:facet name="header">
+                                    <p:outputLabel value="Bill No" />
+                                </f:facet>
+                                <ui:repeat var="bb" value="#{bill.forwardReferenceBills}" >
+                                    <h:outputLabel   value="#{bb.deptId}"/><br></br>
+                                </ui:repeat>
+                            </p:column> 
+                            <p:column headerText="Credit Company"  >
+                                <f:facet name="header">
+                                    <p:outputLabel value="Credit Company" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).creditCompany.name}" />
+                            </p:column>
+                            <p:column headerText="Refering Institution"  >
+                                <f:facet name="header">
+                                    <p:outputLabel value="Refering Institution" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).referredByInstitution.name}" />
+                            </p:column>
+                            <p:column headerText="Billed At"  > 
+                                <f:facet name="header">
+                                    <p:outputLabel value="Billed At" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).institution.name} - #{bill.forwardReferenceBills.get(0).department.name}" />
+                            </p:column>
+                            <p:column headerText="Billed at"  >
+                                <f:facet name="header">
+                                    <p:outputLabel value="Billed at" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).createdAt}" >
+                                    <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                </h:outputLabel>
+                            </p:column>  
+                            <p:column headerText="Billed by" >
+                                <f:facet name="header">
+                                    <p:outputLabel value="Billed by" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.creater.webUserPerson.name}" >                                      
+                                </h:outputLabel>
+                            </p:column>    
+                            <p:column headerText="Client">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Client" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).patient.person.nameWithTitle}" />                                   
+                            </p:column>
+                            <p:column headerText="Client Phone No">  
+                                <f:facet name="header">
+                                    <p:outputLabel value="Client Phone No" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.forwardReferenceBills.get(0).patient.person.phone}" />
+                            </p:column>
+                            <p:column headerText="Paymentmethod" >   
+                                <f:facet name="header">
+                                    <p:outputLabel value="Paymentmethod" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.paymentMethod}" /><br/>
+                                <h:outputLabel value="#{bill.paymentScheme.name}" />
+                            </p:column>
+                            <p:column headerText="Gross Value" styleClass="averageNumericColumn">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Gross Value" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.total}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Discount" styleClass="averageNumericColumn">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Discount" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.discount}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </p:column>
+                            <p:column headerText="Net Value" styleClass="averageNumericColumn">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Net Value" />
+                                </f:facet>
+                                <h:outputLabel value="#{bill.netTotal}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                            </p:column>                         
+                        </p:dataTable>
+
+
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

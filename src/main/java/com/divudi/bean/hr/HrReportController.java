@@ -998,7 +998,7 @@ public class HrReportController implements Serializable {
 //        System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
 //        System.out.println("staffs.size() = " + staffs.size());
-        commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
+        commonController.printTimeDefference(startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
         return staffs;
     }
 

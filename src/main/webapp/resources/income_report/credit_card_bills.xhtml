@@ -31,6 +31,14 @@
                     <h:outputLabel style="color: red;" rendered="#{ch.cancelled}" value="&nbsp;&nbsp; #{ch.cancelledBill.insId}"/>
                 </h:panelGroup>
             </p:column>   
+            <p:column headerText="Bill Class Type">
+                <h:outputLabel 
+                    value="#{ch.billClassType}"/>
+            </p:column>
+            <p:column headerText="Bill Type">
+                <h:outputLabel 
+                    value="#{ch.billType}"/>
+            </p:column>
             <p:column headerText="Billed No">
                 <h:outputLabel rendered="#{ch.billedBill ne null}" 
                                value="#{ch.billedBill.insId}"/>

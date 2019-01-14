@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui" >
+    <h:head>
+        <meta http-equiv="content-type" content="text/html, charset=UTF-8"/>
+        <meta charset="utf-8"/>
+        <title>Ruhunu Hospital</title>
+        <meta name="generator" content="Bootply" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link  rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
+        <!--[if lt IE 9]>
+                                <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+                        <![endif]-->
+        <link href="resources/css/styles.css" type="text/css" rel="stylesheet" />
+    </h:head>
+    <h:body>
+
+        <!--<h:outputStylesheet library="css" name="styles.css" />-->
+        <!--login modal-->
+        <div id="loginModal" >
+            <div >
+                <div>
+                    <div>
+                        <h:form >
+                            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['corechart']});
+                                google.charts.setOnLoadCallback(drawChart);
+                                function drawChart() {
+                                    var rowdata =#{hrReportController.drawPiechartStaffCount()}
+                                    var data = google.visualization.arrayToDataTable(rowdata);
+                                    var options = {
+                                        //                                title: 'Employee Head Count',
+                                        is3D: true,
+                                    };
+                                    var chart = new google.visualization.PieChart(document.getElementById('piechart_staff_count'));
+                                    chart.draw(data, options);
+                                }
+                            </script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['table']});
+                                google.charts.setOnLoadCallback(drawTable);
+                                function drawTable() {
+                                    var data = new google.visualization.DataTable();
+                                    var rowdata =#{hrReportController.drawTableEndOfProbation()}
+                                    data.addColumn('string', 'Code');
+                                    data.addColumn('string', 'Name');
+                                    data.addColumn('string', 'Date of Join');
+                                    data.addColumn('string', 'Specility');
+                                    data.addColumn('string', 'Department');
+                                    data.addRows(rowdata);
+
+                                    var options = {
+                                        //                                title: 'Employee End of Probation',
+                                        showRowNumber: true,
+                                        width: '100%',
+                                        //                                height: '100%',
+                                        pageSize: 15,
+                                        pagingButtons: 'both',
+                                        sort: 'enable',
+                                        alternatingRowStyle: false,
+                                    };
+                                    var table = new google.visualization.Table(document.getElementById('table_div_end_of_Probation'));
+
+                                    table.draw(data, options);
+                                }
+                            </script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['table']});
+                                google.charts.setOnLoadCallback(drawTable);
+                                function drawTable() {
+                                    var data = new google.visualization.DataTable();
+                                    var rowdata =#{hrReportController.drawTableBirthdayReminder()}
+                                    data.addColumn('string', 'Code');
+                                    data.addColumn('string', 'Name');
+                                    data.addColumn('string', 'Specility');
+                                    data.addColumn('string', 'Department');
+                                    data.addRows(rowdata);
+
+                                    var options = {
+                                        //                                title: 'Employee Birthday Reminder',
+                                        showRowNumber: true,
+                                        width: '100%',
+                                    };
+                                    var table = new google.visualization.Table(document.getElementById('table_div_birthday_reminder'));
+
+                                    table.draw(data, options);
+                                }
+                            </script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['table']});
+                                google.charts.setOnLoadCallback(drawTable);
+                                function drawTable() {
+                                    var data = new google.visualization.DataTable();
+                                    var rowdata =#{hrReportController.drawTableBirthdayReminderWithInSevenDays()}
+                                    data.addColumn('string', 'Code');
+                                    data.addColumn('string', 'Name');
+                                    data.addColumn('string', 'Specility');
+                                    data.addColumn('string', 'Department');
+                                    data.addColumn('string', 'Date of Birth');
+                                    data.addRows(rowdata);
+
+                                    var options = {
+                                        //                                title: 'Employee Birthday Reminder',
+                                        showRowNumber: true,
+                                        width: '100%',
+                                        pageSize: 15,
+                                        pagingButtons: 'both',
+                                        sort: 'enable',
+                                        alternatingRowStyle: false,
+                                    };
+                                    var table = new google.visualization.Table(document.getElementById('table_div_birthday_reminder_7'));
+
+                                    table.draw(data, options);
+                                }
+                            </script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['table']});
+                                google.charts.setOnLoadCallback(drawTable);
+                                function drawTable() {
+                                    var data = new google.visualization.DataTable();
+                                    var rowdata =#{hrReportController.drawTableRetrired()}
+                                    data.addColumn('string', 'Code');
+                                    data.addColumn('string', 'Name');
+                                    data.addColumn('string', 'Date of Retired');
+                                    data.addColumn('string', 'Specility');
+                                    data.addColumn('string', 'Department');
+                                    data.addRows(rowdata);
+
+                                    var options = {
+                                        //                                title: 'Employee Birthday Reminder',
+                                        showRowNumber: true,
+                                        width: '100%',
+                                    };
+                                    var table = new google.visualization.Table(document.getElementById('table_div_retire'));
+
+                                    table.draw(data, options);
+                                }
+                            </script>
+                            <script type="text/javascript">
+                                google.charts.load('current', {'packages': ['corechart']});
+                                google.charts.setOnLoadCallback(drawChart);
+                                function drawChart() {
+                                    var rowdata =#{hrReportController.drawPiechartStaffCountDepartment()}
+                                    var data = google.visualization.arrayToDataTable(rowdata);
+                                    var options = {
+                                        //                                title: 'Department wise Head Count',
+                                        is3D: true,
+                                    };
+                                    var chart = new google.visualization.ColumnChart(document.getElementById('piechart_staff_count_department'));
+                                    chart.draw(data, options);
+                                }
+                            </script>
+                            <center>
+                                <p:panel>
+                                    <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
+                                    <h2 style="color: #107710">Human Resource Management </h2>
+                                    <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
+                                </p:panel>
+                                <p:panel>
+                                    <h:panelGrid columns="2">
+                                        <p:panel header="Employee Head Count">
+                                            <div id="piechart_staff_count" style="min-width: 400px; height: 400px;"></div>
+                                        </p:panel>
+                                        <p:panel header="Department wise Head Count" >
+                                            <div id="piechart_staff_count_department" style="min-width: 800px; height: 400px;"></div>
+                                        </p:panel>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="1">
+                                        <p:panel header="Employee Birthday Reminder">
+                                            <div id="table_div_birthday_reminder" style="min-width: 1200px;"></div>
+                                        </p:panel>
+                                    </h:panelGrid>
+<!--                                    <h:panelGrid columns="1">
+                                        <p:panel header="Employee Birthday Reminder Next 7 Days">
+                                            <div id="table_div_birthday_reminder_7" style="width: 1500px;"></div>
+                                        </p:panel>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="1">
+                                        <p:panel header="Employee Retired">
+                                            <div id="table_div_retire" style="width: 1500px;"></div>
+                                        </p:panel>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="1">
+                                        <p:panel header="Employee End of Probation">
+                                            <div id="table_div_end_of_Probation" style="width: 1500px; height: 400px;"></div>
+                                        </p:panel>
+                                    </h:panelGrid>-->
+                                </p:panel>
+                            </center>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- script references --> 
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script> 
+        <script src="/resources/js/bootstrap.min.js"></script>
+    </h:body>
+</html>

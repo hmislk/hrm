@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:bi="http://java.sun.com/jsf/composite/bill">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+                <h:form>
+                    <p:panel header="Reprint" >
+                        <f:facet name="header" >
+                            <h:outputLabel value="Reprint" ></h:outputLabel>
+                            <hr/>
+                        </f:facet>
+
+                        <p:panel>
+                            <p:panelGrid columns="2" style="width: 100%;">
+                                <p:panel header="Patient Detail">
+                                    <p:panelGrid columns="2">
+                                        <h:outputLabel value="Patient ​Name:" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.forwardReferenceBills.get(0).patient.person.nameWithTitle }" ></h:outputLabel>
+                                        <h:outputLabel value="Age" />
+                                        <h:outputLabel value="#{billSearch.billSearch.forwardReferenceBills.get(0).patient.age}"  />
+                                        <h:outputLabel value="Sex" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.forwardReferenceBills.get(0).patient.person.sex}" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="Phone" >
+                                        </h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.forwardReferenceBills.get(0).patient.person.phone}" >
+                                        </h:outputLabel>
+                                    </p:panelGrid>
+                                </p:panel>
+                                <p:panel header="Bill Detail">
+                                    <p:panelGrid columns="2">
+                                        <!--                                        <h:outputLabel value="Bill No :" ></h:outputLabel>
+                                                                                <h:outputLabel value="#{billSearch.billSearch.insId}" ></h:outputLabel>-->
+                                        <h:outputLabel value="Payment Type : " ></h:outputLabel>
+                                        <h:panelGroup>
+                                            <h:outputLabel value="#{billSearch.billSearch.paymentMethod}" />
+                                            <h:outputLabel value=" - " rendered="#{billSearch.billSearch.chequeRefNo ne null}"/>
+                                            <h:outputLabel value="#{billSearch.billSearch.chequeRefNo}" />
+                                        </h:panelGroup>
+                                        <h:outputLabel value="Total :" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.total}" ></h:outputLabel>
+                                        <h:outputLabel value="Discount :" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.discount}" ></h:outputLabel>
+                                        <h:outputLabel value="Net Total :" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.netTotal}" ></h:outputLabel>
+                                        <h:outputLabel value="Package Name" ></h:outputLabel>
+                                        <h:outputLabel value="#{billSearch.billSearch.forwardReferenceBills.get(0).billPackege.name}" ></h:outputLabel>
+                                    </p:panelGrid>
+                                </p:panel>
+                            </p:panelGrid>
+
+                        </p:panel>
+                    </p:panel>
+                    <h:panelGroup >
+                        <div >
+                            <div >
+                                <div >
+                                    <p:commandButton value="Print" ajax="false" action="#" >
+                                        <p:printer target="gpBillPreview" ></p:printer>
+                                    </p:commandButton>
+                                    <p:commandButton value="Print(All in One)" ajax="false" action="#" >
+                                        <p:printer target="gpBillPreview2" ></p:printer>
+                                    </p:commandButton>
+                                    <p:commandButton value="Print Without Totals" ajax="false" action="#" >
+                                        <p:printer target="gpBillPreview1" ></p:printer>
+                                    </p:commandButton>
+                                    <h:panelGroup id="gpBillPreview">
+                                        <ui:repeat value="#{billSearch.billSearch.forwardReferenceBills}" var="bill">
+                                            <bi:opdBillPrintRuhunu_pack bill="#{bill}" dup="false"/>
+                                        </ui:repeat>
+                                    </h:panelGroup>
+                                    <h:panelGroup id="gpBillPreview1">
+                                        <ui:repeat value="#{billSearch.billSearch.forwardReferenceBills}" var="bill">
+                                            <bi:opdBillPrintRuhunu_pack_1 bill="#{bill}" dup="false"/>
+                                        </ui:repeat>
+                                    </h:panelGroup>
+                                    <h:panelGroup id="gpBillPreview2">
+                                        <bi:opdBillPrintRuhunu_pack_all bill="#{billSearch.billSearch.forwardReferenceBills.get(0)}" dup="false"/>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+
+
+
+
+                </h:form>
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
