@@ -353,6 +353,9 @@ public class BillSearch implements Serializable {
         if (tmp.getPaidForBillFee() != null) {
             getBillFeeFacade().edit(tmp.getPaidForBillFee());
         }
+        if (tmp.getPharmaceuticalBillItem()!=null) {
+            getPharmaceuticalBillItemFacade().edit(tmp.getPharmaceuticalBillItem());
+        }
         //System.out.println("2.tmp = " + tmp.getPaidForBillFee().getPaidValue());
 //        if (tmp.getPaidValue() != 0.0) {
 //            UtilityController.addErrorMessage("Already Staff FeePaid");

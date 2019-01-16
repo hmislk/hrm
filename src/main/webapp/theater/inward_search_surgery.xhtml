@@ -5,6 +5,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
       xmlns:se="http://java.sun.com/jsf/composite/inward/search">
 
     <h:body>
@@ -27,6 +28,9 @@
                                     </p:calendar>
                                     <p:selectBooleanCheckbox value="#{searchController.searchKeyword.activeAdvanceOption}" itemLabel="Search All" />
                                     <p:commandButton ajax="false" action="#{searchController.createInwardSurgeryBills}" value="Search" onclick="onSubmitButton();" />
+                                    <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" onclick="onSubmitButton();" >
+                                        <pe:exporter type="xlsx" target="tblBills" fileName="search_theater_bills"  />
+                                    </p:commandButton>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="8">
@@ -55,61 +59,88 @@
                             </h:panelGroup>
                         </f:facet>
 
-                        <p:dataTable 
-                            id="tblBills" 
+                        <p:dataTable id="tblBills" 
                             value="#{searchController.bills}" 
-                            var="bb"
-
-                            >
-                            <p:column>
+                            var="bb" >
+                            <p:column exportable="false" >
                                 <p:commandButton ajax="false" value="View Bill" action="/theater/inward_bill_surgery" onclick="onSubmitButton();" >
                                     <f:setPropertyActionListener value="#{bb}" target="#{surgeryBillController.batchBill}"/>
                                 </p:commandButton>
                             </p:column>
 
                             <p:column headerText="Bill No"  >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Bill No" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.insId}" ></h:outputLabel>
                             </p:column>
 
                             <p:column headerText="Bht No" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Bht No" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.patientEncounter.bhtNo}" ></h:outputLabel>
                             </p:column>
 
 
 
                             <p:column headerText="Room No" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Room No" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.patientEncounter.currentPatientRoom.printRoomFacilityCharge.name}" ></h:outputLabel>
                             </p:column>
 
                             <p:column headerText="Surgery Name" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Surgery Name" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.procedure.item.name}" ></h:outputLabel>
                             </p:column>
 
                             <p:column headerText="Perfomed Doctor Name" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Perfomed Doctor Name" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.staff.person.name}" ></h:outputLabel>
                             </p:column>
 
                             <p:column headerText="Perfomed Doctor Speciality" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Perfomed Doctor Speciality" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.staff.speciality.name}" ></h:outputLabel>
                             </p:column>
 
                             <p:column headerText="Client" >
+                                <f:facet name="header">
+                                    <h:outputLabel value="Client" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.patientEncounter.patient.person.nameWithTitle}" ></h:outputLabel>
                             </p:column>  
 
                             <p:column headerText="Surgery Value" >                              
+                                <f:facet name="header">
+                                    <h:outputLabel value="Surgery Value" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.total}" >
                                     <f:convertNumber pattern="#,##0.00"/>
                                 </h:outputLabel>                                  
                             </p:column>                                
 
                             <p:column headerText="Bht Value" >                              
+                                <f:facet name="header">
+                                    <h:outputLabel value="Bht Value" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.patientEncounter.netTotal}" >
                                     <f:convertNumber pattern="#,##0.00"/>
                                 </h:outputLabel>                                  
                             </p:column>      
 
                             <p:column headerText="Prepared At" >   
+                                <f:facet name="header">
+                                    <h:outputLabel value="Prepared At" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.createdAt}" />
                                 <br/>
                                 <h:panelGroup rendered="#{bb.cancelled}" >
@@ -121,6 +152,9 @@
                             </p:column>
 
                             <p:column headerText="Prepared By">  
+                                <f:facet name="header">
+                                    <h:outputLabel value="Prepared By" />
+                                </f:facet>
                                 <h:outputLabel value="#{bb.creater.webUserPerson.name}" >                                      
                                 </h:outputLabel>                                  
                                 <br/>
@@ -131,7 +165,7 @@
                                 </h:panelGroup>
                             </p:column>
 
-                            <p:column headerText="Cancel">
+                            <p:column headerText="Cancel" exportable="false">
                                 <p:commandButton ajax="false" value="Cancel" action="#{inwardSearch.cancelSurgeryBill()}" disabled="#{bb.cancelled eq true}">
                                     <f:setPropertyActionListener value="#{bb}" target="#{inwardSearch.bill}"/>
                                 </p:commandButton>

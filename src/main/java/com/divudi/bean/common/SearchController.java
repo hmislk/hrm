@@ -6701,10 +6701,10 @@ public class SearchController implements Serializable {
     public void createInwardSurgeryBills() {
         Date startTime = new Date();
 
-        if (searchKeyword.isActiveAdvanceOption() && searchKeyword.getItem() == null && searchKeyword.getItemName().equals("")) {
-            JsfUtil.addErrorMessage("You Need To select Surgury to Search All");
-            return;
-        }
+//        if (searchKeyword.isActiveAdvanceOption() && searchKeyword.getItem() == null && searchKeyword.getItemName().equals("")) {
+//            JsfUtil.addErrorMessage("You Need To select Surgury to Search All");
+//            return;
+//        }
 
         String sql;
         Map temMap = new HashMap();

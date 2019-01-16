@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <h:body>
+
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+                <h:form >
+                    <p:panel >
+                        <f:facet name="header" >
+                            <h:outputLabel value="Procedures" />
+                        </f:facet>
+                        <p:panelGrid columns="3">
+                            <p:commandButton ajax="false" value="Process" action="#{procedureController.createItems()}" />
+                            <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" onclick="onSubmitButton();" >
+                                <pe:exporter type="xlsx" target="tb1" fileName="bht_income_by_categories"  />
+                            </p:commandButton>
+                            <p:commandButton value="Print" ajax="false" action="#" >
+                                <p:printer target="gpBillPreview" ></p:printer>
+                            </p:commandButton>
+                        </p:panelGrid>
+                        <p:panel id="gpBillPreview" >                     
+                            <p:dataTable id="tb1" value="#{procedureController.items}" var="p">
+                                <f:facet name="header">
+                                    <h:outputLabel value="Procedures"/>
+                                </f:facet>
+                                <p:column headerText="Name">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Name" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{p.name}" />
+                                </p:column>
+                                <p:column headerText="Department">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Department" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{p.department.name}" />
+                                </p:column>
+                                <p:column headerText="Institution">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Institution" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{p.institution.name}" />
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Creater" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{p.creater.webUserPerson.name}" />
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Created At" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{p.createdAt}" >
+                                        <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                    </h:outputLabel>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                    </p:panel>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

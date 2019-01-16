@@ -103,7 +103,7 @@ public class ProcedureController implements Serializable {
             }
             recreateModel();
             getItems();
-        }else{
+        } else {
             UtilityController.addErrorMessage("Please Select a Department");
         }
 
@@ -174,6 +174,15 @@ public class ProcedureController implements Serializable {
         }
         return items;
 
+    }
+
+    public void createItems() {
+        items = new ArrayList<>();
+        Map m = new HashMap();
+        m.put("t", SymanticType.Therapeutic_Procedure);
+        String sql;
+        sql = "select c from ClinicalFindingItem c where c.retired=false and c.symanticType=:t order by c.name";
+        items = getFacade().findBySQL(sql, m);
     }
 
     /**
