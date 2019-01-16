@@ -16,7 +16,7 @@
                             <p:selectOneMenu   id="cmbPs" value="#{pharmacyBillSearch.paymentMethod}" required="true"  >
                                 <f:selectItems value="#{enumController.paymentMethods}"  />
                             </p:selectOneMenu>
-                            <h:commandButton value="Cancel" action="#{pharmacyBillSearch.pharmacyRetailCancelBill()}" >
+                            <h:commandButton value="Cancel" action="#{pharmacyBillSearch.pharmacyRetailCancelBill()}" disabled="#{pharmacyBillSearch.checkCancel}">
                             </h:commandButton>                            
                         </p:panel>
                         <p:panelGrid columns="2" style="width: 100%;">

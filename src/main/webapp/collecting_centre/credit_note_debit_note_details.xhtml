@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/resources/template/template.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ch="http://java.sun.com/jsf/composite/channel"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <ui:define name="content">
+        <h:form>
+            <p:panel>
+                <f:facet name="header" >
+                    <h:outputLabel value="Credit Note / Debite Note Report"/>
+                </f:facet>
+                <p:panel >
+                    <f:facet name="header" >
+                        <h:panelGroup>                               
+                            <h:panelGrid columns="2" id="pan1">
+                                <h:outputLabel value="From Date"/>
+                                <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{channelReportTempController.reportKeyWord.fromDate}"
+                                            navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
+                                <h:outputLabel value="To Date"/>
+                                <p:calendar styleClass="dateTimePicker" id="toDate" value="#{channelReportTempController.reportKeyWord.toDate}" 
+                                            navigator="false" pattern="dd MMMM yyyy hh mm ss a" />
+
+                                <h:outputLabel value="Center Type"/>
+                                <p:selectOneRadio value="#{channelReportTempController.reportKeyWord.string}" >
+                                    <f:selectItem itemLabel="All" itemValue="0" />
+                                    <f:selectItem itemLabel="Channel" itemValue="1" />
+                                    <f:selectItem itemLabel="Collecting Center" itemValue="2" />
+    <!--                                <p:ajax event="change" process="@this" update="ac1 ac2 a" listener="#{channelReportTempController.listnerRadioChange()}"/>-->
+                                    <f:ajax event="change" execute="@this" render="pan1" />
+                                    <!--<f:ajax event="change" execute="@this" render="ac1 ac2 a" />-->
+                                </p:selectOneRadio>
+
+                                <h:outputLabel value="Agency" rendered="#{channelReportTempController.reportKeyWord.string eq '1'}"/>
+                                <p:autoComplete id="ac1" forceSelection="true" rendered="#{channelReportTempController.reportKeyWord.string eq '1'}" 
+                                                value="#{channelReportTempController.reportKeyWord.institution}"  
+                                                completeMethod="#{agencyController.completeAgency}" var="ix"
+                                                itemLabel="#{ix.name}" itemValue="#{ix}" styleClass="shortinput2">
+                                    <p:column>#{ix.institutionCode}</p:column>
+                                    <p:column>#{ix.name}</p:column>                                
+                                </p:autoComplete> 
+
+                                <h:outputLabel value="Center" rendered="#{channelReportTempController.reportKeyWord.string eq '2'}"/>
+                                <p:autoComplete id="ac2" converter="deal" value="#{channelReportTempController.reportKeyWord.institution}" 
+                                                forceSelection="true" rendered="#{channelReportTempController.reportKeyWord.string eq '2'}"
+                                                completeMethod="#{institutionController.completeCollectingCenter}" 
+                                                var="vt" itemLabel="#{vt.name}" itemValue="#{vt}" styleClass="shortinput2">
+                                    <p:column>#{vt.institutionCode}</p:column>
+                                    <p:column>#{vt.name}</p:column>
+                                </p:autoComplete>
+
+                                <h:outputLabel value="Bill Type"/>
+                                <p:selectOneRadio value="#{channelReportTempController.reportKeyWord.string1}" >
+                                    <f:selectItem itemLabel="All" itemValue="0" />
+                                    <f:selectItem itemLabel="Credit Note" itemValue="1" />
+                                    <f:selectItem itemLabel="Debit Note" itemValue="2" />
+                                </p:selectOneRadio>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="3" >
+                                <p:commandButton id="btnSearch1" ajax="false" value="Search" action="#{channelReportTempController.createCreditNoteDebitNoteTable}" onclick="onSubmitButton();"/>
+                                <p:commandButton ajax="false" value="Print" styleClass="noPrintButton">
+                                    <p:printer target="reportPrint"  />
+                                </p:commandButton>
+                                <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton">
+                                    <pe:exporter type="xlsx" target="tblBills" fileName="channel_report_agent_history"  />
+                                </p:commandButton>
+                            </h:panelGrid>
+                        </h:panelGroup>
+                    </f:facet>
+                    <p:panel id="reportPrint" styleClass="noBorder summeryBorder">
+                        <p:dataTable id="tblBills" value="#{channelReportTempController.billRows}" var="b"  >
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Bill No" />
+                                </f:facet>                               
+                                <p:outputLabel value="#{b.insId}" />
+                            </p:column>                                            
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Billed At" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.createdAt}" >
+                                    <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a"/>
+                                </h:outputLabel>
+                                <br/>
+                                <h:panelGroup rendered="#{b.cancelled}" >
+                                    <h:outputLabel style="color: red;" value="Cancelled at " />
+                                    <h:outputLabel style="color: red;" rendered="#{b.cancelled}" value="#{b.cancelledBill.createdAt}" >
+                                        <f:convertDateTime pattern="dd/MMM/yyyy - hh:mm:ss a"/>
+                                    </h:outputLabel>
+                                </h:panelGroup>
+                            </p:column>  
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Billed by" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.creater}" />
+                                <!--                            <br/>
+                                                            <h:panelGroup rendered="#{b.cancelled}" >
+                                                                <h:outputLabel style="color: red;" value="Cancelled at " />
+                                                                <h:outputLabel style="color: red;" rendered="#{b.cancelled}" value="#{b.cancelledBill.creater.webUserPerson.name}" >                                       
+                                                                </h:outputLabel>
+                                                            </h:panelGroup>                               -->
+                            </p:column>    
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Code" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.code}" />
+                                <f:facet name="footer" >
+                                    <h:outputLabel value="Total" />
+                                </f:facet>
+                            </p:column>  
+
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Name" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.insName}" />
+                            </p:column>  
+
+                            <p:column styleClass="averageNumericColumn">
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Net Value" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.netTotal}" >
+                                    <f:convertNumber pattern="#,##0.00"/>
+                                </h:outputLabel>
+                                <f:facet name="footer" >
+                                    <h:outputLabel value="#{channelReportTempController.grantTot}" >
+                                        <f:convertNumber pattern="#,##0.00"/>
+                                    </h:outputLabel>
+                                </f:facet>
+                            </p:column>                          
+                            <p:column >
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Comments" />
+                                </f:facet>
+                                <h:outputLabel value="#{b.comments}" />
+                            </p:column>
+                            <!--                        <p:column >
+                                                        <f:facet name="header" >
+                                                            <p:outputLabel value="Cancel Comments" />
+                                                        </f:facet>
+                                                        <h:outputLabel rendered="#{b.refundedBill ne null}" value="#{b.refundedBill.comments}" >
+                                                        </h:outputLabel>
+                                                        <h:outputLabel  rendered="#{b.cancelledBill ne null}" value="#{b.cancelledBill.comments}" >
+                                                        </h:outputLabel>
+                                                    </p:column>-->
+                        </p:dataTable>
+                    </p:panel>
+                </p:panel>
+            </p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>

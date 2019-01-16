@@ -4,7 +4,8 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core">
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:poue="http://primefaces.org/ui/extensions">
 
     <h:body>
 
@@ -54,6 +55,46 @@
                                         <p:commandButton styleClass="linkButton" ajax="false" value="With Holding TAX (Summary) (5%)" action="/reportInstitution/report_with_holding_tax_summary" actionListener="#{billController.clearTotals}"/> 
                                     </h:panelGrid>
                                 </p:panel>
+                                <p:panel header="16) Dashboard" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                    <h:panelGrid columns="4" >         
+                                        <p:commandLink ajax="false" action="/hr/hr_report_dashboard.xhtml">
+                                            <p:graphicImage library="image/dashboard" id="hr"
+                                                            name="hr.png" cache="false"
+                                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                                            </p:graphicImage>
+                                            <poue:tooltip for="hr" value="HR Dashboard" />
+                                        </p:commandLink>
+
+                                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_accounts">
+                                            <p:graphicImage library="image/dashboard" id="acc"
+                                                            name="account.png" cache="false"
+                                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                                            </p:graphicImage>
+                                            <poue:tooltip for="acc" value="Accounts Dashboard" />
+                                        </p:commandLink>
+                                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_lab">
+                                            <p:graphicImage library="image/dashboard" id="lab"
+                                                            name="laboratory.png" cache="false"
+                                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                                            </p:graphicImage>
+                                            <poue:tooltip for="lab" value="Laboratory Dashboard" />
+                                        </p:commandLink>
+                                        <!--                        <p:commandLink ajax="false" action="">
+                                                                    <p:graphicImage library="image/dashboard" id="lab"
+                                                                                    name="marketing.png" cache="false"
+                                                                                    style="height: 64px; width: 64px; margin: 5px;"  >
+                                                                    </p:graphicImage>
+                                                                    <poue:tooltip for="lab" value="Marketing" />
+                                                                </p:commandLink>-->
+                                        <p:commandLink ajax="false" action="/reportIncome/report_dashboard_director">
+                                            <p:graphicImage library="image/dashboard" id="dirctor"
+                                                            name="winner.png" cache="false"
+                                                            style="height: 64px; width: 64px; margin: 5px;"  >
+                                            </p:graphicImage>
+                                            <poue:tooltip for="dirctor" value="Director Dashboard" />
+                                        </p:commandLink>
+                                    </h:panelGrid>
+                                </p:panel>
                             </h:panelGrid>
 
                             <h:panelGrid columns="1" >
@@ -62,7 +103,7 @@
                                     <p:commandButton styleClass="linkButton" ajax="false" value="By Category Month End" action="report_cash_category_without_pro_month"/>                             
                                     <p:commandButton styleClass="linkButton" ajax="false" value="Category Vise Income" action="report_cash_catogory_summery"/>                             
                                 </p:panel>
-                               
+
                                 <p:panel header="5) Summary By Service Inward" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Summary By Service - Added Date" action="report_inward_service_detail_added" /> 
@@ -107,6 +148,11 @@
                                 <p:panel header="12) Online Payment" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
                                     <h:panelGrid >                               
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Online Paymnt Detail Report" action="report_online_payments" /> 
+                                    </h:panelGrid>
+                                </p:panel>
+                                <p:panel header="15) Credit Note / Debit Note" style="width: 400px;margin:auto;" collapsed="true" toggleable="true"   >
+                                    <h:panelGrid >                               
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="Online Paymnt Detail Report" action="/collecting_centre/credit_note_debit_note_details" /> 
                                     </h:panelGrid>
                                 </p:panel>
                             </h:panelGrid>

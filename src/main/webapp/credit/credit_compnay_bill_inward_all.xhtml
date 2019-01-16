@@ -12,6 +12,9 @@
     <ui:define name="content">
         <h:panelGroup >
             <h:form  >
+                <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                    <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                </p:panel>
                 <p:panel rendered="#{!cashRecieveBillController.printPreview}" >
                     <f:facet name="header" >
                         <h:panelGrid columns="15">

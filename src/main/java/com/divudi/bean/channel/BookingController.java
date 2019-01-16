@@ -4,6 +4,7 @@
  */
 package com.divudi.bean.channel;
 
+import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.DoctorSpecialityController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.SmsController;
@@ -115,7 +116,7 @@ public class BookingController implements Serializable {
     BillComponentFacade billComponentFacade;
     @EJB
     PatientEncounterFacade patientEncounterFacade;
-    
+
     @EJB
     FinalVariables finalVariables;
     @EJB
@@ -141,6 +142,8 @@ public class BookingController implements Serializable {
     ChannelStaffPaymentBillController channelStaffPaymentBillController;
     @Inject
     SmsController smsController;
+    @Inject
+    CommonController commonController;
 
     /**
      * Properties
@@ -164,13 +167,16 @@ public class BookingController implements Serializable {
     String selectTextSpeciality = "";
     String selectTextConsultant = "";
     String selectTextSession = "";
+    String textMessage;
     ArrivalRecord arrivalRecord;
     PaymentMethod canPayMetTmp;
-    
+
     Date fromDate;
     Date toDate;
     double absentPercentage;
     Long di = 0l;
+    Long diErr = 0l;
+    Long diTot = 0l;
 
     private ScheduleModel eventModel;
 
@@ -1401,6 +1407,34 @@ public class BookingController implements Serializable {
         }
     }
 
+    public void sendSmsforInformMsg() {
+        if (getSessionController().getInstitutionPreference().getApplicationInstitution() != ApplicationInstitution.Ruhuna) {
+            JsfUtil.addErrorMessage("Your Institution Has't Privillage to Send sms.");
+            return;
+        }
+        System.out.println("selectedTelephoneNumbers.size() = " + getBillSessions().size());
+        if (getBillSessions() == null) {
+            JsfUtil.addErrorMessage("Nothing to Send");
+            return;
+        }
+        if (getBillSessions().size() > 10000) {
+            JsfUtil.addErrorMessage("Please Contact System Development Team.You are trying to send more than 10,000 sms.");
+            return;
+        }
+        if (textMessage.equals("") || textMessage == null) {
+            JsfUtil.addErrorMessage("Enter Message");
+            return;
+        }
+        for (BillSession bs : getBillSessions()) {
+            if (bs.getBill().isCancelled() || bs.getBill().isRefunded()) {
+                System.out.println("bs.getBill().getPatient().getPerson().getPhone() = " + bs.getBill().getPatient().getPerson().getPhone());
+                continue;
+            }
+            smsController.sendSmsToNumberList(bs.getBill().getPatient().getPerson().getPhone(), getSessionController().getInstitutionPreference().getApplicationInstitution(), textMessage, null, SmsType.ChannelMessage);
+        }
+
+    }
+
     public List<ServiceSession> fetchServiceSessionsForTimeRange(Staff s, Date date, Date ft, Date tt) {
         String sql;
         Map m = new HashMap();
@@ -1669,7 +1703,7 @@ public class BookingController implements Serializable {
         System.out.println("++++channelBillController.getBillSession() = " + channelBillController.getBillSession());
         System.out.println("++++channelBillController.getBillSessionTmp() = " + channelBillController.getBillSessionTmp());
     }
-    
+
     public void deleteSelected() {
         System.out.println("delete selected");
         di = 0l;
@@ -1729,9 +1763,9 @@ public class BookingController implements Serializable {
         System.out.println("bss.size() = " + bss.size());
         for (BillSession bs : bss) {
 //            if (!bs.isClaimed()) {
-                System.out.println("Deleting bs = " + bs);
-                deleteBsCascadeAll(bs);
-                di++;
+            System.out.println("Deleting bs = " + bs);
+            deleteBsCascadeAll(bs);
+            di++;
 //            }else{
 //                System.out.println("Not Deletingas claimed. bs = " + bs);
 //            }
@@ -1739,9 +1773,131 @@ public class BookingController implements Serializable {
 
         UtilityController.addSuccessMessage("Managed Selected");
     }
+
+    public void deleteBulk() {
+        Date startTime = new Date();
+        System.out.println("delete bulk");
+        di = 0l;
+        List<BillSession> bss = new ArrayList<>();
+        Map hh = new HashMap();
+        List<BillType> bts = new ArrayList<>();
+        bts.add(BillType.ChannelAgent);
+        bts.add(BillType.ChannelCash);
+        bts.add(BillType.ChannelOnCall);
+        bts.add(BillType.ChannelStaff);
+        bts.add(BillType.ChannelPaid);
+        String sql = "Select bs From BillSession bs "
+                + " where "
+                + " bs.bill.billType in :tbs and "
+                + " bs.sessionDate between :ssFrom and :ssTo ";
+        hh = new HashMap();
+        hh.put("ssFrom", getFromDate());
+        hh.put("ssTo", getToDate());
+        hh.put("tbs", bts);
+        bss = getBillSessionFacade().findBySQL(sql, hh);
+        System.out.println("bss.size() = " + bss.size());
+        diTot = (long) bss.size();
+        for (BillSession bs : bss) {
+            System.out.println("Deleting bs = " + bs);
+            if (!deleteBsCascadeAll(bs)) {
+                System.err.println("error....");
+                break;
+            }
+            di++;
+        }
+        commonController.printTimeDefference(startTime, "Time(Delete ChannelS)");
+        UtilityController.addSuccessMessage("Managed All");
+    }
+
+    public void deleteBulkOptimize() {
+        Date startTime = new Date();
+        System.out.println("delete bulk");
+        di = 0l;
+        diErr = 0l;
+        List<Long> bss = new ArrayList<>();
+        Map hh = new HashMap();
+        List<BillType> bts = new ArrayList<>();
+        bts.add(BillType.ChannelAgent);
+        bts.add(BillType.ChannelCash);
+        bts.add(BillType.ChannelOnCall);
+        bts.add(BillType.ChannelStaff);
+        bts.add(BillType.ChannelPaid);
+        String sql = "Select bs.id From BillSession bs "
+                + " where "
+                + " bs.bill.billType in :tbs and "
+                + " bs.sessionDate between :ssFrom and :ssTo"
+                + " order by bs.id ";
+        hh = new HashMap();
+        hh.put("ssFrom", getFromDate());
+        hh.put("ssTo", getToDate());
+        hh.put("tbs", bts);
+        bss = getBillSessionFacade().findLongList(sql, hh);
+        System.out.println("bss.size() = " + bss.size());
+        diTot = (long) bss.size();
+        int i = 0;
+        for (long bs : bss) {
+            Date now = new Date();
+            System.out.println("Deleting bs = " + bs);
+            i++;
+            if (!deleteBsCascadeAllOptimize(bs)) {
+                diErr++;
+//                if (diErr >= 100) {
+//                    break;
+//                }
+            } else {
+                di++;
+            }
+            commonController.printTimeDefference(now, " Delete - " + i);
+        }
+        commonController.printTimeDefference(startTime, "Time(Delete ChannelS)");
+        UtilityController.addSuccessMessage("Managed All");
+    }
     
+    public void deleteBulkOptimizeCheckBills() {
+        Date startTime = new Date();
+        System.out.println("delete bulk");
+        di = 0l;
+        diErr = 0l;
+        List<Long> bss = new ArrayList<>();
+        Map hh = new HashMap();
+        List<BillType> bts = new ArrayList<>();
+        bts.add(BillType.ChannelAgent);
+        bts.add(BillType.ChannelCash);
+        bts.add(BillType.ChannelOnCall);
+        bts.add(BillType.ChannelStaff);
+        bts.add(BillType.ChannelPaid);
+        String sql = "Select b.id From Bill b "
+                + " where "
+                + " b.billType in :tbs and "
+                + " b.createdAt between :ssFrom and :ssTo"
+                + " order by b.id ";
+        hh = new HashMap();
+        hh.put("ssFrom", getFromDate());
+        hh.put("ssTo", getToDate());
+        hh.put("tbs", bts);
+        bss = getBillSessionFacade().findLongList(sql, hh);
+        System.out.println("bss.size() = " + bss.size());
+        diTot = (long) bss.size();
+        int i=0;
+        for (Long bid : bss) {
+            Date now = new Date();
+            i++;
+            if (!deleteBsCascadeAllBill(getBillFacade().find(bid))) {
+                diErr++;
+//                if (diErr >= 100) {
+//                    break;
+//                }
+            } else {
+                di++;
+            }
+            commonController.printTimeDefference(now, " Delete Bill - " + i);
+        }
+        commonController.printTimeDefference(startTime, "Time(Delete Channel Bill)");
+        UtilityController.addSuccessMessage("Managed All");
+    }
+
     private boolean deleteBsCascadeAll(BillSession bs) {
-        System.out.println("bs = " + bs);
+//        System.out.println("bs = " + bs);
         boolean ok = false;
         try {
             Bill db = bs.getBill();
@@ -1756,6 +1912,7 @@ public class BookingController implements Serializable {
             AgentHistory dah = db.getAgentHistory();
             if (dah != null) {
                 dah.setBill(null);
+                dah.setBillItem(null);
                 db.setAgentHistory(null);
                 agentHistoryFacade.edit(dah);
             }
@@ -1785,13 +1942,15 @@ public class BookingController implements Serializable {
                 brb.setReferenceBill(null);
                 db.setBackwardReferenceBill(null);
                 billFacade.edit(brb);
-                getBillFacade().remove(brb);
+//                getBillFacade().remove(brb);
             }
 
             for (BillItem dbie : dbis) {
                 dbie.setBill(null);
                 dbie.setBillFees(null);
                 dbie.setBillSession(null);
+                dbie.setPaidForBillFee(null);
+                dbie.setReferanceBillItem(null);
                 getBillItemFacade().edit(dbie);
             }
 
@@ -1877,11 +2036,10 @@ public class BookingController implements Serializable {
                 getBillFacade().remove(brb);
             }
 
-            if (db.getPaidBill() != null) {
-                Bill brb = db.getPaidBill();
-                getBillFacade().remove(brb);
-            }
-
+//            if (db.getPaidBill() != null) {
+//                Bill brb = db.getPaidBill();
+//                getBillFacade().remove(brb);
+//            }
             for (BillItem dbie : dbis) {
                 dbie.setBill(null);
                 getBillItemFacade().remove(dbie);
@@ -1893,6 +2051,51 @@ public class BookingController implements Serializable {
             }
 
             if (dsbi != null) {
+                dsbi.setBill(null);
+                dsbi.setBillFees(null);
+                dsbi.setBillSession(null);
+                dsbi.setPaidForBillFee(null);
+                BillItem bi = null;
+                if (dsbi.getReferanceBillItem() != null) {
+//                    System.out.println("dsbi.getReferanceBillItem() = " + dsbi.getReferanceBillItem());
+                    bi = getBillItemFacade().find(dsbi.getReferanceBillItem().getId());
+//                    System.out.println("bi = " + bi);
+                    dsbi.setReferanceBillItem(null);
+                    getBillItemFacade().remove(bi);
+                    bi = null;
+                }
+                bi = getBillItemFacade().findFirstBySQL("select bi From BillItem bi where bi.referanceBillItem.id=" + dsbi.getId());
+//                System.out.println("rbi = " + bi);
+                if (bi != null) {
+                    if (bi.getBill() != null) {
+//                        System.out.println("bi.getBill().getBillType() = " + bi.getBill().getBillType());
+                        Bill b = getBillFacade().find(bi.getBill().getId());
+                        if (b != null && b.getBilledBill() != null) {
+                            Bill billedbill = getBillFacade().find(b.getBilledBill().getId());
+                            b.setBilledBill(null);
+                            billedbill.setBilledBill(null);
+                            billFacade.edit(billedbill);
+                            getBillFacade().remove(billedbill);
+                        }
+                        bi.setBill(null);
+                        getBillFacade().remove(b);
+                    }
+                    bi.setReferanceBillItem(null);
+                    BillFee bf = getBillFeeFacade().find(bi.getPaidForBillFee().getId());
+                    bi.setPaidForBillFee(null);
+                    getBillItemFacade().edit(bi);
+                    getBillFeeFacade().remove(bf);
+                }
+                getBillItemFacade().edit(dsbi);
+                if (dsbi != null) {
+                    AgentHistory ah = agentHistoryFacade.findFirstBySQL("select a from AgentHistory a where a.billItem.id=" + dsbi.getId());
+                    if (ah != null) {
+//                        System.out.println("ah = " + ah);
+                        ah.setBillItem(null);
+                        agentHistoryFacade.edit(ah);
+                        agentHistoryFacade.remove(ah);
+                    }
+                }
                 getBillItemFacade().remove(dsbi);
             }
             if (dsbs != null) {
@@ -1920,22 +2123,364 @@ public class BookingController implements Serializable {
             if (pe != null) {
                 patientEncounterFacade.remove(pe);
             }
-
+            if (db.getReferenceBill() != null) {
+//                System.out.println("db.getReferenceBill().getBillType() = " + db.getReferenceBill().getBillType());
+                Bill rb = getBillFacade().find(db.getReferenceBill().getId());
+                db.setReferenceBill(null);
+                getBillFacade().edit(db);
+//                getBillFacade().remove(rb);
+            }
+            if (db.getBilledBill() != null) {
+//                System.out.println("db.getBilledBill().getBillType() = " + db.getBilledBill().getBillType());
+                Bill bb = getBillFacade().find(db.getBilledBill().getId());
+                db.setBilledBill(null);
+                getBillFacade().edit(db);
+//                getBillFacade().remove(bb);
+            }
+            BillItem bi = getBillItemFacade().findFirstBySQL("select bi From BillItem bi where bi.referenceBill.id=" + db.getId());
+            if (bi != null) {
+                System.out.println("bi = " + bi);
+                bi.setReferenceBill(null);
+                billItemFacade.edit(bi);
+//                billItemFacade.remove(bi);
+            }
+            Bill b = getBillFacade().findFirstBySQL("select b From Bill b where b.billedBill.id=" + db.getId());
+            if (b != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                b.setBilledBill(null);
+                billFacade.edit(b);
+            }
+            b = getBillFacade().findFirstBySQL("select b From Bill b where b.paidBill.id=" + db.getId());
+            if (b != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                b.setPaidBill(null);
+                billFacade.edit(b);
+            }
+            b = getBillFacade().findFirstBySQL("select b From Bill b where b.refundedBill.id=" + db.getId());
+            if (b != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                b.setRefundedBill(null);
+                billFacade.edit(b);
+            }
+            b = getBillFacade().findFirstBySQL("select b From Bill b where b.cancelledBill.id=" + db.getId());
+            if (b != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                b.setCancelledBill(null);
+                billFacade.edit(b);
+            }
             billFacade.remove(db);
 
             billSessionFacade.remove(bs);
 
-            System.out.println("successfully deleted");
+//            System.err.println("successfully deleted");
             ok = true;
             return ok;
         } catch (Exception e) {
-            System.out.println("e = " + e);
+            e.printStackTrace();
             ok = false;
             return ok;
         }
     }
     
-    
+    private boolean deleteBsCascadeAllBill(Bill b) {
+//        System.out.println("bs = " + bs);
+        boolean ok = false;
+        try {
+            Bill db = b;
+            List<BillFee> dbfs = db.getBillFees();
+            List<BillComponent> dbcs = db.getBillComponents();
+            List<BillItem> dbis = db.getBillItems();
+            List<BillItem> dbies = db.getBillExpenses();
+            List<Payment> dps = db.getPayments();
+            BillItem dsbi = db.getSingleBillItem();
+            BillSession dsbs = db.getSingleBillSession();
+
+            AgentHistory dah = db.getAgentHistory();
+            if (dah != null) {
+                dah.setBill(null);
+                dah.setBillItem(null);
+                db.setAgentHistory(null);
+                agentHistoryFacade.edit(dah);
+            }
+
+            if (dsbi != null) {
+                dsbi.setBill(null);
+                getBillItemFacade().edit(dsbi);
+            }
+
+            if (dsbs != null) {
+                dsbs.setBill(null);
+                dsbs.setBillItem(null);
+                getBillSessionFacade().edit(dsbs);
+            }
+
+            if (db.getBackwardReferenceBill() != null) {
+                Bill brb = db.getBackwardReferenceBill();
+                brb.setForwardReferenceBill(null);
+                brb.setReferenceBill(null);
+                db.setBackwardReferenceBill(null);
+                billFacade.edit(brb);
+            }
+
+            if (db.getPaidBill() != null) {
+                Bill brb = db.getPaidBill();
+                brb.setForwardReferenceBill(null);
+                brb.setReferenceBill(null);
+                db.setBackwardReferenceBill(null);
+                billFacade.edit(brb);
+//                getBillFacade().remove(brb);
+            }
+
+            for (BillItem dbie : dbis) {
+                dbie.setBill(null);
+                dbie.setBillFees(null);
+                dbie.setBillSession(null);
+                dbie.setPaidForBillFee(null);
+                dbie.setReferanceBillItem(null);
+                getBillItemFacade().edit(dbie);
+            }
+
+            for (Payment dp : dps) {
+                dp.setBill(null);
+                paymentFacade.edit(dp);
+            }
+
+            for (BillItem dbi : dbis) {
+                dbi.setBill(null);
+                dbi.setBillFees(null);
+                dbi.setBillSession(null);
+                getBillItemFacade().edit(dbi);
+            }
+
+            for (BillFee dbf : dbfs) {
+                dbf.setBill(null);
+                dbf.setBillItem(null);
+                getBillFeeFacade().edit(dbf);
+            }
+
+            for (BillComponent dbc : dbcs) {
+                dbc.setBill(null);
+                dbc.setBillItem(null);
+                billComponentFacade.edit(dbc);
+            }
+
+            db.setBillComponents(null);
+            db.setBillExpenses(null);
+            db.setBatchBill(null);
+            db.setAgentHistory(null);
+            db.setBackwardReferenceBill(null);
+            db.setBackwardReferenceBills(null);
+            db.setBillItems(null);
+            db.setBilledBill(null);
+            db.setCancelledBill(null);
+            db.setReactivatedBill(null);
+            db.setReferenceBill(null);
+            db.setRefundBills(null);
+            db.setReturnBhtIssueBills(null);
+            db.setReturnPreBills(null);
+            db.setSingleBillItem(null);
+            db.setSingleBillSession(null);
+            billFacade.edit(db);
+
+//            bs.setBill(null);
+//            bs.setBillItem(null);
+//            bs.setItem(null);
+//            bs.setPaidBillSession(null);
+//            billSessionFacade.edit(bs);
+
+//            BillSession pbs = bs.getPaidBillSession();
+//            if (pbs != null) {
+//                pbs.setPaidBillSession(null);
+//                pbs.setBill(null);
+//                pbs.setBillItem(null);
+//                pbs.setPatientEncounter(null);
+//                getBillSessionFacade().edit(pbs);
+//                billSessionFacade.edit(pbs);
+//            }
+//            BillSession pbrs = bs.getReferenceBillSession();
+//            if (pbrs != null) {
+//                pbrs.setPaidBillSession(null);
+//                pbrs.setBill(null);
+//                pbrs.setBillItem(null);
+//                pbrs.setPatientEncounter(null);
+//                getBillSessionFacade().edit(pbrs);
+//                billSessionFacade.edit(pbrs);
+//            }
+
+//            PatientEncounter pe = bs.getPatientEncounter();
+//
+//            if (pe != null) {
+//                pe.setBillSession(null);
+//                patientEncounterFacade.edit(pe);
+//            }
+
+            if (dah != null) {
+                agentHistoryFacade.remove(dah);
+            }
+            if (db.getBackwardReferenceBill() != null) {
+                Bill brb = db.getBackwardReferenceBill();
+                getBillFacade().remove(brb);
+            }
+
+//            if (db.getPaidBill() != null) {
+//                Bill brb = db.getPaidBill();
+//                getBillFacade().remove(brb);
+//            }
+            for (BillItem dbie : dbis) {
+                dbie.setBill(null);
+                getBillItemFacade().remove(dbie);
+            }
+
+            for (Payment dp : dps) {
+                dp.setBill(null);
+                paymentFacade.remove(dp);
+            }
+
+            if (dsbi != null) {
+                dsbi.setBill(null);
+                dsbi.setBillFees(null);
+                dsbi.setBillSession(null);
+                dsbi.setPaidForBillFee(null);
+                BillItem bi = null;
+                if (dsbi.getReferanceBillItem() != null) {
+//                    System.out.println("dsbi.getReferanceBillItem() = " + dsbi.getReferanceBillItem());
+                    bi = getBillItemFacade().find(dsbi.getReferanceBillItem().getId());
+//                    System.out.println("bi = " + bi);
+                    dsbi.setReferanceBillItem(null);
+                    getBillItemFacade().remove(bi);
+                    bi = null;
+                }
+                bi = getBillItemFacade().findFirstBySQL("select bi From BillItem bi where bi.referanceBillItem.id=" + dsbi.getId());
+//                System.out.println("rbi = " + bi);
+                if (bi != null) {
+                    if (bi.getBill() != null) {
+//                        System.out.println("bi.getBill().getBillType() = " + bi.getBill().getBillType());
+                        Bill bb = getBillFacade().find(bi.getBill().getId());
+                        if (bb != null && bb.getBilledBill() != null) {
+                            Bill billedbill = getBillFacade().find(bb.getBilledBill().getId());
+                            bb.setBilledBill(null);
+                            billedbill.setBilledBill(null);
+                            billFacade.edit(billedbill);
+                            getBillFacade().remove(billedbill);
+                        }
+                        bi.setBill(null);
+                        getBillFacade().remove(bb);
+                    }
+                    bi.setReferanceBillItem(null);
+                    BillFee bf = getBillFeeFacade().find(bi.getPaidForBillFee().getId());
+                    bi.setPaidForBillFee(null);
+                    getBillItemFacade().edit(bi);
+                    getBillFeeFacade().remove(bf);
+                }
+                getBillItemFacade().edit(dsbi);
+                if (dsbi != null) {
+                    AgentHistory ah = agentHistoryFacade.findFirstBySQL("select a from AgentHistory a where a.billItem.id=" + dsbi.getId());
+                    if (ah != null) {
+//                        System.out.println("ah = " + ah);
+                        ah.setBillItem(null);
+                        agentHistoryFacade.edit(ah);
+                        agentHistoryFacade.remove(ah);
+                    }
+                }
+                getBillItemFacade().remove(dsbi);
+            }
+            if (dsbs != null) {
+                getBillSessionFacade().remove(dsbs);
+            }
+
+            for (BillItem dbi : dbis) {
+                getBillItemFacade().remove(dbi);
+            }
+
+            for (BillFee dbf : dbfs) {
+                getBillFeeFacade().remove(dbf);
+            }
+
+            for (BillComponent dbc : dbcs) {
+                billComponentFacade.remove(dbc);
+            }
+
+//            if (pbs != null) {
+//                billSessionFacade.remove(pbs);
+//            }
+//            if (pbrs != null) {
+//                billSessionFacade.remove(pbrs);
+//            }
+//            if (pe != null) {
+//                patientEncounterFacade.remove(pe);
+//            }
+            if (db.getReferenceBill() != null) {
+//                System.out.println("db.getReferenceBill().getBillType() = " + db.getReferenceBill().getBillType());
+                Bill rb = getBillFacade().find(db.getReferenceBill().getId());
+                db.setReferenceBill(null);
+                getBillFacade().edit(db);
+//                getBillFacade().remove(rb);
+            }
+            if (db.getBilledBill() != null) {
+//                System.out.println("db.getBilledBill().getBillType() = " + db.getBilledBill().getBillType());
+                Bill bb = getBillFacade().find(db.getBilledBill().getId());
+                db.setBilledBill(null);
+                getBillFacade().edit(db);
+//                getBillFacade().remove(bb);
+            }
+            BillItem bi = getBillItemFacade().findFirstBySQL("select bi From BillItem bi where bi.referenceBill.id=" + db.getId());
+            if (bi != null) {
+                System.out.println("bi = " + bi);
+                bi.setReferenceBill(null);
+                billItemFacade.edit(bi);
+//                billItemFacade.remove(bi);
+            }
+            Bill bb = getBillFacade().findFirstBySQL("select b From Bill b where b.billedBill.id=" + db.getId());
+            if (bb != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                bb.setBilledBill(null);
+                billFacade.edit(bb);
+            }
+            bb = getBillFacade().findFirstBySQL("select b From Bill b where b.paidBill.id=" + db.getId());
+            if (bb != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                bb.setPaidBill(null);
+                billFacade.edit(b);
+            }
+            bb = getBillFacade().findFirstBySQL("select b From Bill b where b.refundedBill.id=" + db.getId());
+            if (bb != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                bb.setRefundedBill(null);
+                billFacade.edit(bb);
+            }
+            bb = getBillFacade().findFirstBySQL("select b From Bill b where b.cancelledBill.id=" + db.getId());
+            if (bb != null) {
+//                System.out.println("b = " + b);
+//                System.out.println("b.getBillType() = " + b.getBillType());
+                bb.setCancelledBill(null);
+                billFacade.edit(bb);
+            }
+            billFacade.remove(db);
+
+//            billSessionFacade.remove(bs);
+
+//            System.err.println("successfully deleted");
+            ok = true;
+            return ok;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ok = false;
+            return ok;
+        }
+    }
+
+    private boolean deleteBsCascadeAllOptimize(long bsid) {
+//        System.out.println("bs = " + bsid);
+        BillSession bs = getBillSessionFacade().find(bsid);
+        return deleteBsCascadeAll(bs);
+    }
 
     public Long getDi() {
         return di;
@@ -1944,7 +2489,7 @@ public class BookingController implements Serializable {
     public void setDi(Long di) {
         this.di = di;
     }
-    
+
     public Date getFromDate() {
         if (fromDate == null) {
             fromDate = commonFunctions.getFirstDayOfWeek(new Date());
@@ -1966,7 +2511,7 @@ public class BookingController implements Serializable {
     public void setToDate(Date toDate) {
         this.toDate = toDate;
     }
-    
+
     public void setBillSessions(List<BillSession> billSessions) {
         this.billSessions = billSessions;
     }
@@ -2232,6 +2777,30 @@ public class BookingController implements Serializable {
 
     public void setAbsentPercentage(double absentPercentage) {
         this.absentPercentage = absentPercentage;
+    }
+
+    public String getTextMessage() {
+        return textMessage;
+    }
+
+    public void setTextMessage(String textMessage) {
+        this.textMessage = textMessage;
+    }
+
+    public Long getDiTot() {
+        return diTot;
+    }
+
+    public void setDiTot(Long diTot) {
+        this.diTot = diTot;
+    }
+
+    public Long getDiErr() {
+        return diErr;
+    }
+
+    public void setDiErr(Long diErr) {
+        this.diErr = diErr;
     }
 
 }

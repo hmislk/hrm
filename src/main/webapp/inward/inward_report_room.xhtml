@@ -17,68 +17,71 @@
                         <f:facet name="header" >
                             <h:outputLabel value="BHT Income by Categories" ></h:outputLabel>
                         </f:facet>
-                     
-                            
-                            <h:panelGrid columns="2" >
-                            <h:outputLabel value="From : " ></h:outputLabel>
-                            <p:calendar value="#{inwardReportController1.fromDate}" pattern="dd MMMM yyyy hh:mm:ss a" ></p:calendar>
-                            <h:outputLabel value="To : " ></h:outputLabel>
-                            <p:calendar value="#{inwardReportController1.toDate}" pattern="dd MMMM yyyy hh:mm:ss a" ></p:calendar>
-                            <h:outputLabel value="Admission Type : " ></h:outputLabel>
+
+
+                        <h:panelGrid columns="2" >
+                            <h:outputLabel value="From" ></h:outputLabel>
+                            <p:calendar value="#{inwardReportController1.fromDate}" 
+                                        pattern="dd MMMM yyyy hh:mm:ss a" navigator="true" styleClass="dateTimePicker" />
+                            <h:outputLabel value="To" ></h:outputLabel>
+                            <p:calendar value="#{inwardReportController1.toDate}" 
+                                        pattern="dd MMMM yyyy hh:mm:ss a" navigator="true" styleClass="dateTimePicker" />
+                            <h:outputLabel value="Admission Type" ></h:outputLabel>
                             <p:selectOneMenu  id="lstAdmissionType"   value="#{inwardReportController1.admissionType}" >
                                 <f:selectItem itemLabel="All Admission Types"/>
                                 <f:selectItems  value="#{admissionTypeController.items}" var="myItem" itemValue="#{myItem}" itemLabel="#{myItem.name}"></f:selectItems>
                             </p:selectOneMenu>
-                            <h:outputLabel value="BHT Type : " ></h:outputLabel>
+                            <h:outputLabel value="BHT Type" ></h:outputLabel>
                             <p:selectOneMenu   id="cmbBhtType" value="#{inwardReportController1.paymentMethod}"  >
                                 <f:selectItem itemLabel="All BHT Types" />                           
                                 <f:selectItems value="#{enumController.paymentMethodForAdmission}" />
                             </p:selectOneMenu>
-                            <h:outputLabel value="Credit Company : " ></h:outputLabel>
+                            <h:outputLabel value="Credit Company" ></h:outputLabel>
                             <p:selectOneMenu  id="lstCc"   value="#{inwardReportController1.institution}" >
                                 <f:selectItem itemLabel="All Credit Companies"/>
                                 <f:selectItems  value="#{creditCompanyController.creditCompanies}" var="cc" 
                                                 itemValue="#{ccc}" itemLabel="#{ccc.name}"></f:selectItems>
                             </p:selectOneMenu>
-
+                            <h:outputLabel value="Summery" ></h:outputLabel>
+                            <p:selectBooleanCheckbox value="#{inwardReportController1.reportKeyWord.additionalDetails}" />
 
                         </h:panelGrid>
 
 
-                        <p:panelGrid columns="3">
-                        
-                        <p:commandButton ajax="false" value="Process" action="#{inwardReportController1.createRoomTime()}" onclick="onSubmitButton();"  ></p:commandButton>
-                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" onclick="onSubmitButton();" >
-                            <pe:exporter type="xlsx" target="tb1" fileName="bht_income_by_categories"  />
-                        </p:commandButton>
-                        <p:commandButton value="Print" ajax="false" action="#" >
-                            <p:printer target="gpBillPreview" ></p:printer>
-                        </p:commandButton>
-                         
-                        </p:panelGrid>
-                        
+                        <h:panelGrid columns="3">
+
+                            <p:commandButton ajax="false" value="Process" action="#{inwardReportController1.createRoomTime()}" onclick="onSubmitButton();"  ></p:commandButton>
+                            <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" onclick="onSubmitButton();" >
+                                <pe:exporter type="xlsx" target="tb1" fileName="bht_income_by_categories"  />
+                            </p:commandButton>
+                            <p:commandButton value="Print" ajax="false" action="#" >
+                                <p:printer target="gpBillPreview" ></p:printer>
+                            </p:commandButton>
+
+                        </h:panelGrid>
+
                         <p:panel id="gpBillPreview" >                     
                             <p:dataTable id="tb1" value="#{inwardReportController1.categoryTimes}" var="rm">
-                                
-                                 <f:facet name="header">
-                                       
-                                          <h:outputLabel value="BHT Income"/>
-                                        <h:outputLabel value=" : "/>
-                                        <h:outputLabel value="#{inwardReportController1.fromDate}">
-                                             <f:convertDateTime pattern="dd MMMM yyyy"/>
-                                        </h:outputLabel>
-                                        <h:outputLabel value=" -- "/>
-                                        <h:outputLabel value="#{inwardReportController1.toDate}">
-                                             <f:convertDateTime pattern="dd MMMM yyyy"/>
-                                        </h:outputLabel>
-                                    </f:facet>
 
-                                
-                                
+                                <f:facet name="header">
+
+                                    <h:outputLabel value="BHT Income"/>
+                                    <h:outputLabel value=" : "/>
+                                    <h:outputLabel value="#{inwardReportController1.fromDate}">
+                                        <f:convertDateTime pattern="dd MMMM yyyy"/>
+                                    </h:outputLabel>
+                                    <h:outputLabel value=" -- "/>
+                                    <h:outputLabel value="#{inwardReportController1.toDate}">
+                                        <f:convertDateTime pattern="dd MMMM yyyy"/>
+                                    </h:outputLabel>
+                                </f:facet>
+
+
+
                                 <p:column exportable="false">
                                     <p:commandButton ajax="false" value="view Detail" 
-                                                    action="inward_report_room_detail" 
-                                                    actionListener="#{inwardReportController1.createRoomTime(rm.roomCategory)}" />
+                                                     action="inward_report_room_detail" 
+                                                     actionListener="#{inwardReportController1.createRoomTime(rm.roomCategory)}" />
                                 </p:column>
                                 <p:column headerText="Category">
                                     <f:facet name="header">
@@ -86,20 +89,26 @@
                                     </f:facet>
                                     <h:outputLabel value="#{rm.roomCategory.name}" />
                                 </p:column>
+                                <p:column headerText="Room" rendered="#{inwardReportController1.reportKeyWord.additionalDetails ne true}">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Room" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{rm.room.name}" />
+                                </p:column>
                                 <p:column headerText="Calculated" style="text-align: right;">
                                     <f:facet name="header">
                                         <h:outputLabel value="Calculated" />
                                     </f:facet>
                                     <h:outputLabel value="#{rm.calculated}">
-                                        <f:convertNumber pattern="#0.00"/>
+                                        <f:convertNumber pattern="#,##0.00"/>
                                     </h:outputLabel>                                 
                                 </p:column>
-                                 <p:column headerText="Added" style="text-align: right;">
-                                     <f:facet name="header">
+                                <p:column headerText="Added" style="text-align: right;">
+                                    <f:facet name="header">
                                         <h:outputLabel value="Added" />
                                     </f:facet>
-                                     <h:outputLabel value="#{rm.added}">
-                                        <f:convertNumber pattern="#0.00"/>
+                                    <h:outputLabel value="#{rm.added}">
+                                        <f:convertNumber pattern="#,##0.00"/>
                                     </h:outputLabel>                                   
                                 </p:column>
                                 <p:column headerText="Hours" style="text-align: right;">

@@ -27,6 +27,7 @@ import com.divudi.entity.PaymentScheme;
 import com.divudi.entity.Person;
 import com.divudi.entity.PersonInstitution;
 import com.divudi.entity.RefundBill;
+import com.divudi.entity.Staff;
 import com.divudi.entity.WebUser;
 import com.divudi.entity.lab.Investigation;
 import com.divudi.facade.BillFacade;
@@ -589,6 +590,12 @@ public class CommonReport1 implements Serializable {
                 + " and b.createdAt between :fromDate and :toDate "
                 + " and type(bi.item)=:inv ";
 
+        if (radio.equals("3")) {
+            sql += " and b.patientEncounter.referringDoctor is not null ";
+        } else {
+            sql += " and b.referredBy is not null ";
+        }
+
         if (radio.equals("0")) {
             sql += " and b.billType in :bts ";
             m.put("bts", Arrays.asList(new BillType[]{BillType.OpdBill, BillType.CollectingCentreBill}));
@@ -623,22 +630,24 @@ public class CommonReport1 implements Serializable {
         List<Object[]> objects = billItemFacade.findAggregates(sql, m, TemporalType.TIMESTAMP);
         System.out.println("objects.size() = " + objects.size());
         List<Object[]> obj = fetchReferingDoctoerNull();
-        if (objects == null) {
-            objects = new ArrayList<>();
-            objects.addAll(obj);
-        } else {
-            objects.addAll(obj);
-        }
+//        if (objects == null) {
+//            objects = new ArrayList<>();
+//            objects.addAll(obj);
+//        } else {
+//            objects.addAll(obj);
+//        }
         System.out.println("objects.size() = " + objects.size());
         biledBillsTotal = 0.0;
         DocTotal row = new DocTotal();
-        Doctor lastDoctor = null;
+        Staff lastDoctor = null;
         double total = 0.0;
         long count = 0l;
         for (Object[] o : objects) {
-            Doctor d = (Doctor) o[0];
+//            System.out.println("o[0] = " + o[0]);
+            Staff d = (Staff) o[0];
+//            System.out.println("d.getName() = " + d.getPerson().getName());
             if (d == null) {
-                System.out.println("d = " + d);
+//                System.out.println("d = " + d);
                 Doctor doc = new Doctor();
                 Person p = new Person();
                 p.setName("No Name");
@@ -646,31 +655,34 @@ public class CommonReport1 implements Serializable {
                 d = doc;
                 continue;
             }
-            if (onlyOPD) {
-                if (checkDoctor(d)) {
-                    continue;
+            try {
+                if (onlyOPD) {
+                    if (checkDoctor((Doctor) d)) {
+                        continue;
+                    }
                 }
+            } catch (Exception e) {
+                continue;
             }
-            System.out.println("d.getName() = " + d.getPerson().getName());
             BillClassType billClassType = (BillClassType) o[1];
-            System.out.println("billClassType = " + billClassType);
+//            System.out.println("billClassType = " + billClassType);
             long l = (long) o[2];
-            System.out.println("l = " + l);
+//            System.out.println("l = " + l);
             if (billClassType == BillClassType.CancelledBill || billClassType == BillClassType.RefundBill) {
                 if (l > 0) {
                     l *= -1;
                 }
             }
-            System.out.println("l = " + l);
+//            System.out.println("l = " + l);
             double tot = 0.0;
             try {
                 tot = (double) o[3];
             } catch (Exception e) {
                 System.out.println("Errrror d.getName() = " + d.getPerson().getName());
             }
-            System.out.println("tot = " + tot);
+//            System.out.println("tot = " + tot);
             if (lastDoctor == null) {
-                row.setDoctor(d);
+                row.setStaff((Doctor) d);
                 row.setTotal(tot);
                 row.setCount(l);
                 count += l;
@@ -685,7 +697,7 @@ public class CommonReport1 implements Serializable {
                 } else {
                     docTotals.add(row);
                     row = new DocTotal();
-                    row.setDoctor(d);
+                    row.setStaff(d);
                     row.setTotal(tot);
                     row.setCount(l);
                     count += l;
@@ -693,6 +705,31 @@ public class CommonReport1 implements Serializable {
                     lastDoctor = d;
                 }
             }
+        }
+        Doctor doc = new Doctor();
+        Person p = new Person();
+        p.setName("No Name");
+        doc.setPerson(p);
+        row = new DocTotal();
+        row.setStaff(doc);
+        for (Object[] o : obj) {
+            long l = (long) o[2];
+            System.out.println("l = " + l);
+            BillClassType billClassType = (BillClassType) o[1];
+            if (billClassType == BillClassType.CancelledBill || billClassType == BillClassType.RefundBill) {
+                if (l > 0) {
+                    l *= -1;
+                }
+            }
+            double tot = 0.0;
+            try {
+                tot = (double) o[3];
+            } catch (Exception e) {
+            }
+            row.setTotal(row.getTotal() + tot);
+            row.setCount(row.getCount() + l);
+            count += l;
+            total += tot;
         }
         docTotals.add(row);
         row = new DocTotal();
@@ -2212,6 +2249,7 @@ public class CommonReport1 implements Serializable {
     public class DocTotal {
 
         Doctor doctor;
+        Staff staff;
         double total;
         long count;
 
@@ -2237,6 +2275,14 @@ public class CommonReport1 implements Serializable {
 
         public void setTotal(double total) {
             this.total = total;
+        }
+
+        public Staff getStaff() {
+            return staff;
+        }
+
+        public void setStaff(Staff staff) {
+            this.staff = staff;
         }
     }
 

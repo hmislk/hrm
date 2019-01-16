@@ -1,0 +1,324 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:hr="http://java.sun.com/jsf/composite/autocomplete">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+
+            <ui:define name="content">
+
+                <h:form >
+                    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+                    
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawChannelCountChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Date'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_channel'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawChannelCount12MonthsChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Month'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_channel_12'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawCurveTypes);
+
+                        function drawCurveTypes() {
+                            var rowdata =#{googleChartController.drawChannelCountLastYearsChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                hAxis: {
+                                    title: 'Year'
+                                },
+                                vAxis: {
+                                    title: 'Count'
+                                }
+                            };
+
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_channel_years'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawAdmissionCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_addmission_last_30_Days'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawAdmissionCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_addmission_last_12_months'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['corechart']});
+                        google.charts.setOnLoadCallback(drawVisualization);
+                    
+                        function drawVisualization() {
+                            var rowdata =#{googleChartController.drawPharmacyChart()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+                            var options = {
+                                vAxis: {title: 'Sale'},
+                                hAxis: {title: 'Date'},
+                                seriesType: 'bars',
+//                                series: {2: {type: 'line'}}
+                            };
+                    
+                            var chart = new google.visualization.ComboChart(document.getElementById('chart_Pharmacy'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                    
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawCCCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_cc_last_30_days'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawCCCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_cc_last_12_months'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawAgencyCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_30_days'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawAgencyCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_12_months'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawOnlineAgencyCountLast30days()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_30_days_on'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var rowdata =#{googleChartController.drawOnlineAgencyCountLast12Months()}
+                            var data = google.visualization.arrayToDataTable(rowdata);
+
+                            var options = {
+                                
+                            };
+
+                            var chart = new google.charts.Bar(document.getElementById('chart_agency_last_12_months_on'));
+
+                            chart.draw(data, google.charts.Bar.convertOptions(options));
+                        }
+                    </script>
+                    
+                    <center>
+                        <p:panel>
+                            <h1 style="color: #107710">RUHUNU HOSPITAL DASHBOARD</h1>
+                            <h2 style="color: #107710">Director</h2>
+                            <h3>Welcome <h:outputLabel value="#{sessionController.loggedUser.webUserPerson.name}"/></h3>
+                            <h3>
+                                <h:outputLabel value="#{commonController.currentDateTime}">
+                                    <f:convertDateTime pattern="yyyy MM dd" />
+                                </h:outputLabel>
+                            </h3>
+                        </p:panel>
+                        <p:panel>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_channel" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last 12 Months" toggleable="true" collapsed="false">
+                                    <div id="chart_channel_12" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Counts Of Last Years" toggleable="true" collapsed="false">
+                                    <div id="chart_channel_years" style="width: 700px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+
+                            <h:panelGrid>
+                                <p:panel header="Addmission Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_addmission_last_30_Days" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Addmission Counts Of Last 12 Months" toggleable="true" collapsed="false">
+                                    <div id="chart_addmission_last_12_months" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+
+                            <h:panelGrid >
+                                <p:panel header="Pharmacy Sale Last Week Days" toggleable="true" collapsed="false">
+                                    <div id="chart_Pharmacy" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 30 Days (Count > 40)" toggleable="true" collapsed="false">
+                                    <div id="chart_cc_last_30_days" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Collecting Center Counts Of Last 12 Months (count > 400)" toggleable="true" collapsed="false">
+                                    <div id="chart_cc_last_12_months" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            
+                            <h:panelGrid>
+                                <p:panel header="Channel Center Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_30_days" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Channel Center Counts Of Last 12 Months (count > 300)" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_12_months" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            
+                            <h:panelGrid>
+                                <p:panel header="Online Channel Counts Of Last 30 Days" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_30_days_on" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+                            <h:panelGrid>
+                                <p:panel header="Online Channel Counts Of Last 12 Months" toggleable="true" collapsed="false">
+                                    <div id="chart_agency_last_12_months_on" style="width: 1500px; height: 500px;"></div>
+                                </p:panel>
+                            </h:panelGrid>
+
+                        </p:panel>
+                    </center>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </h:body>
+</html>

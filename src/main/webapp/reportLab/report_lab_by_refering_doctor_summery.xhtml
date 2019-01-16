@@ -80,8 +80,8 @@
                             <f:facet name="header">
                                 <h:outputLabel value="No"/>
                             </f:facet>
-                            <h:outputLabel value="#{i+1}" rendered="#{d.doctor ne null}"/>
-                            <h:outputLabel value="Total" rendered="#{d.doctor eq null}" style="font-weight: bold;"/>
+                            <h:outputLabel value="#{i+1}" rendered="#{d.staff ne null}"/>
+                            <h:outputLabel value="Total" rendered="#{d.staff eq null}" style="font-weight: bold;"/>
 <!--                            <f:facet name="footer">
                                 <h:outputLabel value="Total"/>
                             </f:facet>-->
@@ -91,7 +91,7 @@
                             <f:facet name="header">
                                 <h:outputLabel value="Referring Doctor" />
                             </f:facet>
-                            <h:outputLabel value="#{d.doctor.person.name}" rendered="#{d.doctor ne null}"/>
+                            <h:outputLabel value="#{d.staff.person.name}" rendered="#{d.staff ne null}"/>
                         </p:column>
 
 

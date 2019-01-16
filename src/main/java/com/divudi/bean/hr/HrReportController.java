@@ -974,14 +974,14 @@ public class HrReportController implements Serializable {
         f.set(Calendar.HOUR, 0);
         f.set(Calendar.MINUTE, 0);
         f.set(Calendar.SECOND, 0);
-        System.out.println("f.getTime() = " + f.getTime());
+//        System.out.println("f.getTime() = " + f.getTime());
         Calendar t = Calendar.getInstance();
         t.setTime(new Date());
         t.add(Calendar.MONTH, months);
         t.set(Calendar.HOUR, 23);
         t.set(Calendar.MINUTE, 59);
         t.set(Calendar.SECOND, 59);
-        System.out.println("t.getTime() = " + t.getTime());
+//        System.out.println("t.getTime() = " + t.getTime());
 
         String sql;
         HashMap m = new HashMap();
@@ -994,11 +994,11 @@ public class HrReportController implements Serializable {
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
         m.put("cd", new Date());
-        System.out.println("m = " + m);
-        System.out.println("sql = " + sql);
+//        System.out.println("m = " + m);
+//        System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
-        System.out.println("staffs.size() = " + staffs.size());
-        commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
+//        System.out.println("staffs.size() = " + staffs.size());
+        commonController.printTimeDefference(startTime, "HR/Reports/Administration/ Employee details(/faces/hr/hr_report_employee_detail.xhtml)");
         return staffs;
     }
 
@@ -1012,14 +1012,14 @@ public class HrReportController implements Serializable {
             f.set(Calendar.HOUR, 0);
             f.set(Calendar.MINUTE, 0);
             f.set(Calendar.SECOND, 0);
-            System.out.println("f.getTime() = " + f.getTime());
+//            System.out.println("f.getTime() = " + f.getTime());
             t.setTime(new Date());
             t.add(Calendar.YEAR, -1);
             t.add(Calendar.MONTH, months);
             t.set(Calendar.HOUR, 23);
             t.set(Calendar.MINUTE, 59);
             t.set(Calendar.SECOND, 59);
-            System.out.println("t.getTime() = " + t.getTime());
+//            System.out.println("t.getTime() = " + t.getTime());
         } else {
             f.setTime(new Date());
             f.add(Calendar.YEAR, -1);
@@ -1027,13 +1027,13 @@ public class HrReportController implements Serializable {
             f.set(Calendar.HOUR, 0);
             f.set(Calendar.MINUTE, 0);
             f.set(Calendar.SECOND, 0);
-            System.out.println("f.getTime() = " + f.getTime());
+//            System.out.println("f.getTime() = " + f.getTime());
             t.setTime(new Date());
             t.add(Calendar.YEAR, -1);
             t.set(Calendar.HOUR, 23);
             t.set(Calendar.MINUTE, 59);
             t.set(Calendar.SECOND, 59);
-            System.out.println("t.getTime() = " + t.getTime());
+//            System.out.println("t.getTime() = " + t.getTime());
         }
 
         String sql;
@@ -1048,10 +1048,10 @@ public class HrReportController implements Serializable {
         m.put("td", t.getTime());
         m.put("cd", new Date());
 
-        System.out.println("m = " + m);
-        System.out.println("sql = " + sql);
+//        System.out.println("m = " + m);
+//        System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
-        System.out.println("staffs.size() = " + staffs.size());
+//        System.out.println("staffs.size() = " + staffs.size());
 
         return staffs;
     }
@@ -5434,6 +5434,7 @@ public class HrReportController implements Serializable {
 
     // Dashboard
     public String drawPiechartStaffCount() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
         subArray.put(0, "Gender");
@@ -5474,14 +5475,15 @@ public class HrReportController implements Serializable {
 //        subArray.put(0, "Female");
 //        subArray.put(1, 80);
 //        mainJSONArray.put(subArray);
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(Staff Count)");
         return mainJSONArray.toString();
 
     }
 
     public String drawTableRetrired() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
 
@@ -5501,14 +5503,15 @@ public class HrReportController implements Serializable {
             mainJSONArray.put(subArray);
         }
 
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(Ritiered Table)");
         return mainJSONArray.toString();
 
     }
 
     public String drawTableEndOfProbation() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
 
@@ -5535,14 +5538,15 @@ public class HrReportController implements Serializable {
             mainJSONArray.put(subArray);
         }
 
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(End of Probation)");
         return mainJSONArray.toString();
 
     }
 
     public String drawTableBirthdayReminder() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
 
@@ -5587,14 +5591,15 @@ public class HrReportController implements Serializable {
             }
         }
 
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(Birthday Today)");
         return mainJSONArray.toString();
 
     }
 
     public String drawTableBirthdayReminderWithInSevenDays() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
 
@@ -5623,13 +5628,13 @@ public class HrReportController implements Serializable {
                 now.setTime(getCommonFunctions().getStartOfDay());
                 now.set(Calendar.MILLISECOND, 0);
                 dob.set(Calendar.YEAR, now.get(Calendar.YEAR));
-                System.out.println("dob.getTime() = " + dob.getTime());
+//                System.out.println("dob.getTime() = " + dob.getTime());
                 now.add(Calendar.DATE, 1);
                 Date fd = now.getTime();
-                System.out.println("fd = " + fd);
+//                System.out.println("fd = " + fd);
                 now.add(Calendar.DATE, 7);
                 Date td = commonFunctions.getEndOfDay(now.getTime());
-                System.out.println("td = " + td);
+//                System.out.println("td = " + td);
                 
 //                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
 //                System.out.println("(fd.getTime() == dob.getTime().getTime()) = " + (fd.getTime() == dob.getTime().getTime()));
@@ -5655,14 +5660,15 @@ public class HrReportController implements Serializable {
             }
         }
 
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(Birthday Next 7 Days)");
         return mainJSONArray.toString();
 
     }
 
     public String drawPiechartStaffCountDepartment() {
+        Date startTime = new Date();
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();
         subArray.put(0, "Department");
@@ -5687,9 +5693,9 @@ public class HrReportController implements Serializable {
         List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
         for (Object[] ob : objects) {
             Department d = (Department) ob[0];
-            System.out.println("d.getName() = " + d.getName());
+//            System.out.println("d.getName() = " + d.getName());
             long count = (long) ob[1];
-            System.out.println("d = " + count);
+//            System.out.println("d = " + count);
             subArray = new JSONArray();
             subArray.put(0, d.getName());
             subArray.put(1, count);
@@ -5703,9 +5709,9 @@ public class HrReportController implements Serializable {
 //        subArray.put(0, "Female");
 //        subArray.put(1, 80);
 //        mainJSONArray.put(subArray);
-        System.out.println("jSONArray1.length = " + mainJSONArray.length());
-        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
-
+//        System.out.println("jSONArray1.length = " + mainJSONArray.length());
+//        System.out.println("jSONArray1.toString = " + mainJSONArray.toString());
+        commonController.printTimeDefference(startTime, "Time(Staff Count Depatment)");
         return mainJSONArray.toString();
 
     }

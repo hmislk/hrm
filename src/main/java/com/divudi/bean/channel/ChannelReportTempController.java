@@ -136,6 +136,8 @@ public class ChannelReportTempController implements Serializable {
     private List<PaymentMethod> paymentMethods;
     List<ChannelUserSummeryRow> channelUserSummeryRows;
     List<BttRow> bttRows;
+    List<BillRow> billRows;
+
     private String dept = "1";
     private String billtype = "1";
     //
@@ -153,7 +155,7 @@ public class ChannelReportTempController implements Serializable {
     boolean agency;
     boolean scan;
     ChannelTotal channelTotal;
-    private double grantTot = 0.0;
+    double grantTot = 0.0;
 
     /**
      * Creates a new instance of ChannelReportTempController
@@ -2722,6 +2724,86 @@ public class ChannelReportTempController implements Serializable {
         channelSummeryDateRangeBillTotalTables = new ArrayList<>();
     }
 
+    public void createCreditNoteDebitNoteTable() {
+        billRows = new ArrayList<>();
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select b.insId,b.createdAt,b.cancelled,b.fromInstitution.institutionCode,b.fromInstitution.name,b.netTotal,b.comments,b.billType,b.creater.webUserPerson.name "
+                + " from Bill b where "
+                + " b.retired=false "
+                + " and b.createdAt between :fromDate and :toDate "
+                + " and b.billType in :bts ";
+
+        //all
+        BillType[] billTypes = new BillType[]{};
+        if (getReportKeyWord().getString().equals("0") && getReportKeyWord().getString1().equals("0")) {
+            billTypes = new BillType[]{BillType.AgentCreditNoteBill, BillType.AgentDebitNoteBill, BillType.CollectingCentreCreditNoteBill, BillType.CollectingCentreDebitNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("0") && getReportKeyWord().getString1().equals("1")) {
+            billTypes = new BillType[]{BillType.AgentCreditNoteBill, BillType.CollectingCentreCreditNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("0") && getReportKeyWord().getString1().equals("2")) {
+            billTypes = new BillType[]{BillType.AgentDebitNoteBill, BillType.CollectingCentreDebitNoteBill};
+        }
+        //channel
+        if (getReportKeyWord().getString().equals("1") && getReportKeyWord().getString1().equals("0")) {
+            billTypes = new BillType[]{BillType.AgentCreditNoteBill, BillType.AgentDebitNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("1") && getReportKeyWord().getString1().equals("1")) {
+            billTypes = new BillType[]{BillType.AgentCreditNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("1") && getReportKeyWord().getString1().equals("2")) {
+            billTypes = new BillType[]{BillType.AgentDebitNoteBill};
+        }
+        //cc
+        if (getReportKeyWord().getString().equals("2") && getReportKeyWord().getString1().equals("0")) {
+            billTypes = new BillType[]{BillType.CollectingCentreCreditNoteBill, BillType.CollectingCentreDebitNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("2") && getReportKeyWord().getString1().equals("1")) {
+            billTypes = new BillType[]{BillType.CollectingCentreCreditNoteBill};
+        }
+        if (getReportKeyWord().getString().equals("2") && getReportKeyWord().getString1().equals("2")) {
+            billTypes = new BillType[]{BillType.CollectingCentreDebitNoteBill};
+        }
+
+        if (getReportKeyWord().getString().equals("1") || getReportKeyWord().getString().equals("2")) {
+            if (getReportKeyWord().getInstitution() != null) {
+                sql += " and b.fromInstitution=:ins ";
+                m.put("ins", getReportKeyWord().getInstitution());
+            }
+        }
+
+        sql += " order by b.createdAt ";
+
+        m.put("bts", Arrays.asList(billTypes));
+        m.put("toDate", getReportKeyWord().getToDate());
+        m.put("fromDate", getReportKeyWord().getFromDate());
+
+        System.err.println("m " + m);
+        System.err.println("Sql " + sql);
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        grantTot = 0.0;
+        for (Object[] ob : objects) {
+            BillRow row = new BillRow();
+            row.setInsId((String) ob[0]);
+            row.setCreatedAt((Date) ob[1]);
+            row.setCancelled((boolean) ob[2]);
+            row.setCode((String) ob[3]);
+            row.setInsName((String) ob[4]);
+            row.setNetTotal((double) ob[5]);
+            row.setComments((String) ob[6]);
+            row.setBillType((BillType) ob[7]);
+            row.setCreater((String) ob[8]);
+            billRows.add(row);
+            grantTot += row.getNetTotal();
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "/collecting_centre/credit_note_debit_note_details.xhtml");
+
+    }
+
     //listners
     public void listnerDoc() {
         if (withDocPayment) {
@@ -2733,6 +2815,10 @@ public class ChannelReportTempController implements Serializable {
         if (withOutDocPayment) {
             withDocPayment = false;
         }
+    }
+
+    public void listnerRadioChange() {
+        getReportKeyWord().setInstitution(null);
     }
 
     public List<Staff> fetchStaffs() {
@@ -2893,6 +2979,14 @@ public class ChannelReportTempController implements Serializable {
 
     public void setBttRows(List<BttRow> bttRows) {
         this.bttRows = bttRows;
+    }
+
+    public List<BillRow> getBillRows() {
+        return billRows;
+    }
+
+    public void setBillRows(List<BillRow> billRows) {
+        this.billRows = billRows;
     }
 
     //inner Classes(Data Structures)
@@ -3673,6 +3767,91 @@ public class ChannelReportTempController implements Serializable {
 
         public void setTotal(double total) {
             this.total = total;
+        }
+    }
+
+    public class BillRow {
+
+        String insId;
+        Date createdAt;
+        boolean cancelled;
+        String Code;
+        String insName;
+        double netTotal;
+        String comments;
+        BillType billType;
+        String creater;
+
+        public String getCreater() {
+            return creater;
+        }
+
+        public void setCreater(String creater) {
+            this.creater = creater;
+        }
+
+        public String getInsId() {
+            return insId;
+        }
+
+        public void setInsId(String insId) {
+            this.insId = insId;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Date createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public boolean isCancelled() {
+            return cancelled;
+        }
+
+        public void setCancelled(boolean cancelled) {
+            this.cancelled = cancelled;
+        }
+
+        public String getCode() {
+            return Code;
+        }
+
+        public void setCode(String Code) {
+            this.Code = Code;
+        }
+
+        public String getInsName() {
+            return insName;
+        }
+
+        public void setInsName(String insName) {
+            this.insName = insName;
+        }
+
+        public double getNetTotal() {
+            return netTotal;
+        }
+
+        public void setNetTotal(double netTotal) {
+            this.netTotal = netTotal;
+        }
+
+        public String getComments() {
+            return comments;
+        }
+
+        public void setComments(String comments) {
+            this.comments = comments;
+        }
+
+        public BillType getBillType() {
+            return billType;
+        }
+
+        public void setBillType(BillType billType) {
+            this.billType = billType;
         }
     }
 

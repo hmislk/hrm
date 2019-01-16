@@ -82,6 +82,7 @@ public class PharmacyBillSearch implements Serializable {
      * Properties
      */
     private boolean printPreview = false;
+    private boolean checkCancel = false;
     private double refundAmount;
     String txtSearch;
     Bill bill;
@@ -1571,6 +1572,14 @@ public class PharmacyBillSearch implements Serializable {
     }
 
     public void pharmacyRetailCancelBill() {
+        System.out.println("checkCancel = " + checkCancel);
+        if (checkCancel) {
+            System.err.println("*** Please Wait the cancelation is stil processing ***");
+            UtilityController.addSuccessMessage("Please Wait the cancelation is stil processing");
+            return;
+        }
+        checkCancel = true;
+        System.out.println("checkCancel = " + checkCancel);
         if (getBill() != null && getBill().getId() != null && getBill().getId() != 0) {
             if (pharmacyErrorCheck()) {
                 return;
@@ -1607,6 +1616,8 @@ public class PharmacyBillSearch implements Serializable {
         } else {
             UtilityController.addErrorMessage("No Bill to cancel");
         }
+        checkCancel = false;
+        System.out.println("checkCancel = " + checkCancel);
     }
 
     private boolean checkDepartment(Bill bill) {
@@ -2986,6 +2997,14 @@ public class PharmacyBillSearch implements Serializable {
 
     public void setBillFeePaymentFacade(BillFeePaymentFacade billFeePaymentFacade) {
         this.billFeePaymentFacade = billFeePaymentFacade;
+    }
+
+    public boolean isCheckCancel() {
+        return checkCancel;
+    }
+
+    public void setCheckCancel(boolean checkCancel) {
+        this.checkCancel = checkCancel;
     }
 
 }

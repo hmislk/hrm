@@ -5,6 +5,8 @@
 package com.divudi.data.dataStructure;
 
 import com.divudi.entity.BillItem;
+import com.divudi.entity.Institution;
+import java.util.Date;
 
 /**
  *
@@ -28,7 +30,61 @@ public class BillItemWithFee {
     private double total;
     String staffsNames;
     double staffFee;
- 
+    
+    long id;
+    String billNo;
+    String billedNo;
+    Institution creditCompany;
+    Date createdAt;
+    String itemName;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getBillNo() {
+        return billNo;
+    }
+
+    public void setBillNo(String billNo) {
+        this.billNo = billNo;
+    }
+
+    public String getBilledNo() {
+        return billedNo;
+    }
+
+    public void setBilledNo(String billedNo) {
+        this.billedNo = billedNo;
+    }
+
+    public Institution getCreditCompany() {
+        return creditCompany;
+    }
+
+    public void setCreditCompany(Institution creditCompany) {
+        this.creditCompany = creditCompany;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
 
     public double getHospitalFee() {
         return hospitalFee;

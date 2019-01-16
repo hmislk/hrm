@@ -369,10 +369,10 @@ public class SheduleController implements Serializable {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(i.getSessionDate());
                 Calendar calNow = Calendar.getInstance();
-                System.out.println("****cal.getTime() = " + cal.getTime());
-                System.out.println("****calNow.getTime() = " + calNow.getTime());
-                System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.YEAR));
-                System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.YEAR));
+//                System.out.println("****cal.getTime() = " + cal.getTime());
+//                System.out.println("****calNow.getTime() = " + calNow.getTime());
+//                System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.YEAR));
+//                System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.YEAR));
 //                if (cal.get(Calendar.YEAR) <= calNow.get(Calendar.YEAR)) {
 //                    System.out.println("cal.get(Calendar.YEAR) = " + cal.get(Calendar.MONTH));
 //                    System.out.println("calNow.get(Calendar.YEAR) = " + calNow.get(Calendar.MONTH));

@@ -12,5 +12,6 @@ package com.divudi.data;
 public enum SmsType {
     LabReport,
     ChannelDoctorAraival,
+    ChannelMessage,
     Marketing,
 }

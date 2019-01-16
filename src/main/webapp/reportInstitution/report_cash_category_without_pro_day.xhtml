@@ -42,18 +42,16 @@
                         <p:commandButton ajax="false" value="Print"  styleClass="noPrintButton" style="float: right;"  >
                             <p:printer target="panelPrint" />
                         </p:commandButton>
-<!--                        <p:commandButton value="Excelasfcas" ajax="false" styleClass="noPrintButton" style="float: right;">
-                            <pe:exporter type="xlsx" target="Val" fileName="Book_Keeping_Summery_without_pro_day_by_category_dat_end" />
-                        </p:commandButton>-->
+                        <!--                        <p:commandButton value="Excelasfcas" ajax="false" styleClass="noPrintButton" style="float: right;">
+                                                    <pe:exporter type="xlsx" target="Val" fileName="Book_Keeping_Summery_without_pro_day_by_category_dat_end" />
+                                                </p:commandButton>-->
                         <p:commandButton value="Excel" ajax="false" styleClass="noPrintButton" style="float: right;">
                             <pe:exporter type="xlsx" target="opd_new:opd_new,
                                          colCash,
                                          colCredit,
                                          outside:outside,
                                          pharmacy:pharmacy,
-                                         pharmacyc:pharmacyc,
-                                         pharmacyws:pharmacyws,
-                                         pharmacywsc:pharmacywsc,
+
                                          inward_collection1:inward_collection1,
                                          agent_collection:agent_collection,
                                          collecting_centre_collection:collecting_centre_collection,
@@ -69,10 +67,12 @@
                                          cheque:cheque,
                                          finalSum,
                                          bnkDeposit,
-                                         opd_new_credit:opd_new_credit"
+                                         opd_new_credit:opd_new_credit,
+                                         pharmacyc:pharmacyc,
+                                         pharmacyws:pharmacyws,
+                                         pharmacywsc:pharmacywsc"
                                          fileName="Book_Keeping_Summery_without_pro_day_by_category_dat_end"
-                                         facetFontStyle="BOLD"   cellFontStyle="NORMAL"  
-                                         fontName="Courier New"  />
+                                         />
                         </p:commandButton>
                     </h:panelGrid>
 
@@ -138,7 +138,7 @@
 
             <p:spacer height="30"/>
 
-            <in:pharmacy id="pharmacy" pharmacy="#{bookKeepingSummery.pharmacySales}"/>
+            <in:pharmacy_sale id="pharmacy" pharmacy="#{bookKeepingSummery.pharmacySales}"/>
 
             <p:spacer height="30"/>
 
@@ -171,13 +171,13 @@
 
             <p:spacer height="30"/>
 
-<!--            <in:credit_collection_inward_1                 
-                id="credit_collection_inward"/>-->
+            <!--            <in:credit_collection_inward_1                 
+                            id="credit_collection_inward"/>-->
             .
-<!--            <in:credit_collection_opd 
-                id="credit_collection"/>
-
-            <p:spacer height="30"/>-->
+            <!--            <in:credit_collection_opd 
+                            id="credit_collection"/>
+            
+                        <p:spacer height="30"/>-->
 
             <in:credit_collection_inward                 
                 id="credit_collection_inward"/>
@@ -221,7 +221,7 @@
             <p:spacer height="30"/>
 
             <in:credit_card_bills id="credit_card"/>
-            
+
             <p:spacer height="30"/>
 
             <in:online_settlement_bills id="online_settlement"/>
@@ -254,6 +254,7 @@
                                 </h:outputLabel>
                             </f:facet>
                         </p:column>
+                        <p:column></p:column>
 
                         <p:column headerText="................" style="text-align: right; vertical-align: bottom;">
                             <f:facet name="header">
@@ -268,6 +269,7 @@
                                 <p:outputLabel value="B/F Cash Balance" style="text-align: left"/>
                             </f:facet>
                         </p:column>
+                        <p:column></p:column>
                         <p:column headerText="................" style="text-align: right; vertical-align: bottom;">
                             <f:facet name="header">
                                 <p:outputLabel value="................" style="text-align: right; vertical-align: bottom;"/>
@@ -286,6 +288,7 @@
                                 <p:outputLabel value="Mannual Adjustment" style="text-align: left"/>
                             </f:facet>
                         </p:column>
+                        <p:column></p:column>
                         <p:column headerText="................" style="text-align: right; vertical-align: bottom;">
                             <f:facet name="header">
                                 <p:outputLabel value="................" style="text-align: right; vertical-align: bottom;"/>
@@ -304,6 +307,7 @@
                                 <p:outputLabel value=" " style="text-align: left"/>
                             </f:facet>
                         </p:column>
+                        <p:column></p:column>
                         <p:column headerText="................" style="text-align: right; vertical-align: bottom;">
                             <f:facet name="header">
                                 <p:outputLabel value="................" style="text-align: right; vertical-align: bottom;"/>
@@ -322,6 +326,7 @@
                                 <p:outputLabel value=" " style="text-align: left"/>
                             </f:facet>
                         </p:column>
+                        <p:column></p:column>
                         <p:column headerText="................" style="text-align: right; vertical-align: bottom;">
                             <f:facet name="header">
                                 <p:outputLabel value="................" style="text-align: right; vertical-align: bottom;"/>
@@ -340,7 +345,7 @@
                                 <p:outputLabel value="Final Cash" style="text-align: left"/>
                             </f:facet>
                         </p:column>
-
+                        <p:column></p:column>
                         <p:column headerText="  "  style="text-align: right; vertical-align: top;">
                             <f:facet name="header">
                                 <p:outputLabel value="  " style="text-align: right; vertical-align: top;"/>
@@ -556,15 +561,15 @@
 
             <p:spacer height="30"/>
 
-            <in:pharmacy id="pharmacyc" pharmacy="#{bookKeepingSummery.pharmacySalesCredit}" credit="true"/>
+            <in:pharmacy_sale_credit id="pharmacyc" pharmacy="#{bookKeepingSummery.pharmacySalesCredit}" />
 
             <p:spacer height="30"/>
 
-            <in:pharmacy id="pharmacyws" pharmacy="#{bookKeepingSummery.pharmacyWholeSales}" wholeSale="true"/>
+            <in:pharmacy_wholesale id="pharmacyws" pharmacy="#{bookKeepingSummery.pharmacyWholeSales}" />
 
             <p:spacer height="30"/>
 
-            <in:pharmacy id="pharmacywsc" pharmacy="#{bookKeepingSummery.pharmacyWholeSalesCredit}" wholeSale="true" credit="true"/>
+            <in:pharmacy_wholesale_credit id="pharmacywsc" pharmacy="#{bookKeepingSummery.pharmacyWholeSalesCredit}" />
 
             <p:spacer height="30"/>
 

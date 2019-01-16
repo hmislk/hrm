@@ -4023,14 +4023,16 @@ public class BookKeepingSummery implements Serializable {
         creditCardBill = getBillBean().fetchBills(PaymentMethod.Card, getFromDate(), getToDate(), getInstitution());
         onlineSettlementBill = getBillBean().fetchBills(PaymentMethod.OnlineSettlement, getFromDate(), getToDate(), getInstitution());
         chequeBill = getBillBean().fetchBills(PaymentMethod.Cheque, getFromDate(), getToDate(), getInstitution());
-        slipBill = getBillBean().fetchBills(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution());
+        slipBill = getBillBean().fetchBills(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution(),new BillType[]{BillType.CollectingCentreCreditNoteBill,BillType.CollectingCentreDebitNoteBill,BillType.AgentCreditNoteBill,BillType.AgentDebitNoteBill});
+//        slipBill = getBillBean().fetchBills(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution());
         /////////////////
         departmentProfessionalPaymentTotalCredit = getBillBean().calDoctorPayment(fromDate, toDate, BillType.OpdBill, institution, Arrays.asList(new PaymentMethod[]{paymentMethod.Credit,}), null);
         inwardProfessionalPaymentTotal = getBillBean().calDoctorPaymentInward(fromDate, toDate, institution);
         creditCardTotal = getBillBean().calBillTotalWithVat(PaymentMethod.Card, getFromDate(), getToDate(), getInstitution());
         onlineSettlementTotal = getBillBean().calBillTotalWithVat(PaymentMethod.OnlineSettlement, getFromDate(), getToDate(), getInstitution());
         chequeTotal = getBillBean().calBillTotal(PaymentMethod.Cheque, getFromDate(), getToDate(), getInstitution());
-        slipTotal = getBillBean().calBillTotal(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution());
+        slipTotal = getBillBean().calBillTotal(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution(),new BillType[]{BillType.CollectingCentreCreditNoteBill,BillType.CollectingCentreDebitNoteBill,BillType.AgentCreditNoteBill,BillType.AgentDebitNoteBill});
+//        slipTotal = getBillBean().calBillTotal(PaymentMethod.Slip, getFromDate(), getToDate(), getInstitution());
         createFinalSummery();
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Reports/Institution reports/Book keeping summery(with out professional)/By category day end(/faces/reportInstitution/report_cash_category_without_pro_day.xhtml)");

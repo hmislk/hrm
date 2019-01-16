@@ -11,9 +11,11 @@ import com.divudi.bean.lab.InvestigationController;
 import com.divudi.bean.lab.PatientInvestigationController;
 import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
+import com.divudi.data.FeeType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.dataStructure.InvestigationSummeryData;
 import com.divudi.data.dataStructure.ItemInstitutionCollectingCentreCountRow;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.ejb.BillEjb;
 import com.divudi.ejb.CommonFunctions;
 import com.divudi.entity.Bill;
@@ -118,6 +120,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
 
     private String summeryType = "1";
     private String totalType = "2";
+    ReportKeyWord reportKeyWord;
     private List<IncomeSummeryRow> incomeSummeryRows;
     List<DepartmentBilltypeRow> departmentBilltypeRows;
 
@@ -282,7 +285,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             }
             progressValue += (int) singleItem;
 //            InvestigationSummeryData temp = setIxSummeryCountBilledDep(w, department);
-            InvestigationSummeryData temp = setIxSummeryCountBilledDep(w, department,bts);
+            InvestigationSummeryData temp = setIxSummeryCountBilledDep(w, department, bts);
             if (temp.getCount() != 0) {
                 totalCount += temp.getCount();
                 items.add(temp);
@@ -321,7 +324,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             return;
         }
         double singleItem = 100 / ixs.size();
-        grantTotal=0.0;
+        grantTotal = 0.0;
         for (Item w : ixs) {
             if (totalCount == null) {
                 totalCount = 0l;
@@ -331,7 +334,8 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             }
             progressValue += (int) singleItem;
 //            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department);
-            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts);
+//            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts);
+            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts,getReportKeyWord().getString());
             if (temp.getTotal() != 0) {
                 grantTotal += temp.getTotal();
                 items.add(temp);
@@ -406,9 +410,9 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
 
     public void createInvestigationMonthEndSummery() {
         Date startTime = new Date();
-        BillType[] bts=new BillType[]{};
+        BillType[] bts = new BillType[]{};
         if (summeryType.equals("1")) {
-            bts = new BillType[]{BillType.OpdBill, BillType.InwardBill,BillType.CollectingCentreBill};
+            bts = new BillType[]{BillType.OpdBill, BillType.InwardBill, BillType.CollectingCentreBill};
         }
         if (summeryType.equals("2")) {
             bts = new BillType[]{BillType.OpdBill};
@@ -614,6 +618,113 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
 
         billlistTotal = new BillListTotal();
 
+    }
+
+    public void createInvestigationCounts() {
+        items = new ArrayList<>();
+        if (getReportKeyWord().getString().equals("0")) {//department
+            if (getDepartment() == null) {
+                JsfUtil.addErrorMessage("Please Select a Department");
+                return;
+            }
+        } else {//institution
+            if (getDepartment() == null) {
+                JsfUtil.addErrorMessage("Please Select a Department");
+                return;
+            }
+        }
+        InvestigationSummeryData row = new InvestigationSummeryData();
+        InvestigationSummeryData rowTotal = new InvestigationSummeryData();
+        rowTotal.setInvestigation(null);
+        Item lastItem = null;
+        for (Object[] ob : fetchInvestigationcount()) {
+            Item i = (Item) ob[0];
+            System.out.println("i.getName() = " + i.getName());
+            BillClassType bct = (BillClassType) ob[1];
+            System.out.println("bct = " + bct);
+            long l = (long) ob[2];
+            System.out.println("l = " + l);
+            if (bct != BillClassType.BilledBill) {
+                l = 0 - l;
+                System.out.println("l = " + l);
+            }
+            if (lastItem == null) {
+                row.setInvestigation(i);
+                row.setCount(l);
+                rowTotal.setCount(l);
+                lastItem = i;
+            } else {
+                if (lastItem == i) {
+                    row.setCount(row.getCount() + l);
+                    rowTotal.setCount(rowTotal.getCount() + l);
+                } else {
+                    items.add(row);
+                    row = new InvestigationSummeryData();
+                    row.setInvestigation(i);
+                    row.setCount(l);
+                    rowTotal.setCount(rowTotal.getCount() + l);
+                    lastItem = i;
+                }
+            }
+        }
+        items.add(row);
+        items.add(rowTotal);
+        System.out.println("items.size() = " + items.size());
+    }
+
+    private List<Object[]> fetchInvestigationcount() {
+        List<Object[]> objects = new ArrayList<>();
+        Map m = new HashMap();
+        String sql;
+
+        sql = "select i, b.billClassType, count(bi) "
+                + " from BillItem bi join bi.item i "
+                + " join bi.bill b where "
+                + " b.billType in :bts ";
+
+        BillType[] bts = new BillType[]{};
+        if (summeryType.equals("1")) {
+            bts = new BillType[]{BillType.OpdBill, BillType.InwardBill, BillType.CollectingCentreBill};
+        }
+        if (summeryType.equals("2")) {
+            bts = new BillType[]{BillType.OpdBill};
+        }
+        if (summeryType.equals("3")) {
+            bts = new BillType[]{BillType.InwardBill};
+        }
+        if (summeryType.equals("4")) {
+            bts = new BillType[]{BillType.CollectingCentreBill};
+        }
+
+        if (getReportKeyWord().getString().equals("0")) {//department
+            if (getReportKeyWord().getString1().equals("0")) {
+                sql += " and b.department =:dep ";
+            } else {
+                sql += " and i.department =:dep ";
+            }
+            m.put("dep", department);
+        } else {//institution
+            if (getReportKeyWord().getString1().equals("0")) {
+                sql += " and b.institution =:ins ";
+            } else {
+                sql += " and i.institution =:ins ";
+            }
+            m.put("ins", institution);
+        }
+
+        sql += " and b.createdAt between :fd and :td ";
+
+        m.put("bts", Arrays.asList(bts));
+        m.put("fd", fromDate);
+        m.put("td", toDate);
+
+        sql += " group by bi.item.name, b.billClassType "
+                + " order by bi.item.name, b.billClassType ";
+
+        objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+
+        System.out.println("objects.size() = " + objects.size());
+        return objects;
     }
 
     public List<Bill> fetchInvestigationBillList(Bill b) {
@@ -1575,7 +1686,8 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
         is.setCount(net);
         return is;
     }
-    private InvestigationSummeryData setIxSummeryCountBilledDep(Item w, Department d,BillType[] bts) {
+
+    private InvestigationSummeryData setIxSummeryCountBilledDep(Item w, Department d, BillType[] bts) {
         InvestigationSummeryData is = new InvestigationSummeryData();
         is.setInvestigation(w);
         long billed = billEjb.getBillItemCount(w, fromDate, toDate, bts, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null);
@@ -1615,6 +1727,26 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
         double net = billed + cancelled + refunded;
         is.setTotal(net);
         return is;
+    }
+
+    private InvestigationSummeryData setIxSummeryTotalBilledDep(Item w, Department d, BillType[] billTypes, String s) {
+        InvestigationSummeryData is = new InvestigationSummeryData();
+        is.setInvestigation(w);
+        if (s.equals("0")) {
+            double billed = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null);
+            double cancelled = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null);
+            double refunded = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null);
+            double net = billed + cancelled + refunded;
+            is.setTotal(net);
+            return is;
+        } else {
+            double billed = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double cancelled = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double refunded = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double net = billed + cancelled + refunded;
+            is.setTotal(net);
+            return is;
+        }
     }
 
     private InvestigationSummeryData setIxSummeryCountReportedDep(Item w, Department d) {
@@ -2060,6 +2192,17 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
 
     public void setDepartmentBilltypeRows(List<DepartmentBilltypeRow> departmentBilltypeRows) {
         this.departmentBilltypeRows = departmentBilltypeRows;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
     }
 
     public class institutionInvestigationCountRow {

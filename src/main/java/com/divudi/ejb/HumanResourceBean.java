@@ -3153,6 +3153,31 @@ public class HumanResourceBean {
         return l;
     }
 
+    public boolean checkDateAnalsed(Date date, Staff staff) {
+        //System.out.println("calculating worked days for salary");
+        String sql = "Select count(distinct(ss.shiftDate)) "
+                + " from StaffShift ss "
+                + " where ss.retired=false "
+                + " and (( ss.startRecord.recordTimeStamp is not null "
+                + " and ss.endRecord.recordTimeStamp is not null )"
+                + " or ss.leaveType is not null or ss.dayType in :dts ) "
+                + " and ss.shiftDate=:d "
+                + " and ss.staff=:stf ";
+        HashMap hm = new HashMap();
+        hm.put("d", date);
+        hm.put("dts", Arrays.asList(new DayType[]{DayType.DayOff, DayType.Poya, DayType.MurchantileHoliday, DayType.SleepingDay}));
+        hm.put("stf", staff);
+
+        Long l = 0l;
+        l = staffShiftFacade.findLongByJpql(sql, hm, TemporalType.DATE);
+        System.out.println("l = " + l);
+        if (l == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Double calculateHolidayWork(Date fromDate, Date toDate, Staff staff, DayType dayType) {
         String sql = "Select ss"
                 + " from StaffShift ss "

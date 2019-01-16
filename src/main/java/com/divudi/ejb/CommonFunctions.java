@@ -256,6 +256,7 @@ public class CommonFunctions {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DATE);
         calendar.set(year, month, day, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         //System.out.println("calendar.getTime() = " + calendar.getTime());
         return calendar.getTime();
     }
@@ -307,6 +308,7 @@ public class CommonFunctions {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MONTH, 1);
+        calendar.set(calendar.DATE, 1);
 
 //        System.out.println("1.calendar.getTime() = " + calendar.getTime());
         calendar.add(Calendar.DATE, -1);
@@ -352,7 +354,7 @@ public class CommonFunctions {
         cal.set(Calendar.MONTH, 11);
         cal.set(Calendar.DATE, 31);
         cal.set(cal.get(Calendar.YEAR), 11, 31, 23, 59, 59);
-        System.out.println("Last : " + cal.getTime());
+//        System.out.println("Last : " + cal.getTime());
         return cal.getTime();
     }
 

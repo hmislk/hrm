@@ -389,8 +389,10 @@ public class InwardProfessionalBillController implements Serializable {
             return;
         }
 
-        if (getProEncounterComponent().getPatientEncounterComponentType() == PatientEncounterComponentType.Performed_By) {
-            getBatchBill().setStaff(getProEncounterComponent().getBillFee().getStaff());
+        if (getBatchBill().getStaff() == null) {
+            if (getProEncounterComponent().getPatientEncounterComponentType() == PatientEncounterComponentType.Performed_By) {
+                getBatchBill().setStaff(getProEncounterComponent().getBillFee().getStaff());
+            }
         }
 
         proEncounterComponent.setPatientEncounter(getBatchBill().getPatientEncounter());

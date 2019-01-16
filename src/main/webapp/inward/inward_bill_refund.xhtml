@@ -15,6 +15,11 @@
 
         <h:panelGroup >
             <h:form  >
+                <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                    <f:facet name="header">
+                    </f:facet>
+                    <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                </p:panel>
                 <p:panel rendered="#{!inwardRefundController.printPreview}">
                     <f:facet name="header">
                         <p:outputLabel value="Inward Refund Payment"/>

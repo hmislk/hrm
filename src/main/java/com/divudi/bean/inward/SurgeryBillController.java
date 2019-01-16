@@ -25,6 +25,7 @@ import com.divudi.entity.PatientEncounter;
 import com.divudi.entity.PatientItem;
 import com.divudi.entity.PreBill;
 import com.divudi.entity.RefundBill;
+import com.divudi.entity.Staff;
 import com.divudi.entity.inward.EncounterComponent;
 import com.divudi.entity.inward.TimedItem;
 import com.divudi.entity.inward.TimedItemFee;
@@ -87,6 +88,11 @@ public class SurgeryBillController implements Serializable {
     InwardTimedItemController inwardTimedItemController;
     @Inject
     CommonController commonController;
+    
+    @Inject
+    InwardProfessionalBillController professionalBillController;
+
+    Staff staff;
 
     public InwardTimedItemController getInwardTimedItemController() {
         return inwardTimedItemController;
@@ -134,7 +140,7 @@ public class SurgeryBillController implements Serializable {
             bf.getPatientItem().setRetiredAt(new Date());
             bf.getPatientItem().setRetired(true);
             getPatientItemFacade().edit(bf.getPatientItem());
-            
+
             bf.setRetirer(getSessionController().getLoggedUser());
             bf.setRetiredAt(new Date());
             bf.setRetired(true);
@@ -257,6 +263,8 @@ public class SurgeryBillController implements Serializable {
         timedEncounterComponents = null;
         departmentBillItems = null;
         pharmacyIssues = null;
+        professionalBillController.getProEncounterComponent().getBillFee().setSpeciality(null);
+        staff=null;
 
     }
 
@@ -286,6 +294,8 @@ public class SurgeryBillController implements Serializable {
             getBatchBill().setFromDepartment(getBatchBill().getProcedure().getItem().getDepartment());
             getBatchBill().setCreatedAt(Calendar.getInstance().getTime());
             getBatchBill().setCreater(getSessionController().getLoggedUser());
+            
+            getBatchBill().setStaff(getStaff());
 
             getBillFacade().create(getBatchBill());
         } else {
@@ -449,6 +459,16 @@ public class SurgeryBillController implements Serializable {
 
         if (generalChecking()) {
             return;
+        }
+        
+        if (professionalBillController.getProEncounterComponent().getBillFee().getSpeciality()==null) {
+            UtilityController.addErrorMessage("Please Select Speciality");
+            return ;
+        }
+
+        if (getStaff() == null) {
+            UtilityController.addErrorMessage("Please Select Staff");
+            return ;
         }
 
         saveProcedure();
@@ -621,7 +641,7 @@ public class SurgeryBillController implements Serializable {
             UtilityController.addErrorMessage("Final Payment is Finalized");
             return true;
         }
-
+        
         return false;
 
     }
@@ -791,6 +811,14 @@ public class SurgeryBillController implements Serializable {
 
     public void setCommonController(CommonController commonController) {
         this.commonController = commonController;
+    }
+
+    public Staff getStaff() {
+        return staff;
+    }
+
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 
 }

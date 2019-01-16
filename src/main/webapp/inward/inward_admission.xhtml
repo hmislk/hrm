@@ -14,6 +14,9 @@
     <ui:define name="content">
         <h:form>
             <h:panelGroup rendered="#{!admissionController.printPreview}" >
+                <p:panel rendered="#{sessionController.institution.id eq 83579}">
+                    <p:outputLabel value="#{sessionController.institution.name}" style="color: red;font-weight: bolder;"/>
+                </p:panel>
                 <p:panel>
                     <h:panelGrid columns="5" styleClass="alignTop" >                   
 
