@@ -110,6 +110,12 @@
                         </f:facet>
                         <h:outputLabel value="#{bi.item.category.name}" ></h:outputLabel>
                     </p:column>
+                    <p:column headerText="Ref. Doc." sortBy="#{bi.bill.referredBy.person.name}">
+                        <f:facet name="header">
+                            <h:outputLabel value="Ref. Doc."/>
+                        </f:facet>
+                        <h:outputLabel value="#{bi.bill.referredBy.person.name}" ></h:outputLabel>
+                    </p:column>
                     <p:column headerText="Dep. Name" sortBy="#{bi.bill.toDepartment.name}" >
                         <f:facet name="header">
                             <h:outputLabel value="Dep. Name"/>
