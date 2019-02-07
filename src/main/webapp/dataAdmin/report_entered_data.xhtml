@@ -75,6 +75,11 @@
                                         <p:commandButton styleClass="linkButton" ajax="false" value="Store Item List" action="store_item_list" onclick="onSubmitButton();"/> 
                                     </h:panelGrid>
                                 </p:panel>
+                                <p:panel header="Payments" style="width: 400px;margin: auto;" collapsed="true" toggleable="true">
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton styleClass="linkButton" ajax="false" value="Payment Duplicates" action="/dataAdmin/admin_payment_bill_duplicate" onclick="onSubmitButton();"/> 
+                                    </h:panelGrid>
+                                </p:panel>
 
                             </h:panelGrid>
                         </h:panelGrid>

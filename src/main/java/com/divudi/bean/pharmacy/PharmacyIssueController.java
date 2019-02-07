@@ -13,6 +13,7 @@ import com.divudi.bean.common.UtilityController;
 import com.divudi.bean.memberShip.PaymentSchemeController;
 import com.divudi.data.BillNumberSuffix;
 import com.divudi.data.BillType;
+import com.divudi.data.DepartmentType;
 import com.divudi.data.dataStructure.PaymentMethodData;
 import com.divudi.data.dataStructure.YearMonthDay;
 import com.divudi.data.inward.InwardChargeType;
@@ -354,10 +355,12 @@ public class PharmacyIssueController implements Serializable {
         double d = 0.0;
         m.put("s", d);
         m.put("n", "%" + qry.toUpperCase() + "%");
+        m.put("dtp1", DepartmentType.Store);
+        m.put("dtp2", DepartmentType.Inventry);
         if (qry.length() > 4) {
-            sql = "select i from Stock i where i.stock >:s and i.department=:d and (upper(i.itemBatch.item.name) like :n or upper(i.itemBatch.item.code) like :n or upper(i.itemBatch.item.barcode) like :n )  order by i.itemBatch.item.name, i.itemBatch.dateOfExpire";
+            sql = "select i from Stock i where i.stock >:s and i.department=:d and i.itemBatch.item.departmentType!=:dtp1 and i.itemBatch.item.departmentType!=:dtp2 and (upper(i.itemBatch.item.name) like :n or upper(i.itemBatch.item.code) like :n or upper(i.itemBatch.item.barcode) like :n )  order by i.itemBatch.item.name, i.itemBatch.dateOfExpire";
         } else {
-            sql = "select i from Stock i where i.stock >:s and i.department=:d and (upper(i.itemBatch.item.name) like :n or upper(i.itemBatch.item.code) like :n)  order by i.itemBatch.item.name, i.itemBatch.dateOfExpire";
+            sql = "select i from Stock i where i.stock >:s and i.department=:d and i.itemBatch.item.departmentType!=:dtp1 and i.itemBatch.item.departmentType!=:dtp2 and (upper(i.itemBatch.item.name) like :n or upper(i.itemBatch.item.code) like :n)  order by i.itemBatch.item.name, i.itemBatch.dateOfExpire";
         }
         stockList = getStockFacade().findBySQL(sql, m, 20);
         itemsWithoutStocks = completeIssueItems(qry);
