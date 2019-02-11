@@ -1506,7 +1506,21 @@ public class ServiceSummery implements Serializable {
             BillItemWithFee bi = new BillItemWithFee();
             long id = (long) ob[0];
             String billNo = (String) ob[1];
-//            String billedNo = (String) ob[2];
+            Map m = new HashMap();
+            String sql = "select bi.id, bi.bill.billedBill.insId "
+                    + " FROM BillItem bi "
+                    + " where  bi.bill.insId=:insId ";
+
+            m.put("insId", billNo);
+
+            List<Object[]> tmp = getBillItemFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+            System.out.println("tmp.size() = " + tmp.size());
+            String billedNo="";
+            if (tmp.size() > 0) {
+                Object[] objects = tmp.get(0);
+                billedNo = (String) objects[1];
+            }
+
             if (credit) {
                 Institution cc = (Institution) ob[2];
                 Date date = (Date) ob[3];
@@ -1514,11 +1528,13 @@ public class ServiceSummery implements Serializable {
                 bi.setCreditCompany(cc);
                 bi.setCreatedAt(date);
                 bi.setItemName(name);
+                bi.setBilledNo(billedNo);
             } else {
                 Date date = (Date) ob[2];
                 String name = (String) ob[3];
                 bi.setCreatedAt(date);
                 bi.setItemName(name);
+                bi.setBilledNo(billedNo);
             }
 
             bi.setId(id);
@@ -1884,11 +1900,11 @@ public class ServiceSummery implements Serializable {
 
         if (billType != BillType.InwardBill && credit) {
             sql = "select bi.id, bi.bill.insId, "
-//            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
+                    //            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
                     + " bi.bill.creditCompany, bi.createdAt, bi.item.name ";
         } else {
             sql = "select bi.id, bi.bill.insId, "
-//            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
+                    //            sql = "select bi.id, bi.bill.insId, bi.bill.billedBill.insId, "
                     + " bi.createdAt, bi.item.name ";
         }
 

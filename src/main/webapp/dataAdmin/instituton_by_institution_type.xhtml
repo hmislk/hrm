@@ -122,6 +122,27 @@
                                 </p:column>
                                 <p:column >
                                     <f:facet name="header">
+                                        <h:outputLabel value="Lab Discount"/>
+                                    </f:facet>                                    
+                                    <h:outputLabel value="#{i.labBillDiscount}"  >
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="OPD Discount"/>
+                                    </f:facet>                                    
+                                    <h:outputLabel value="#{i.opdBillDiscount}"  >
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Inward Discount"/>
+                                    </f:facet>                                    
+                                    <h:outputLabel value="#{i.inwardDiscount}"  >
+                                    </h:outputLabel>
+                                </p:column>
+                                <p:column >
+                                    <f:facet name="header">
                                         <h:outputLabel value="Creater"/>
                                     </f:facet>                                    
                                     <h:outputLabel value="#{i.creater.webUserPerson.name}"  >

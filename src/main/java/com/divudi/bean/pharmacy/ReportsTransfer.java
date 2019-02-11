@@ -8,6 +8,7 @@ package com.divudi.bean.pharmacy;
 import com.divudi.bean.common.BillBeanController;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.util.JsfUtil;
+import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
 import com.divudi.data.dataStructure.StockReportRecord;
 import com.divudi.data.hr.ReportKeyWord;
@@ -94,7 +95,7 @@ public class ReportsTransfer implements Serializable {
     double totalBHTIssueQty;
     double totalIssueValue;
     double totalBHTIssueValue;
-    
+
     ReportKeyWord reportKeyWord;
 
     /**
@@ -362,7 +363,7 @@ public class ReportsTransfer implements Serializable {
                 m.put("tdept", toDepartment);
             }
         }
-        
+
         if (bt == BillType.PharmacyTransferReceive) {
             if (fromDepartment != null) {
                 sql += " and bi.bill.fromDepartment=:fdept ";
@@ -374,7 +375,7 @@ public class ReportsTransfer implements Serializable {
                 m.put("tdept", toDepartment);
             }
         }
-        
+
         if (getReportKeyWord().getItem() != null) {
             sql += " and bi.item=:itm";
             m.put("itm", getReportKeyWord().getItem());
@@ -462,6 +463,18 @@ public class ReportsTransfer implements Serializable {
         netTotalValues = 0.0;
         marginValue = 0;
         for (Bill b : transferBills) {
+            if (b.getBillClassType() == BillClassType.RefundBill) {
+                sql = "select bi from BillItem bi "
+                        + " where bi.bill.id=" + b.getId();
+                List<BillItem> items = getBillItemFacade().findBySQL(sql);
+                System.out.println("items.size() = " + items.size());
+                double d = 0.0;
+                for (BillItem bi : items) {
+                    d += bi.getMarginValue();
+                }
+                System.out.println("d = " + d);
+                b.setMargin(d);
+            }
             totalsValue = totalsValue + (b.getTotal());
             discountsValue = discountsValue + b.getDiscount();
             marginValue += b.getMargin();
@@ -573,7 +586,7 @@ public class ReportsTransfer implements Serializable {
         listz = new ArrayList<>();
         netTotalValues = 0.0;
 
-        List<Object[]> objects = getBillBeanController().fetchBilledDepartmentItem(fd, td, dep, bt,true);
+        List<Object[]> objects = getBillBeanController().fetchBilledDepartmentItem(fd, td, dep, bt, true);
 
         for (Object[] ob : objects) {
             Department d = (Department) ob[0];
@@ -589,12 +602,12 @@ public class ReportsTransfer implements Serializable {
         }
 
     }
-    
+
     public void fetchBillTotalByFromDepartment(Date fd, Date td, Department dep, BillType bt) {
         listz = new ArrayList<>();
         netTotalValues = 0.0;
 
-        List<Object[]> objects = getBillBeanController().fetchBilledDepartmentItem(fd, td, dep, bt,false);
+        List<Object[]> objects = getBillBeanController().fetchBilledDepartmentItem(fd, td, dep, bt, false);
 
         for (Object[] ob : objects) {
             Department d = (Department) ob[0];
@@ -674,7 +687,7 @@ public class ReportsTransfer implements Serializable {
 
         commonController.printReportDetails(fromDate, toDate, startTime, "Pharmacy/Reports/Summeries/Department Issue/Unit issue by bill (/faces/pharmacy/pharmacy_report_unit_issue_bill.xhtml)");
     }
-    
+
     public void fillDepartmentUnitIssueByBillItem() {
         Date startTime = new Date();
 
@@ -1629,8 +1642,8 @@ public class ReportsTransfer implements Serializable {
     }
 
     public ReportKeyWord getReportKeyWord() {
-        if (reportKeyWord==null) {
-            reportKeyWord=new ReportKeyWord();
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
         }
         return reportKeyWord;
     }

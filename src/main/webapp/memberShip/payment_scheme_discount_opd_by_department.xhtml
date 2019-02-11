@@ -64,15 +64,25 @@
                             <p:dataTable id="inwd" value="#{opdMemberShipDiscountController.items}"
                                          filteredValue="#{opdMemberShipDiscountController.filterItems}"
                                          var="a" editable="true" scrollable="true" scrollHeight="500">
-                                <p:column headerText="Discount Scheme">
+                                <f:facet name="header" >
+                                        <p:outputLabel value="Discount Scheme" />
+                                    </f:facet>
+                                <p:column headerText="Discount Scheme" exportable="false">
                                     <p:autoComplete forceSelection="true" 
                                                     value="#{a.paymentScheme}" 
                                                     completeMethod="#{paymentSchemeController.completePaymentScheme}" 
                                                     var="mem" itemLabel="#{mem.name}" itemValue="#{mem}" >
                                     </p:autoComplete>
                                 </p:column>
+                                
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Discount Scheme" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{a.paymentScheme.name}" />
+                                </p:column>
 
-                                <p:column headerText="Department Name" 
+                                <p:column headerText="Department Name" exportable="false"
                                           filterBy="#{a.department.name}" filterMatchMode="contains">
                                     <p:autoComplete forceSelection="true" value="#{a.department}" 
                                                     completeMethod="#{departmentController.completeDept}" 
@@ -86,23 +96,41 @@
                                     </p:autoComplete>
 
                                 </p:column>
+                                
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Department Name" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{a.department.name}" />
+                                </p:column>
 
-                                <p:column headerText="Payment Method">
+                                <p:column headerText="Payment Method" exportable="false">
                                     <p:selectOneMenu  value="#{a.paymentMethod}"  >
                                         <f:selectItem itemLabel="Select" />                           
                                         <f:selectItems value="#{enumController.paymentMethods}" />                                    
                                     </p:selectOneMenu>
                                 </p:column>
+                                
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Payment Method" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{a.paymentMethod}" />
+                                </p:column>
+                                
                                 <p:column  headerText="Discount Percent">
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Discount Percent" />
+                                    </f:facet>
                                     <h:inputText autocomplete="off" value="#{a.discountPercent}" >
                                         <f:convertNumber pattern="#,##0.00"/>
                                     </h:inputText>
                                 </p:column>
-                                <p:column>
+                                <p:column exportable="false">
                                     <p:commandButton ajax="false" value="Update" 
                                                     action="#{opdMemberShipDiscountController.onEdit(a)}"/> 
                                 </p:column>
-                                <p:column>
+                                <p:column exportable="false">
                                     <p:commandButton ajax="false" value="Delete" action="#{opdMemberShipDiscountController.deleteDepartmentPaymentScheme()}">
                                         <f:setPropertyActionListener value="#{a}" target="#{opdMemberShipDiscountController.current}"/>
                                     </p:commandButton>

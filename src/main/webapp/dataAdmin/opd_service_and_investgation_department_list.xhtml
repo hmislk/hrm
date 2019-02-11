@@ -19,9 +19,22 @@
                     <f:facet name="header" >
                         <h:outputLabel value="List of Service"></h:outputLabel>
 
-                        <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
-                            <p:printer target="panIx" />
-                        </p:commandButton>
+
+
+                    </f:facet>
+                    <h:panelGrid  columns="2">
+                        <p:outputLabel value="From Date"/>
+                        <p:calendar styleClass="dateTimePicker" id="fromDate" value="#{itemController.reportKeyWord.fromDate}" 
+                                    navigator="true" pattern="dd MMMM yyyy hh mm ss a" disabled="#{!itemController.reportKeyWord.bool1}"/>
+                        
+                        <p:outputLabel value="To Date"/>
+                        <p:calendar styleClass="dateTimePicker" id="toDate" value="#{itemController.reportKeyWord.toDate}" 
+                                    navigator="true" pattern="dd MMMM yyyy hh mm ss a" disabled="#{!itemController.reportKeyWord.bool1}"/>
+                        
+                        <p:outputLabel value="By Created Date"/>
+                        <p:selectBooleanCheckbox value="#{itemController.reportKeyWord.bool1}" >
+                            <f:ajax event="change" render="panIx" />
+                        </p:selectBooleanCheckbox>
 
                         <p:commandButton id="btnRefresh" ajax="false" value="OPD"
                                          styleClass="noPrintButton" 
@@ -38,8 +51,10 @@
                                          facetFontColor="#FFFFFF" facetFontStyle="BOLD" cellFontColor="#0000FF" cellFontSize="12"  cellFontStyle="NORMAL"  
                                          fontName="Courier New"  />
                         </p:commandButton>
-
-                    </f:facet>
+                        <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
+                            <p:printer target="panIx" />
+                        </p:commandButton>
+                    </h:panelGrid>
 
 
 
@@ -121,7 +136,7 @@
                                 <h:outputLabel value="Inactive" rendered="#{ix.inactive eq true}"/>
                                 <h:outputLabel value="Active" rendered="#{ix.inactive ne true}"/>
                             </p:column>
-
+                            
                             <p:column headerText="Hospital Locals" >                                          
                                 <f:facet name="header">
                                     <h:outputLabel value="Hospital Local"/>

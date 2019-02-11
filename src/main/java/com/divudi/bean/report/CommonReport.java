@@ -1063,6 +1063,7 @@ public class CommonReport implements Serializable {
     private double totalHos;
     private double totalCC;
     private double totalVat;
+    private double totalStaff;
 
     public BillsTotals getUserRefundedBillsOwn() {
 
@@ -2803,6 +2804,7 @@ public class CommonReport implements Serializable {
         getInwardPayments().setBills(userBillsOwn(new BilledBill(), BillType.InwardPaymentBill, getWebUser(), getDepartment()));
         getInwardPayments().setCard(calValue(new BilledBill(), BillType.InwardPaymentBill, PaymentMethod.Card, getWebUser(), getDepartment()));
         getInwardPayments().setCash(calValue(new BilledBill(), BillType.InwardPaymentBill, PaymentMethod.Cash, getWebUser(), getDepartment()));
+        System.out.println("getInwardPayments().getCash() = " + getInwardPayments().getCash());
         getInwardPayments().setCheque(calValue(new BilledBill(), BillType.InwardPaymentBill, PaymentMethod.Cheque, getWebUser(), getDepartment()));
         getInwardPayments().setCredit(calValue(new BilledBill(), BillType.InwardPaymentBill, PaymentMethod.Credit, getWebUser(), getDepartment()));
         getInwardPayments().setSlip(calValue(new BilledBill(), BillType.InwardPaymentBill, PaymentMethod.Slip, getWebUser(), getDepartment()));
@@ -5112,6 +5114,7 @@ public class CommonReport implements Serializable {
         total = 0.0;
         totalCC = 0.0;
         totalHos = 0.0;
+        totalStaff = 0.0;
         BillType billTypes[] = {BillType.LabBill, BillType.CollectingCentreBill};
         for (Institution i : fetchCollectingCenters(billTypes,department)) {
 //        for (Institution i : fetchCollectingCenters(billTypes)) {
@@ -5125,22 +5128,26 @@ public class CommonReport implements Serializable {
             double totVat = 0.0;
             double tothos = 0.0;
             double totcc = 0.0;
+            double totstaff = 0.0;
             for (Bill b : bs) {
                 createCollectingCenterfees(b);
                 tothos += b.getTransTotalWithOutCCFee();
                 totcc += b.getTransTotalCCFee();
                 tot += b.getNetTotal();
                 totVat += b.getVat();
-            }
+                totstaff += b.getStaffFee();
+           }
             row.setTotalCC(totcc);
             row.setTotalHos(tothos);
             row.setTotal(tot);
             row.setTotalVat(totVat);
+            row.setTotalStaff(totstaff);
             collectingCenteRows.add(row);
             totalHos += tothos;
             totalCC += totcc;
             total += tot;
             totalVat += totVat;
+            totalStaff += totstaff;
         }
 
         commonController.printReportDetails(fromDate, toDate, startTime, "lab/summeries/monthly summeries/report by cc summeries(/faces/reportLab/report_lab_collection_centre_summery.xhtml)");
@@ -5231,17 +5238,23 @@ public class CommonReport implements Serializable {
     public void createCollectingCenterfees(Bill b) {
         b.setTransTotalCCFee(0.0);
         b.setTransTotalWithOutCCFee(0.0);
+        b.setStaffFee(0.0);
         System.out.println("b.getBillItems().size() = " + b.getBillItems().size());
         for (BillItem bi : b.getBillItems()) {
             bi.setTransCCFee(0.0);
             bi.setTransWithOutCCFee(0.0);
             for (BillFee bf : billSearch.createBillFees(bi)) {
+                System.out.println("bf.getFee().getFeeType() = " + bf.getFee().getFeeType());
+                System.out.println("bf.getFeeValue() = " + bf.getFeeValue());
                 if (bf.getFee().getFeeType() == FeeType.CollectingCentre) {
                     bi.setTransCCFee(bi.getTransCCFee() + bf.getFeeValue());
+                } else if (bf.getFee().getFeeType() == FeeType.Staff) {
+                    bi.setStaffFee(bi.getStaffFee() + bf.getFeeValue());
                 } else {
                     bi.setTransWithOutCCFee(bi.getTransWithOutCCFee() + bf.getFeeValue());
                 }
             }
+            b.setStaffFee(b.getStaffFee() + bi.getStaffFee());
             b.setTransTotalCCFee(b.getTransTotalCCFee() + bi.getTransCCFee());
             b.setTransTotalWithOutCCFee(b.getTransTotalWithOutCCFee() + bi.getTransWithOutCCFee());
         }
@@ -5285,6 +5298,14 @@ public class CommonReport implements Serializable {
         this.refBillItems = refBillItems;
     }
 
+    public double getTotalStaff() {
+        return totalStaff;
+    }
+
+    public void setTotalStaff(double totalStaff) {
+        this.totalStaff = totalStaff;
+    }
+
     public class CollectingCenteRow {
 
         Institution i;
@@ -5292,6 +5313,7 @@ public class CommonReport implements Serializable {
         double totalHos;
         double totalCC;
         double totalVat;
+        double totalStaff;
 
         public Institution getI() {
             return i;
@@ -5331,6 +5353,14 @@ public class CommonReport implements Serializable {
 
         public void setTotalVat(double totalVat) {
             this.totalVat = totalVat;
+        }
+
+        public double getTotalStaff() {
+            return totalStaff;
+        }
+
+        public void setTotalStaff(double totalStaff) {
+            this.totalStaff = totalStaff;
         }
     }
 

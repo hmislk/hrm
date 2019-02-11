@@ -335,7 +335,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             progressValue += (int) singleItem;
 //            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department);
 //            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts);
-            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts,getReportKeyWord().getString());
+            InvestigationSummeryData temp = setIxSummeryTotalBilledDep(w, department, bts, getReportKeyWord().getString());
             if (temp.getTotal() != 0) {
                 grantTotal += temp.getTotal();
                 items.add(temp);
@@ -1297,7 +1297,7 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             long temCoint = calculateInvestigationBilledCount(w, bts);
             temp.setCount(temCoint);
             countTotal += temCoint;
-            double tempTotal = calculateInvestigationBilledValue(w, bts);
+            double tempTotal = calculateInvestigationBilledValue(w, bts,getReportKeyWord().isAdditionalDetails());
             temp.setTotal(tempTotal);
             itemValue += tempTotal;
             if (temp.getCount() != 0 || temp.getTotal() != 0) {
@@ -1400,6 +1400,12 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
         double refunded = getTotalValue(new RefundBill(), w, bts);
         return billed + (cancelled + refunded);
     }
+    private double calculateInvestigationBilledValue(Item w, BillType[] bts,boolean onlyHos) {
+        double billed = getTotalValue(new BilledBill(), w, bts,onlyHos);
+        double cancelled = getTotalValue(new CancelledBill(), w, bts,onlyHos);
+        double refunded = getTotalValue(new RefundBill(), w, bts,onlyHos);
+        return billed + (cancelled + refunded);
+    }
 
     private double calculateInvestigationBilledValueSummery(Institution i, BillType[] bts) {
         double billed = getTotalValueSummry(new BilledBill(), i, bts);
@@ -1462,6 +1468,34 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             temMap.put("col", getCreditCompany());
         } else {
             sql += " and (bi.bill.collectingCentre is not null or bi.bill.fromInstitution is not null) ";
+        }
+        sql += " order by bi.item.name";
+        temMap.put("toDate", getToDate());
+        temMap.put("fromDate", getFromDate());
+        temMap.put("itm", item);
+        temMap.put("billClass", bill.getClass());
+        temMap.put("bTypes", Arrays.asList(bts));
+        return getBillItemFacade().findDoubleByJpql(sql, temMap, TemporalType.TIMESTAMP);
+
+    }
+    
+    private double getTotalValue(Bill bill, Item item, BillType[] bts,boolean onlyHos) {
+        String sql;
+        Map temMap = new HashMap();
+        sql = "select sum(bf.feeValue) FROM BillFee bf join bf.billItem bi where "
+                + " bi.bill.billType in :bTypes and bi.item =:itm"
+                + " and type(bi.bill)=:billClass "
+                + " and bi.bill.createdAt between :fromDate and :toDate ";
+
+        if (getCreditCompany() != null) {
+            sql += " and (bi.bill.collectingCentre=:col or bi.bill.fromInstitution=:col) ";
+            temMap.put("col", getCreditCompany());
+        } else {
+            sql += " and (bi.bill.collectingCentre is not null or bi.bill.fromInstitution is not null) ";
+        }
+        if (onlyHos) {
+            sql+=" and bf.fee.feeType=:ft ";
+            temMap.put("ft", FeeType.OwnInstitution);
         }
         sql += " order by bi.item.name";
         temMap.put("toDate", getToDate());
@@ -1739,10 +1773,21 @@ public class InvestigationMonthSummeryOwnControllerSession implements Serializab
             double net = billed + cancelled + refunded;
             is.setTotal(net);
             return is;
-        } else {
+        }else if (s.equals("1")) {
+//            double billed = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null);
+//            double cancelled = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null);
+//            double refunded = billEjb.getBillItemTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null);
+//            double net = billed + cancelled + refunded;
             double billed = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
             double cancelled = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
             double refunded = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff});
+            double net = billed + cancelled + refunded;
+            is.setTotal(net);
+            return is;
+        } else {
+            double billed = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{BilledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff, FeeType.CollectingCentre});
+            double cancelled = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{CancelledBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff, FeeType.CollectingCentre});
+            double refunded = billEjb.getBillFeeTotal(w, fromDate, toDate, billTypes, new Class[]{RefundBill.class}, true, null, false, d, true, null, true, null, true, null, new FeeType[]{FeeType.Staff, FeeType.CollectingCentre});
             double net = billed + cancelled + refunded;
             is.setTotal(net);
             return is;
