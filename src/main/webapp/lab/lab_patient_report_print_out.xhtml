@@ -19,7 +19,8 @@
 
 
 
-                    <p:commandButton styleClass="nonPrintBlock" ajax="false" value="Print" onclick="window.print();" actionListener="#{patientReportController.printPatientReport()}" />
+                    <p:commandButton styleClass="nonPrintBlock" ajax="false" value="Print" onclick="window.print();" actionListener="#{patientReportController.printPatientReport()}"
+                                     disabled="#{!patientReportController.currentPatientReport.approved}"/>
                     <!--                    <p:commandButton styleClass="nonPrintBlock" ajax="false" value="PDF" 
                                                          action="#{patientReportController.createPDF()}" onclick="this.form.target = '_blank'" />-->
                     <!--<p:commandButton styleClass="nonPrintBlock" ajax="false" value="Back" action="/lab_search_for_reporting_ondemand"/>-->

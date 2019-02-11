@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:panel header="Search Bills" >
+                        <f:facet name="header">
+                            <h:outputLabel value="Payment Can Be Duplicate Finder"/>
+                        </f:facet>
+                        <p:panel>
+                            <h:panelGrid columns="1" >
+                                <h:panelGrid columns="2" >
+
+                                    <h:outputLabel value="From Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="fromDate" 
+                                                value="#{dataAdministrationController.reportKeyWord.fromDate}" 
+                                                navigator="true" pattern="yyyy MM dd hh mm ss a" >      
+                                    </p:calendar>
+                                    <h:outputLabel value="To Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="toDate" 
+                                                value="#{dataAdministrationController.reportKeyWord.toDate}" 
+                                                navigator="true" pattern="yyyy MM dd hh mm ss a" >                                                                              
+                                    </p:calendar>
+                                    <p:commandButton id="btnSearch" ajax="false" value="Search" 
+                                                     action="#{dataAdministrationController.checkCanBeDuplicateDoctorPayments()}" />
+                                    <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton"  >
+                                        <pe:exporter type="xlsx" target="tbl" fileName="Payment_Duplicates"  />
+                                    </p:commandButton>
+                                </h:panelGrid>
+                            </h:panelGrid>
+                        </p:panel>
+                        <p:panel styleClass="noBorder summeryBorder" >
+                            <p:dataTable id="tbl" value="#{dataAdministrationController.billItems}" var="bi" rowIndexVar="i">
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Payments Duplicate " /> <br></br>
+                                    <p:outputLabel value="From -  " /> 
+                                    <p:outputLabel value="#{dataAdministrationController.reportKeyWord.fromDate}" style="white-space: pre-line;" >
+                                        <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                    </p:outputLabel><br></br>
+                                    <p:outputLabel value="To -  " /> 
+                                    <p:outputLabel value="#{dataAdministrationController.reportKeyWord.toDate}" style="white-space:pre-line;" >
+                                        <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </f:facet>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{i+1}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Payment Bill No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.bill.insId}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Paid By" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.bill.creater.webUserPerson.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Doctor" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.bill.staff.person.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Paid At" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.bill.createdAt}" >
+                                        <f:convertDateTime pattern="YYYY MM dd hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Bill No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.paidForBillFee.bill.insId}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="BHT No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.paidForBillFee.bill.patientEncounter.bhtNo}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Amount" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.paidForBillFee.feeValue}" >
+                                        <f:convertNumber pattern="#,##0.00" />
+                                    </p:outputLabel>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

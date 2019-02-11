@@ -117,6 +117,8 @@ public class DataAdministrationController {
     InstitutionController institutionController;
     @Inject
     CommonFunctionsController commonFunctionsController;
+    @Inject
+    CommonController commonController;
 
     @EJB
     ItemFacade itemFacade;
@@ -147,6 +149,7 @@ public class DataAdministrationController {
     List<PharmaceuticalItemCategory> pharmaceuticalItemCategorys;
     List<PharmaceuticalItemCategory> selectedPharmaceuticalItemCategorys;
     List<PatientDetailsRow> patientDetailsRows;
+    List<BillItem> billItems;
 
     double val1;
     double val2;
@@ -167,7 +170,6 @@ public class DataAdministrationController {
     private Double vatPrecentage = 0.0;
     private DepartmentType departmentType;
     private SearchKeyword searchKeyword;
-    CommonController commonController;
 
     Date fromDate;
     Date toDate;
@@ -970,8 +972,8 @@ public class DataAdministrationController {
                     + " from PatientEncounter p "
                     + " where p.retired=false "
                     + " and p.discharged=true "
-//                    + " and (p.patient.person.mobile is not null "
-//                    + " or p.patient.person.mobile!=:em) "
+                    //                    + " and (p.patient.person.mobile is not null "
+                    //                    + " or p.patient.person.mobile!=:em) "
                     + " and p.paymentFinalized=true "
                     + " and p.dateOfDischarge between :fd and :td ";
 
@@ -1041,7 +1043,7 @@ public class DataAdministrationController {
                 m.put("bts", Arrays.asList(billTypes));
             }
             if (getReportKeyWord().getString().equals("4")) {
-                BillType[] billTypes = {BillType.InwardPaymentBill,BillType.CashRecieveBill};
+                BillType[] billTypes = {BillType.InwardPaymentBill, BillType.CashRecieveBill};
                 sql += " and b.billType in :bts ";
                 m.put("bts", Arrays.asList(billTypes));
             }
@@ -1378,6 +1380,152 @@ public class DataAdministrationController {
         fillPharmacyCategory();
     }
 
+    public void checkDuplicateDoctorPayments() {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+//        BillItem bi;
+//        bi.getBill().isCancelled()
+        sql = " select bi.paidForBillFee.bill,bi.bill,count(bi.paidForBillFee),bi.paidForBillFee "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td "
+                + " group by bi.paidForBillFee "
+                + " order by bi.paidForBillFee.id ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", getReportKeyWord().getFromDate());
+        m.put("td", getReportKeyWord().getToDate());
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        if (objects != null) {
+            System.out.println("objects.size() = " + objects.size());
+        }
+        for (Object[] ob : objects) {
+            Bill bill = (Bill) ob[0];
+            Bill paymentBill = (Bill) ob[1];
+            long l = (long) ob[2];
+            BillFee bf = (BillFee) ob[3];
+            if (l > 1) {
+                System.out.println("l = " + l);
+                if (bill.getPatientEncounter() != null) {
+                    System.out.println("bill.getPatientEncounter().getBhtNo() = " + bill.getPatientEncounter().getBhtNo());
+                }
+                System.out.println("bf.getFeeValue() = " + bf.getFeeValue());
+                System.out.println("bill.getId() = " + bill.getId());
+                System.out.println("bill.getInsId() = " + bill.getInsId());
+                System.out.println("paymentBill.getId() = " + paymentBill.getId());
+                System.out.println("paymentBill.getInsId() = " + paymentBill.getInsId());
+//                System.out.println("bf.getBill().getInsId() = " + bf.getBill().getInsId());
+//                System.out.println("bf.getBill().getCreatedAt() = " + bf.getBill().getCreatedAt());
+            }
+        }
+
+        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+    }
+
+    public void checkDuplicateDoctorPaymentsNew() {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+        billItems = new ArrayList<>();
+//        BillItem bi;
+//        bi.getBill().isCancelled()
+        sql = " select bi.paidForBillFee.id, count(bi.paidForBillFee) "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td "
+                + " group by bi.paidForBillFee "
+                + " order by bi.paidForBillFee.id ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", getReportKeyWord().getFromDate());
+        m.put("td", getReportKeyWord().getToDate());
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        if (objects != null) {
+            System.out.println("objects.size() = " + objects.size());
+        }
+        for (Object[] ob : objects) {
+            long id = (long) ob[0];
+            long l = (long) ob[1];
+            if (l > 1) {
+                m = new HashMap();
+                sql = " select bi from BillItem bi where "
+                        + " bi.retired=false "
+                        + " and bi.bill.cancelled=false "
+                        + " and type(bi.bill)=:class "
+                        + " and bi.bill.billType=:bt "
+                        + " and bi.paidForBillFee.id=" + id;
+
+                m.put("bt", BillType.PaymentBill);
+                m.put("class", BilledBill.class);
+
+                List<BillItem> items = getBillItemFacade().findBySQL(sql, m);
+                System.out.println("items.size() = " + items.size());
+                billItems.addAll(items);
+            }
+        }
+
+        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+    }
+
+    public void checkCanBeDuplicateDoctorPayments() {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+        billItems = new ArrayList<>();
+//        BillItem bi;
+//        bi.getPaidForBillFee().getPaidValue()
+        sql = " select bi.paidForBillFee.id, count(bi.paidForBillFee) "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td"
+                + " and (bi.paidForBillFee.feeValue - bi.paidForBillFee.paidValue)>0 "
+                + " order by bi.paidForBillFee.id ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", getReportKeyWord().getFromDate());
+        m.put("td", getReportKeyWord().getToDate());
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        if (objects != null) {
+            System.out.println("objects.size() = " + objects.size());
+        }
+        for (Object[] ob : objects) {
+            long id = (long) ob[0];
+            long l = (long) ob[1];
+            m = new HashMap();
+            sql = " select bi from BillItem bi where "
+                    + " bi.retired=false "
+                    + " and bi.bill.cancelled=false "
+                    + " and type(bi.bill)=:class "
+                    + " and bi.bill.billType=:bt "
+                    + " and bi.paidForBillFee.id=" + id;
+
+            m.put("bt", BillType.PaymentBill);
+            m.put("class", BilledBill.class);
+
+            List<BillItem> items = getBillItemFacade().findBySQL(sql, m);
+            System.out.println("items.size() = " + items.size());
+            billItems.addAll(items);
+        }
+
+        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+    }
+
     private List<PharmaceuticalItemCategory> fetchPharmacyCategories(boolean active) {
 //        items = getFacade().findAll("name", true);
         String sql = " select c from PharmaceuticalItemCategory c where ";
@@ -1397,6 +1545,14 @@ public class DataAdministrationController {
 
     public void setPatientDetailsRows(List<PatientDetailsRow> patientDetailsRows) {
         this.patientDetailsRows = patientDetailsRows;
+    }
+
+    public List<BillItem> getBillItems() {
+        return billItems;
+    }
+
+    public void setBillItems(List<BillItem> billItems) {
+        this.billItems = billItems;
     }
 
     public class PatientDetailsRow {
