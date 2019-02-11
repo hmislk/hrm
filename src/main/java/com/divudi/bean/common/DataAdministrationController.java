@@ -1469,10 +1469,58 @@ public class DataAdministrationController {
                 m.put("bt", BillType.PaymentBill);
                 m.put("class", BilledBill.class);
 
-                List<BillItem> items = getBillItemFacade().findBySQL(sql,m);
+                List<BillItem> items = getBillItemFacade().findBySQL(sql, m);
                 System.out.println("items.size() = " + items.size());
                 billItems.addAll(items);
             }
+        }
+
+        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+    }
+
+    public void checkCanBeDuplicateDoctorPayments() {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+        billItems = new ArrayList<>();
+//        BillItem bi;
+//        bi.getPaidForBillFee().getPaidValue()
+        sql = " select bi.paidForBillFee.id, count(bi.paidForBillFee) "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td"
+                + " and (bi.paidForBillFee.feeValue - bi.paidForBillFee.paidValue)>0 "
+                + " order by bi.paidForBillFee.id ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", getReportKeyWord().getFromDate());
+        m.put("td", getReportKeyWord().getToDate());
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, m, TemporalType.TIMESTAMP);
+        if (objects != null) {
+            System.out.println("objects.size() = " + objects.size());
+        }
+        for (Object[] ob : objects) {
+            long id = (long) ob[0];
+            long l = (long) ob[1];
+            m = new HashMap();
+            sql = " select bi from BillItem bi where "
+                    + " bi.retired=false "
+                    + " and bi.bill.cancelled=false "
+                    + " and type(bi.bill)=:class "
+                    + " and bi.bill.billType=:bt "
+                    + " and bi.paidForBillFee.id=" + id;
+
+            m.put("bt", BillType.PaymentBill);
+            m.put("class", BilledBill.class);
+
+            List<BillItem> items = getBillItemFacade().findBySQL(sql, m);
+            System.out.println("items.size() = " + items.size());
+            billItems.addAll(items);
         }
 
         commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
