@@ -7,6 +7,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:ch="http://java.sun.com/jsf/composite/channel"
                 xmlns:pa="http://java.sun.com/jsf/composite/paymentMethod"
+                xmlns:pe="http://primefaces.org/ui/extensions"
                 xmlns:au="http://java.sun.com/jsf/composite/autocomplete">
 
     <ui:define name="content">
@@ -31,20 +32,33 @@
                         <p:selectBooleanCheckbox value="#{channelReportController.reportKeyWord.bool1}" >
                             <f:ajax event="change" execute="@this" render="pan10" />
                         </p:selectBooleanCheckbox>
+                    </h:panelGrid>
+                    <h:panelGrid columns="3">
                         <p:commandButton value="Process" action="#{channelReportController.createDoctorArrival()}" ajax="false" />
                         <p:commandButton value="Print" action="#" styleClass="noPrintButton">
                             <p:printer target="pan1" />
                         </p:commandButton>
+                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                            <pe:exporter type="xlsx" target="tbl1" fileName="Price_metrix_investigation"  />
+                        </p:commandButton>
                     </h:panelGrid>
                 </p:panel>
-                <p:dataTable value="#{channelReportController.arrivalRecords}" var="a" rowIndexVar="i" >
+                <p:dataTable id="tbl1" value="#{channelReportController.arrivalRecords}" var="a" rowIndexVar="i" >
                     <f:facet name="header">
                         <p:outputLabel value="#{sessionController.loggedUser.institution.name}" style="fon"/><br></br>
                         <p:outputLabel value="#{sessionController.loggedUser.institution.address}"/><br></br>
                         <p:outputLabel value="Arrived Doctors"/><br></br>
-                        <p:outputLabel value="Date: "/>
-                        <p:outputLabel value="#{commonController.currentDateTime}" >
+                        <p:outputLabel value="Date - "/>
+                        <p:outputLabel value="#{commonController.currentDateTime}" rendered="#{channelReportController.reportKeyWord.bool1 eq false}">
                             <f:convertDateTime pattern="yyyy MMMM dd" />
+                        </p:outputLabel>     
+                        <p:outputLabel value="From -  " rendered="#{channelReportController.reportKeyWord.bool1 eq true}"/>
+                        <p:outputLabel value="#{channelReportController.fromDate}" rendered="#{channelReportController.reportKeyWord.bool1 eq true}">
+                            <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
+                        </p:outputLabel>     
+                        <p:outputLabel value=" - To - " rendered="#{channelReportController.reportKeyWord.bool1 eq true}"/>
+                        <p:outputLabel value="#{channelReportController.toDate}" rendered="#{channelReportController.reportKeyWord.bool1 eq true}">
+                            <f:convertDateTime pattern="yyyy MM dd hh:mm:ss a" />
                         </p:outputLabel>     
                     </f:facet>
                     <p:column style="width: 10px!important;">

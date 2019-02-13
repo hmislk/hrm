@@ -1132,19 +1132,31 @@ public class ItemController implements Serializable {
     public List<Item> getItems() {
         String temSql;
         HashMap h = new HashMap();
-        temSql = "SELECT i FROM Item i where (type(i)=:t1 or type(i)=:t2 ) and i.retired=false order by i.department.name";
+        temSql = "SELECT i FROM Item i where (type(i)=:t1 or type(i)=:t2 ) and i.retired=false ";
+        if (getReportKeyWord().isBool1()) {
+            temSql += " and i.createdAt between :fd and :td ";
+            h.put("fd", getReportKeyWord().getFromDate());
+            h.put("td", getReportKeyWord().getToDate());
+        }
+        temSql += " order by i.department.name ";
         h.put("t1", Investigation.class);
         h.put("t2", Service.class);
-        items = getFacade().findBySQL(temSql, h, TemporalType.TIME);
+        items = getFacade().findBySQL(temSql, h, TemporalType.TIMESTAMP);
         return items;
     }
 
     public List<Item> getInwardItems() {
         String temSql;
         HashMap h = new HashMap();
-        temSql = "SELECT i FROM Item i where type(i)=:t1 and i.retired=false order by i.department.name";
+        temSql = "SELECT i FROM Item i where type(i)=:t1 and i.retired=false ";
+        if (getReportKeyWord().isBool1()) {
+            temSql += " and i.createdAt between :fd and :td ";
+            h.put("fd", getReportKeyWord().getFromDate());
+            h.put("td", getReportKeyWord().getToDate());
+        }
+        temSql += " order by i.department.name ";
         h.put("t1", InwardService.class);
-        items = getFacade().findBySQL(temSql, h, TemporalType.TIME);
+        items = getFacade().findBySQL(temSql, h, TemporalType.TIMESTAMP);
         return items;
     }
 

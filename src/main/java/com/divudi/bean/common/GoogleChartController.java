@@ -1061,10 +1061,10 @@ public class GoogleChartController implements Serializable {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         td = commonFunctions.getEndOfDay(cal.getTime());
-        System.out.println("td = " + td);
+//        System.out.println("td = " + td);
         cal.add(Calendar.DATE, -30);
         fd = commonFunctions.getStartOfDay(cal.getTime());
-        System.out.println("fd = " + fd);
+//        System.out.println("fd = " + fd);
 
         JSONArray mainJSONArray = new JSONArray();
         JSONArray subArray = new JSONArray();

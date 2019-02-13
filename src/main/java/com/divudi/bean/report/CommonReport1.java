@@ -32,6 +32,7 @@ import com.divudi.entity.Staff;
 import com.divudi.entity.WebUser;
 import com.divudi.entity.lab.Investigation;
 import com.divudi.facade.BillFacade;
+import com.divudi.facade.BillFeeFacade;
 import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.PersonInstitutionFacade;
 import java.io.Serializable;
@@ -68,8 +69,9 @@ public class CommonReport1 implements Serializable {
     @EJB
     CommonFunctions commonFunctions;
     ////////////////////
-    private Institution collectingIns;
+    Institution collectingIns;
     Institution institution;
+    Institution collecingCenter;
     private Date fromDate;
     private Date toDate;
     private WebUser webUser;
@@ -376,6 +378,8 @@ public class CommonReport1 implements Serializable {
 
     @EJB
     BillItemFacade billItemFacade;
+    @EJB
+    BillFeeFacade billFeeFacade;
     List<BillItem> referralBillItems;
 
     public List<BillItem> getReferralBillItems() {
@@ -400,6 +404,8 @@ public class CommonReport1 implements Serializable {
                 + " WHERE b.retired=false "
                 + " and bi.retired=false "
                 + " and (bi.refunded=false or bi.refunded is null) "
+                + " and b.cancelled=false "
+                + " and type(b)=:type "
                 + " and b.createdAt between :fromDate and :toDate  ";
 
         if (radio.equals("0")) {
@@ -434,6 +440,13 @@ public class CommonReport1 implements Serializable {
             m.put("rd", referringDoctor);
             sql = sql + " and b.referredBy=:rd ";
         }
+        System.out.println("collecingCenter = " + collecingCenter);
+        if (radio.equals("1")) {
+            if (collecingCenter != null) {
+                m.put("ri", collecingCenter);
+                sql = sql + " and b.fromInstitution=:ri ";
+            }
+        }
         if (item != null) {
             m.put("i", item);
             sql = sql + " and bi.item=:i ";
@@ -445,12 +458,22 @@ public class CommonReport1 implements Serializable {
 
         m.put("fromDate", getFromDate());
         m.put("toDate", getToDate());
-        //System.out.println("sql = " + sql);
-        //System.out.println("temMap = " + temMap);
+        m.put("type", BilledBill.class);
+        System.out.println("sql = " + sql);
+        System.out.println("m = " + m);
         referralBillItems = billItemFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
 
         biledBillsTotal = 0.0;
         for (BillItem bi : referralBillItems) {
+            sql = " select bf from BillFee bf where bf.retired=false and bf.billItem.id=" + bi.getId();
+            List<BillFee> bfs = billFeeFacade.findBySQL(sql);
+            for (BillFee bf : bfs) {
+                if (bf.getFee().getFeeType() == FeeType.CollectingCentre) {
+                    bi.setTransCCFee(bi.getTransCCFee() + bf.getFeeValue());
+                } else {
+                    bi.setTransWithOutCCFee(bi.getTransWithOutCCFee() + bf.getFeeValue());
+                }
+            }
             biledBillsTotal += bi.getNetValue() + bi.getVat();
         }
 
@@ -2262,6 +2285,14 @@ public class CommonReport1 implements Serializable {
 
     public void setRows(int rows) {
         this.rows = rows;
+    }
+
+    public Institution getCollecingCenter() {
+        return collecingCenter;
+    }
+
+    public void setCollecingCenter(Institution collecingCenter) {
+        this.collecingCenter = collecingCenter;
     }
 
     public class DocTotal {

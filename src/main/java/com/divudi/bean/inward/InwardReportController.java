@@ -969,13 +969,13 @@ public class InwardReportController implements Serializable {
         BillItem lastBillItem = null;
         for (Object[] ob : objects) {
             BillItem bi = (BillItem) ob[0];
-            System.out.println("bi.getId() = " + bi.getId());
-            System.out.println("bi.getInsId() = " + bi.getBill().getInsId());
-            System.out.println("bi.getItem().getName() = " + bi.getItem().getName());
+//            System.out.println("bi.getId() = " + bi.getId());
+//            System.out.println("bi.getInsId() = " + bi.getBill().getInsId());
+//            System.out.println("bi.getItem().getName() = " + bi.getItem().getName());
             FeeType ft = (FeeType) ob[1];
-            System.out.println("ft = " + ft);
+//            System.out.println("ft = " + ft);
             double d = (double) ob[2];
-            System.out.println("d = " + d);
+//            System.out.println("d = " + d);
             if (lastBillItem == null) {
                 lastBillItem = bi;
                 if (ft == FeeType.Staff) {

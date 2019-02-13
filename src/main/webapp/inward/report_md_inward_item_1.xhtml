@@ -66,7 +66,7 @@
                                          size="30"  style="width: 400px;">
                             <p:column>
                                 <h:outputLabel value="#{ix.name}"/>
-                            </p:column>
+                            </p:column>viw
                             <p:column>
                                 <h:outputLabel value="#{ix.department.name}"/>
                             </p:column>  
@@ -77,12 +77,23 @@
                                 </h:outputLabel>
                             </p:column>
                         </p:autoComplete>
+                        <h:outputLabel value="Process By"/>
+                        <p:selectOneRadio value="#{inwardReportController.reportKeyWord.string}" >
+                            <f:selectItem itemLabel="Added Date" itemValue="0" />
+                            <f:selectItem itemLabel="Discharge Date" itemValue="1" />
+                        </p:selectOneRadio>
                     </h:panelGrid>
 
-                    <p:panelGrid columns="3">
-                        <p:commandButton ajax="false" value="Process by Bill Created Date" 
+                    <h:panelGrid columns="3">
+                        <p:commandButton ajax="false" value="Process" 
                                          action="#{inwardReportController.createBillItemList}" style="float: right;" onclick="onSubmitButton();" />
-                    </p:panelGrid>                    
+                        <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" >
+                            <pe:exporter type="xlsx" target="tbl" fileName="item_report_#{inwardReportController.reportKeyWord.string}"  />
+                        </p:commandButton>
+                        <p:commandButton ajax="false" value="Print" styleClass="noPrintButton" >
+                            <p:printer target="reportPrint"/>
+                        </p:commandButton> 
+                    </h:panelGrid>                    
 
                 </p:panel>   
 

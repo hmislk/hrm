@@ -60,7 +60,11 @@
                                 <p:dataExporter target="tb1" type="xls" fileName="Contacts" />
                             </p:commandButton>
                             <p:outputLabel value="Message" />
-                            <p:inputMask mask="" maxlength="160" style="height: 50px;" value="#{searchController.smsText}"></p:inputMask>
+                            <!--<p:inputMask mask="" maxlength="160" style="height: 50px;" value="#{searchController.smsText}"></p:inputMask>-->
+                            <p:inputTextarea rows="5" cols="60" value="#{searchController.smsText}"
+                                 counter="display" maxlength="160" counterTemplate="{0} characters remaining." autoResize="false" />
+                <br />
+                <h:outputText id="display" />
 
                             <p:outputLabel value="Test Send" />
                             <p:inputMask mask="999-9999999" maxlength="11" style="height: 20px;" value="#{searchController.uniqueSmsText}"></p:inputMask>

@@ -32,13 +32,16 @@
                         </p:calendar>
                         <p:outputLabel value="Consultant" />
                         <au:completeConsultant value="#{channelReportTempController.reportKeyWord.staff}" />
-                        <h:panelGrid columns="2">
+                    </h:panelGrid> 
+                        <h:panelGrid columns="3">
                             <p:commandButton action="#{channelReportTempController.createConsultantLeaves}" value="Fill" ajax="false" ></p:commandButton> 
                             <p:commandButton ajax="false" value="Print" styleClass="noPrintButton">
                                 <p:printer target="reportPrint"  />
                             </p:commandButton>
+                            <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
+                                <pe:exporter type="xlsx" target="tbl1" fileName="Price_metrix_investigation"  />
+                            </p:commandButton>
                         </h:panelGrid>
-                    </h:panelGrid> 
                 </p:panel>
                 <p:panel id="reportPrint" styleClass="noBorder summeryBorder">
                     <p:dataTable value="#{channelReportTempController.serviceSessionLeaves}" var="d" id="tbl1" rowIndexVar="i"

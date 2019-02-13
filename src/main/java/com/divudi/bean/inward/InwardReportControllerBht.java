@@ -335,7 +335,6 @@ public class InwardReportControllerBht implements Serializable {
 
         billItemFacade.edit(billItem);
     }
-    
     public void createBillFee(BillItem billItem) {
         List<ItemFee> itemFee = getBillBean().getItemFee(billItem);
 
@@ -343,7 +342,6 @@ public class InwardReportControllerBht implements Serializable {
             BillFee billFee = getBillBean().createBillFee(billItem, i);
             billFee.setBill(billItem.getBill());
             getBillFeeFacade().create(billFee);
-            System.err.println("** Added **");
         }
     }
 

@@ -90,6 +90,14 @@
                             <f:convertNumber pattern="#,##0.00" />
                         </h:outputLabel>
                     </p:column>
+                    <p:column headerText="Total" styleClass="averageNumericColumn">
+                        <f:facet name="header">
+                            <h:outputLabel value="Staff Fee"/>                        
+                        </f:facet>
+                        <h:outputLabel value="#{r.totalStaff}">
+                            <f:convertNumber pattern="#,##0.00" />
+                        </h:outputLabel>
+                    </p:column>
                     <p:column headerText="Hos. Sup. Ser. Total" styleClass="averageNumericColumn">
                         <f:facet name="header">
                             <h:outputLabel value="Hos. Sup. Ser. Total"/>                        
@@ -129,6 +137,13 @@
                             <p:column footerText="#{commonReport.totalHos}" style=" text-align: right;">
                                 <f:facet name="footer">
                                     <h:outputLabel value="#{commonReport.totalHos}" style=" text-align: right;">
+                                        <f:convertNumber pattern="#,##0.00"/>
+                                    </h:outputLabel>
+                                </f:facet>
+                            </p:column>
+                            <p:column footerText="#{commonReport.totalStaff}" style=" text-align: right;">
+                                <f:facet name="footer">
+                                    <h:outputLabel value="#{commonReport.totalStaff}" style=" text-align: right;">
                                         <f:convertNumber pattern="#,##0.00"/>
                                     </h:outputLabel>
                                 </f:facet>

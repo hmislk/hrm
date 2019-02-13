@@ -599,7 +599,7 @@ public class StoreReportsTransfer implements Serializable {
             sql += " and bi.bill.toDepartment=:tdept ";
         }
 
-        sql += " order by bi.bill.toDepartment.name, "
+        sql += " order by bi.bill.toDepartment.id, "
                 + " bi.item.category.name, "
                 + " bi.item.name, "
                 + " bi.id";
