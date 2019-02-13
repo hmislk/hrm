@@ -12,7 +12,7 @@
     <ui:define name="content">
         <h:outputStylesheet library="css" name="printing.css"></h:outputStylesheet>
         <h:panelGroup rendered="true" >
-            <h:form>
+            <h:form id="frm">
                 <p:panel header="Report by Refering Doctor">
                     <f:facet name="header" >
                         <p:outputLabel value="Report by Refering Doctor"/>
@@ -47,6 +47,8 @@
                                 #{ix.category.name}
                             </p:column> 
                         </p:autoComplete>
+                        <p:outputLabel value="Only Investigation"/>
+                        <p:selectBooleanCheckbox value="#{commonReport1.reportKeyWord.bool1}" />
                         <h:outputLabel value="Referring Doctor"/>
                         <p:autoComplete forceSelection="true" id="cmbDoc" value="#{commonReport1.referringDoctor}"
                                         completeMethod="#{doctorController.completeDoctor}"
@@ -72,14 +74,18 @@
                                          styleClass="noPrintButton"
                                          action="#{commonReport1.listBillItemsByReferringDoctor}"
                                          />
-                        <p:commandButton ajax="false" value="Print"  styleClass="noPrintButton" style="float: right;" >
-                            <p:printer target="panelPrint" />
-                        </p:commandButton>
                         <p:commandButton value="Excel" ajax="false" styleClass="noPrintButton" style="float: right;">
                             <pe:exporter type="xlsx" target="tbl" fileName="Report by Referring Doctor"
                                          facetBackground="#008000" facetFontSize="15" 
                                          facetFontColor="#FFFFFF" facetFontStyle="BOLD" cellFontColor="#0000FF" cellFontSize="12"  cellFontStyle="NORMAL"  
                                          fontName="Courier New"  />
+                        </p:commandButton>
+                        <p:commandButton value="Print" actionListener="#{commonReport1.prepareForPrint()}" 
+                                         oncomplete="$('#frm\\:print').click()"
+                                         update=":frm:tbl"/>
+                        <p:commandButton id="print" value="Actual print" style="display: none">
+                            <p:ajax event="click" listener="#{commonReport1.prepareForView()}" update=":frm:tbl"/>
+                            <p:printer target=":frm:tbl" />
                         </p:commandButton>
                     </h:panelGrid>
 
@@ -87,6 +93,10 @@
                 <p:panel  id="panelPrint" styleClass="noBorder summeryBorder">
                     <p:dataTable id="tbl" value="#{commonReport1.referralBillItems}" var="d" rowIndexVar="i"
                                  rowStyleClass="#{d.bill.billClassType eq 'CancelledBill' or d.bill.billClassType eq 'RefundBill' ? 'redText':''}" 
+                                 rows="#{commonReport1.rows}"
+                                 paginator="#{commonReport1.paginator}"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="50, 100, 500, 1000"
                                  >
                         <f:facet name="header">
                             <h:outputLabel value="Requests by Referring Doctor "/>
@@ -127,7 +137,7 @@
                             </f:facet>
                             <h:outputLabel value="#{d.bill.referredBy.person.name}"/>
                         </p:column>
-                        
+
                         <p:column headerText="Item" rendered="#{commonReport1.item eq null}" >
                             <f:facet name="header">
                                 <h:outputLabel value="Item" />
@@ -141,7 +151,7 @@
                             </f:facet>
                             <h:outputLabel value="#{d.bill.fromInstitution.name}"/>
                         </p:column>
-                        
+
                         <p:column headerText="Date/Time" 
                                   sortBy="#{d.bill.createdAt}">
                             <f:facet name="header">

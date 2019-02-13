@@ -5,13 +5,19 @@
  */
 package com.divudi.ejb;
 
+import com.divudi.bean.common.CommonController;
+import com.divudi.bean.common.SendEmail;
 import com.divudi.data.ApplicationInstitution;
+import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.HistoryType;
 import com.divudi.data.PersonInstitutionType;
 import com.divudi.data.SmsType;
 import com.divudi.entity.AgentHistory;
 import com.divudi.entity.Bill;
+import com.divudi.entity.BillItem;
+import com.divudi.entity.BilledBill;
+import com.divudi.entity.Consultant;
 import com.divudi.entity.Department;
 import com.divudi.entity.FeeChange;
 import com.divudi.entity.Institution;
@@ -25,6 +31,7 @@ import com.divudi.entity.pharmacy.Ampp;
 import com.divudi.entity.pharmacy.StockHistory;
 import com.divudi.facade.AgentHistoryFacade;
 import com.divudi.facade.AmpFacade;
+import com.divudi.facade.BillItemFacade;
 import com.divudi.facade.DepartmentFacade;
 import com.divudi.facade.FeeChangeFacade;
 import com.divudi.facade.FingerPrintRecordFacade;
@@ -39,6 +46,8 @@ import com.divudi.facade.StockFacade;
 import com.divudi.facade.StockHistoryFacade;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,9 +102,13 @@ public class StockHistoryRecorder {
     InstitutionFacade institutionFacade;
     @EJB
     SmsFacade smsFacade;
+    @EJB
+    BillItemFacade billItemFacade;
 
     @Inject
     CommonFunctions commonFunctions;
+    @Inject
+    CommonController commonController;
 
     @SuppressWarnings("unused")
 //    @Schedule(minute = "1", second = "1", dayOfMonth = "*", month = "*", year = "*", hour = "1", persistent = false)
@@ -164,7 +177,6 @@ public class StockHistoryRecorder {
 //        //System.out.println("End writing stock history: " + new Date());
 ////        //System.out.println("TIme taken for Hx is " + (((new Date()) - startTime )/(1000*60*60)) + " minutes.");
 //    }
-
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "09", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
 //    public void myTimerDailyChannelDuplicateFinder() {
@@ -219,7 +231,6 @@ public class StockHistoryRecorder {
 //        System.err.println("Chanel Duplicate Find End =" + new Date());
 //
 //    }
-    
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "06", minute = "00", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
 //    public void myTimerBirthdayReminder() {
@@ -269,6 +280,16 @@ public class StockHistoryRecorder {
 //        }
 //        System.out.println("---msg = " + msg);
 //    }
+    @SuppressWarnings("unused")
+    @Schedule(hour = "09", minute = "30", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
+    public void myTimerDailyDoctorPaymentDuplicateFinder() {
+
+        sendMailDoctorpaymentDuplicates();
+        sendMailDoctorpaymentCanBeDuplicate();
+        sendMailOnlineChannelDuplicate();
+        sendMailBirthdaysToday();
+
+    }
 
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "03", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mornining", persistent = false)
@@ -288,7 +309,7 @@ public class StockHistoryRecorder {
     public void generateSessions(Staff staff) {
         String sql;
         Map m = new HashMap();
-        Calendar cal=Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -766,6 +787,275 @@ public class StockHistoryRecorder {
             sms.setSendingMessage(messageBody2);
             smsFacade.create(sms);
         }
+    }
+
+    public List<BillItem> checkDuplicateDoctorPaymentsNew(Date fd, Date td) {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+        List<BillItem> billItems = new ArrayList<>();
+//        BillItem bi;
+//        bi.getBill().isCancelled()
+        sql = " select bi.paidForBillFee.id, count(bi.paidForBillFee) "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td "
+                + " group by bi.paidForBillFee "
+                + " order by bi.paidForBillFee.id ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", fd);
+        m.put("td", td);
+
+        List<Object[]> objects = billItemFacade.findAggregates(sql, m, TemporalType.TIMESTAMP);
+        if (objects != null) {
+            System.out.println("objects.size() = " + objects.size());
+        }
+        for (Object[] ob : objects) {
+            long id = (long) ob[0];
+            long l = (long) ob[1];
+            if (l > 1) {
+                m = new HashMap();
+                sql = " select bi from BillItem bi where "
+                        + " bi.retired=false "
+                        + " and bi.bill.cancelled=false "
+                        + " and type(bi.bill)=:class "
+                        + " and bi.bill.billType=:bt "
+                        + " and bi.paidForBillFee.id=" + id;
+
+                m.put("bt", BillType.PaymentBill);
+                m.put("class", BilledBill.class);
+
+                List<BillItem> items = billItemFacade.findBySQL(sql, m);
+                System.out.println("items.size() = " + items.size());
+                billItems.addAll(items);
+            }
+        }
+
+//        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+        return billItems;
+    }
+
+    public List<BillItem> checkCanBeDuplicateDoctorPayments(Date fd, Date td) {
+        Date startTime = new Date();
+        String sql;
+        Map m = new HashMap();
+        List<BillItem> billItems = new ArrayList<>();
+//        BillItem bi;
+//        bi.getPaidForBillFee().getPaidValue()
+        sql = " select bi "
+                + " from BillItem bi where "
+                + " bi.retired=false "
+                + " and bi.bill.cancelled=false "
+                + " and type(bi.bill)=:class "
+                + " and bi.bill.billType=:bt "
+                + " and bi.bill.createdAt between :fd and :td"
+                + " and (bi.paidForBillFee.feeValue - bi.paidForBillFee.paidValue)>0 ";
+
+        m.put("bt", BillType.PaymentBill);
+        m.put("class", BilledBill.class);
+        m.put("fd", fd);
+        m.put("td", td);
+
+        billItems = billItemFacade.findBySQL(sql, m);
+        System.out.println("billItems.size() = " + billItems.size());
+
+//        commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+        return billItems;
+    }
+
+    public void sendMailOnlineChannelDuplicate() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(commonFunctions.getEndOfDay());
+        c.add(Calendar.DATE, -1);
+
+        Date td = c.getTime();
+        c.add(Calendar.DATE, -30);
+        Date fd = commonFunctions.getStartOfDay(c.getTime());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd hh:mm:ss a");
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+//        System.out.println("format.format(fd) = " + format.format(fd));
+//        System.out.println("format.format(td) = " + format.format(td));
+        List<AgentHistory> agentHistorys = createAgentHistoryDuplicates(fd, td);
+//        System.out.println("agentHistorys.size() = " + agentHistorys.size());
+        String msg = "";
+        msg = "";
+        msg = "Online Channel Duplicate \n<br></br>";
+        msg += "From Date - " + format.format(fd) + " \n<br></br>";
+        msg += "To Date - " + format.format(td) + " \n<br></br>";
+
+        msg += "<table border=\"1\">"
+                + "<tr>"
+                + "<th>Bill No</th>"
+                + "<th>Bill At</th>"
+                + "<th>Amount</th>"
+                + "</tr>";
+        for (AgentHistory a : agentHistorys) {
+            msg += "<tr>"
+                    + "<td>" + a.getBill().getInsId() + "</td>"
+                    + "<td>" + format.format(a.getBill().getCreatedAt()) + "</td>"
+                    + "<td>" + df.format(a.getBill().getVatPlusNetTotal()) + "</td>"
+                    + "</tr>";
+        }
+        msg += "</tr>"
+                + "</table>";
+
+        System.out.println("****msg.length() = " + msg.length());
+        System.out.println("****msg = " + msg);
+
+        SendEmail email = new SendEmail();
+        email.createAndSendEmail("dushan@archmage.lk", "Online Channel Duplicate", msg);
+        email.createAndSendEmail("piumini@ruhunuhospital.lk", "Doctor Payment Duplicates", msg);
+    }
+
+    public void sendMailBirthdaysToday() {
+        String sql;
+        Map m = new HashMap();
+
+        sql = "select c from Staff c "
+                + " where c.retired=false "
+                + " and type(c)!=:class "
+                + " order by c.codeInterger ";
+        m.put("class", Consultant.class);
+
+        List<Staff> staffs = staffFacade.findBySQL(sql, m);
+        System.out.println("staffs = " + staffs.size());
+        String msg = "Today Birthday <br></br>";
+        msg += "<table border=\"1\">"
+                + "<tr>"
+                + "<th>Staff Name</th>"
+                + "<th>Staff Code</th>"
+                + "<th>Department</th>"
+                + "</tr>";
+        System.out.println("1.msg = " + msg);
+        for (Staff s : staffs) {
+            Calendar dob = Calendar.getInstance();
+            if (s.getPerson() != null && s.getPerson().getDob() != null) {
+                dob.setTime(s.getPerson().getDob());
+//                System.out.println("dob.get(Calendar.MONTH) = " + dob.get(Calendar.MONTH));
+//                System.out.println("dob.get(Calendar.DATE) = " + dob.get(Calendar.DATE));
+                Calendar now = Calendar.getInstance();
+//                System.out.println("now.get(Calendar.MONTH) = " + now.get(Calendar.MONTH));
+//                System.out.println("now.get(Calendar.DATE) = " + now.get(Calendar.DATE));
+                if (dob.get(Calendar.MONTH) == now.get(Calendar.MONTH) && dob.get(Calendar.DATE) == now.get(Calendar.DATE)) {
+//                    System.out.println("1.1.msg = " + msg);
+//                    System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+//                    System.out.println("s.getPerson().getDob() = " + s.getPerson().getDob());
+                    msg += "<tr>"
+                            + "<td>" + s.getPerson().getName() + "</td>"
+                            + "<td>" + s.getCode() + "</td>";
+                    if (s.getWorkingDepartment() != null) {
+                        msg += "<td>" + s.getWorkingDepartment().getName() + "</td>";
+                    } else {
+                        msg += "<td>No Department</td>";
+                    }
+                    msg += "</tr>";
+                }
+            }
+        }
+        msg += "</table>";
+
+        System.out.println("****msg.length() = " + msg.length());
+        System.out.println("****msg = " + msg);
+
+        SendEmail email = new SendEmail();
+        email.createAndSendEmail("dushan@archmage.lk", "Birthdays Today", msg);
+
+    }
+
+    public void sendMailDoctorpaymentDuplicates() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(commonFunctions.getEndOfDay());
+        c.add(Calendar.DATE, -1);
+        Date td = c.getTime();
+        System.out.println("td = " + td);
+        c.add(Calendar.MONTH, -3);
+        Date fd = commonFunctions.getStartOfDay(c.getTime());
+        System.out.println("fd = " + fd);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd hh:mm:ss a");
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        List<BillItem> billItems = checkDuplicateDoctorPaymentsNew(fd, td);
+        String msg = "";
+        msg = "Doctor Payment Duplicate \n<br></br>";
+        msg += "From Date - " + format.format(fd) + " \n<br></br>";
+        msg += "To Date - " + format.format(td) + " \n<br></br>";
+
+        msg += "<table border=\"1\">"
+                + "<tr>"
+                + "<th>Payment Bill No</th>"
+                + "<th>Paid At</th>"
+                + "<th>BHT No</th>"
+                + "<th>Bill No</th>"
+                + "<th>Amount</th>"
+                + "</tr>";
+        for (BillItem b : billItems) {
+            msg += "<tr>"
+                    + "<td>" + b.getBill().getInsId() + "</td>"
+                    + "<td>" + format.format(b.getBill().getCreatedAt()) + "</td>"
+                    + "<td>" + b.getPaidForBillFee().getBill().getPatientEncounter().getBhtNo() + "</td>"
+                    + "<td>" + b.getPaidForBillFee().getBill().getInsId() + "</td>"
+                    + "<td>" + df.format(b.getPaidForBillFee().getFeeValue()) + "</td>"
+                    + "</tr>";
+        }
+        msg += "</tr>"
+                + "</table>";
+
+        System.out.println("****msg.length() = " + msg.length());
+        System.out.println("****msg = " + msg);
+        SendEmail email = new SendEmail();
+        email.createAndSendEmail("dushan@archmage.lk", "Doctor Payment Duplicates", msg);
+        email.createAndSendEmail("piumini@ruhunuhospital.lk", "Doctor Payment Duplicates", msg);
+    }
+
+    public void sendMailDoctorpaymentCanBeDuplicate() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(commonFunctions.getEndOfDay());
+        c.add(Calendar.DATE, -1);
+        Date td = c.getTime();
+        System.out.println("td = " + td);
+        c.add(Calendar.MONTH, -3);
+        Date fd = commonFunctions.getStartOfDay(c.getTime());
+        System.out.println("fd = " + fd);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy MM dd hh:mm:ss a");
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        List<BillItem> billItems = checkCanBeDuplicateDoctorPayments(fd, td);
+        String msg = "";
+
+        msg = "";
+        msg = "Doctor Payment Can be Duplicate \n<br></br>";
+        msg += "From Date - " + format.format(fd) + " \n<br></br>";
+        msg += "To Date - " + format.format(td) + " \n<br></br>";
+
+        msg += "<table border=\"1\">"
+                + "<tr>"
+                + "<th>Payment Bill No</th>"
+                + "<th>Paid At</th>"
+                + "<th>BHT No</th>"
+                + "<th>Bill No</th>"
+                + "<th>Amount</th>"
+                + "</tr>";
+        for (BillItem b : billItems) {
+            msg += "<tr>"
+                    + "<td>" + b.getBill().getInsId() + "</td>"
+                    + "<td>" + format.format(b.getBill().getCreatedAt()) + "</td>"
+                    + "<td>" + b.getPaidForBillFee().getBill().getPatientEncounter().getBhtNo() + "</td>"
+                    + "<td>" + b.getPaidForBillFee().getBill().getInsId() + "</td>"
+                    + "<td>" + df.format(b.getPaidForBillFee().getFeeValue()) + "</td>"
+                    + "</tr>";
+        }
+        msg += "</tr>"
+                + "</table>";
+
+        System.out.println("****msg.length() = " + msg.length());
+        System.out.println("****msg = " + msg);
+        SendEmail email = new SendEmail();
+        email.createAndSendEmail("dushan@archmage.lk", "Doctor Payment Can be Duplicate", msg);
+        email.createAndSendEmail("piumini@ruhunuhospital.lk", "Doctor Payment Duplicates", msg);
     }
 
 // Add business logic below. (Right-click in editor and choose

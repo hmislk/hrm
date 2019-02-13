@@ -11,6 +11,7 @@ import com.divudi.data.BillType;
 import com.divudi.data.DepartmentType;
 import com.divudi.data.FeeType;
 import com.divudi.data.dataStructure.BillsTotals;
+import com.divudi.data.hr.ReportKeyWord;
 import com.divudi.data.table.String1Value1;
 import com.divudi.ejb.CommonFunctions;
 import com.divudi.entity.Bill;
@@ -122,6 +123,10 @@ public class CommonReport1 implements Serializable {
     boolean onlyOPD;
 
     String radio = "1";
+    
+    ReportKeyWord reportKeyWord;
+    boolean paginator = true;
+    int rows = 20;
 
     public Doctor getReferringDoctor() {
         return referringDoctor;
@@ -417,6 +422,13 @@ public class CommonReport1 implements Serializable {
             sql += " and i.department=:dept ";
             m.put("dept", department);
         }
+        
+        if (getReportKeyWord().isBool1()) {
+            sql += " and type(i)=:type ";
+            m.put("type", Investigation.class);
+        }
+        
+        
 
         if (referringDoctor != null) {
             m.put("rd", referringDoctor);
@@ -2213,6 +2225,43 @@ public class CommonReport1 implements Serializable {
             return true;
         }
 
+    }
+    
+    public void prepareForPrint() {
+        paginator = false;
+        rows = getReferralBillItems().size();
+    }
+    
+    public void prepareForView() {
+        paginator = true;
+        rows = 50;
+    }
+
+    public ReportKeyWord getReportKeyWord() {
+        if (reportKeyWord==null) {
+            reportKeyWord=new ReportKeyWord();
+        }
+        return reportKeyWord;
+    }
+
+    public void setReportKeyWord(ReportKeyWord reportKeyWord) {
+        this.reportKeyWord = reportKeyWord;
+    }
+
+    public boolean isPaginator() {
+        return paginator;
+    }
+
+    public void setPaginator(boolean paginator) {
+        this.paginator = paginator;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
     }
 
     public class DocTotal {
