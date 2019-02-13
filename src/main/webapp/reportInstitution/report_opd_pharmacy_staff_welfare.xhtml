@@ -24,23 +24,23 @@
                     <p:calendar id="toDate" value="#{serviceSummery.toDate}" navigator="true" pattern="dd MMMM yyyy  HH:mm:ss" >
                     </p:calendar>
                 </h:panelGrid>
-            </p:panel>
-            <p:panel id="panelPrint"  styleClass=" summeryBorder">
-                <p:panelGrid columns="4">
+                <h:panelGrid columns="4">
                     <p:commandButton id="btnRefresh" value="Refresh" ajax="false" 
                                      styleClass="noPrintButton" style="float: right;" 
                                      action="#{serviceSummery.opdPharmacyStaffWelfarebills}"/>
                     <p:defaultCommand target="btnRefresh"/>
 
                     <p:commandButton ajax="false" value="Print"  
-                                     styleClass="noPrintButton" style="float: right;" >
+                                     styleClass="noPrintButton" >
                         <p:printer target="panelPrint" />
                     </p:commandButton>
 
-                    <p:commandButton value="Excel2" ajax="false" style="float: right;" styleClass="noPrintButton" >
+                    <p:commandButton value="Excel" ajax="false" styleClass="noPrintButton" >
                         <pe:exporter type="xlsx" target="opd" fileName="Service_Summery"  />
                     </p:commandButton>
-                </p:panelGrid>
+                </h:panelGrid>
+            </p:panel>
+            <p:panel id="panelPrint"  styleClass="noBorder summeryBorder" >
 
                 <p:spacer height="30"/>
 
@@ -91,6 +91,15 @@
                             <p:outputLabel value="Staff Name"/>
                         </f:facet>
                         <p:outputLabel value="#{b.toStaff.person.nameWithTitle}" />
+                    </p:column>
+                    
+                    <p:column >
+                        <f:facet name="header">
+                            <p:outputLabel value="Current Balance"/>
+                        </f:facet>
+                        <p:outputLabel value="#{b.toStaff.annualWelfareUtilized}" style="color: green;" >
+                            <f:convertNumber pattern="#,##0.00" />
+                        </p:outputLabel>
                     </p:column>
 
                     <p:column headerText="Bill Type">

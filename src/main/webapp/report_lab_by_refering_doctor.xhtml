@@ -99,6 +99,13 @@
                             </f:facet>
                             <h:outputLabel value="#{d.bill.referredBy.person.name}"/>
                         </p:column>
+                        
+                        <p:column >
+                            <f:facet name="header">
+                                <h:outputLabel value="Department" />
+                            </f:facet>
+                            <h:outputLabel value="#{d.bill.department.name}"/>
+                        </p:column>
 
 
                         <p:column headerText="Date/Time" 

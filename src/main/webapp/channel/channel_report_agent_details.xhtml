@@ -32,7 +32,7 @@
                     </h:panelGrid> 
                 </h:panelGrid>
                 <p:panel id="reportPrint" styleClass="summeryBorder noBorder">
-                    <p:dataTable value="#{institutionController.agencies}" var="a" id="tbl1" rowIndexVar="i">
+                    <p:dataTable value="#{institutionController.agencies}" var="a" id="tbl1" rowIndexVar="i" rowStyleClass="#{a.inactive eq true ? 'redText':''}">
                         <f:facet name="header">
                             <p:outputLabel value="#{sessionController.loggedUser.institution.name}" />
                             <br></br>
@@ -60,6 +60,13 @@
                                 <p:outputLabel value="Agent Name" />
                             </f:facet>
                             <p:outputLabel value="#{a.name}" />
+                        </p:column>
+                        <p:column sortBy="#{a.inactive}">
+                            <f:facet name="header">
+                                <p:outputLabel value="Status" />
+                            </f:facet>
+                            <p:outputLabel value="Inactive"  rendered="#{a.inactive}"/>
+                            <p:outputLabel value="Active"  rendered="#{!a.inactive}"/>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
