@@ -150,6 +150,8 @@ public class DataAdministrationController {
     List<PharmaceuticalItemCategory> selectedPharmaceuticalItemCategorys;
     List<PatientDetailsRow> patientDetailsRows;
     List<BillItem> billItems;
+    List<ServiceSession> serviceSessions;
+    List<ServiceSession> serviceSessionDuplicates;
 
     double val1;
     double val2;
@@ -1492,7 +1494,7 @@ public class DataAdministrationController {
                 + " and type(bi.bill)=:class "
                 + " and bi.bill.billType=:bt "
                 + " and bi.bill.createdAt between :fd and :td"
-                + " and (bi.paidForBillFee.feeValue - bi.paidForBillFee.paidValue)!=0 ";
+                + " and (bi.paidForBillFee.feeValue - bi.paidForBillFee.paidValue)>0 ";
 
         m.put("bt", BillType.PaymentBill);
         m.put("class", BilledBill.class);
@@ -1503,6 +1505,11 @@ public class DataAdministrationController {
         System.out.println("billItems.size() = " + billItems.size());
 
         commonController.printTimeDefference(startTime, "Doctor Payment Duplicate Check");
+    }
+
+    public void checkWronglyCreatedSessions() {
+        serviceSessions = fetchWrongServiceSessions();
+        serviceSessionDuplicates=fetchDuplicateServiceSessions();
     }
 //    public void checkCanBeDuplicateDoctorPayments() {
 //        Date startTime = new Date();
@@ -1579,6 +1586,29 @@ public class DataAdministrationController {
 
     public void setBillItems(List<BillItem> billItems) {
         this.billItems = billItems;
+
+    }
+
+    public List<ServiceSession> getServiceSessions() {
+        if (serviceSessions == null) {
+            serviceSessions = new ArrayList<>();
+        }
+        return serviceSessions;
+    }
+
+    public void setServiceSessions(List<ServiceSession> serviceSessions) {
+        this.serviceSessions = serviceSessions;
+    }
+
+    public List<ServiceSession> getServiceSessionDuplicates() {
+        if (serviceSessionDuplicates==null) {
+            serviceSessionDuplicates=new ArrayList<>();
+        }
+        return serviceSessionDuplicates;
+    }
+
+    public void setServiceSessionDuplicates(List<ServiceSession> serviceSessionDuplicates) {
+        this.serviceSessionDuplicates = serviceSessionDuplicates;
     }
 
     public class PatientDetailsRow {
@@ -1812,6 +1842,88 @@ public class DataAdministrationController {
 
     public void setSelectedInstitutions(List<Institution> selectedInstitutions) {
         this.selectedInstitutions = selectedInstitutions;
+    }
+
+    public List<ServiceSession> fetchWrongServiceSessions() {
+        String sql;
+        Map m = new HashMap();
+//        ServiceSession ss;
+//        ss.getOriginatingSession().getSessionDate()
+        sql = "Select s From ServiceSession s where s.retired=false "
+                + " and s.originatingSession is not null "
+                + " and s.originatingSession.sessionDate is not null "
+                + " and s.sessionDate >= :d "
+                + " and s.sessionDate!=s.originatingSession.sessionDate "
+                + " and type(s)=:class "
+                + " order by s.sessionDate ";
+        m.put("d", new Date());
+        m.put("class", ServiceSession.class);
+
+        List<ServiceSession> tmp = serviceSessionFacade.findBySQL(sql, m, TemporalType.TIMESTAMP);
+
+        System.out.println("tmp.size() = " + tmp.size());
+//        for (ServiceSession ss : tmp) {
+//            System.out.println("ss.getStaff().getPerson().getName() = " + ss.getStaff().getPerson().getName());
+//            System.out.println("ss.getStaff().getSpeciality().getName() = " + ss.getStaff().getSpeciality().getName());
+//            System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
+//            System.out.println("ss.getSessionAt() = " + ss.getSessionAt());
+//            System.out.println("ss.getSessionTime() = " + ss.getSessionTime());
+//            System.out.println("ss.getStartingTime() = " + ss.getStartingTime());
+//        }
+
+        return tmp;
+    }
+
+    public List<ServiceSession> fetchDuplicateServiceSessions() {
+        List<ServiceSession> list=new ArrayList<>();
+        String sql;
+        Map m = new HashMap();
+//        ServiceSession ss;
+//        ss.getOriginatingSession().getSessionDate()
+        sql = "Select s.originatingSession.id,s.originatingSession.createdAt From ServiceSession s where s.retired=false "
+                + " and s.originatingSession is not null "
+                + " and (s.originatingSession.sessionDate>=:d or s.originatingSession.sessionDate is null)"
+                + " and type(s)=:class "
+                + " group by s.originatingSession.id "
+                + " order by s.originatingSession.id ";
+        m.put("d", new Date());
+        m.put("class", ServiceSession.class);
+
+        List<Object[]> tmp = serviceSessionFacade.findAggregates(sql, m, TemporalType.TIMESTAMP);
+        System.out.println("tmp.size() = " + tmp.size());
+
+        for (Object[] ob : tmp) {
+            long l = (long) ob[0];
+//            System.out.println("********************l = " + l);
+            sql = "Select s,count(s.sessionDate) From ServiceSession s where s.retired=false "
+                    + " and s.originatingSession.id=:id "
+                    + " and s.sessionDate >= :d "
+                    + " and type(s)=:class "
+                    + " group by s.sessionDate "
+                    + " HAVING count(s.sessionDate)>1 "
+                    + " order by s.sessionDate ";
+
+            m.put("id", l);
+            List<Object[]> objects = serviceSessionFacade.findAggregates(sql, m, TemporalType.TIMESTAMP);
+            for (Object[] o : objects) {
+                ServiceSession ss = (ServiceSession) o[0];
+
+                long ll = (long) o[1];
+                if (ll > 1) {
+                    System.out.println("l = " + ll);
+                    System.out.println("ss.getStaff().getPerson().getName() = " + ss.getStaff().getPerson().getName());
+                    System.out.println("ss.getStaff().getSpeciality().getName() = " + ss.getStaff().getSpeciality().getName());
+                    System.out.println("ss.getSessionDate() = " + ss.getSessionDate());
+                    System.out.println("ss.getSessionWeekday() = " + ss.getSessionWeekday());
+                    System.out.println("ss.getSessionAt() = " + ss.getSessionAt());
+                    System.out.println("ss.getSessionTime() = " + ss.getSessionTime());
+                    System.out.println("ss.getStartingTime() = " + ss.getStartingTime());
+                    list.add(ss);
+                }
+            }
+        }
+
+        return list;
     }
 
     public double getVal1() {
