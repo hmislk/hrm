@@ -107,6 +107,14 @@
                                 <f:convertNumber pattern="00000" />
                             </p:outputLabel>
                         </p:column>
+                        <p:column rendered="#{webUserController.hasPrivilege('Developers')}" >
+                            <f:facet name="header">
+                                <p:outputLabel value="Range" />
+                            </f:facet>
+                            <p:outputLabel value="#{a.endingReferenceNumber-a.startingReferenceNumber+1}" style="float: right">
+                                <f:convertNumber pattern="#,##0" />
+                            </p:outputLabel>
+                        </p:column>
                         <p:column>
                             <f:facet name="header">
                                 <p:outputLabel value="Creater" />

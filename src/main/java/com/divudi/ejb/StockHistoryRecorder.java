@@ -280,16 +280,16 @@ public class StockHistoryRecorder {
 //        }
 //        System.out.println("---msg = " + msg);
 //    }
-    @SuppressWarnings("unused")
-    @Schedule(hour = "09", minute = "30", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
-    public void myTimerDailyDoctorPaymentDuplicateFinder() {
-
-        sendMailDoctorpaymentDuplicates();
-        sendMailDoctorpaymentCanBeDuplicate();
-        sendMailOnlineChannelDuplicate();
-        sendMailBirthdaysToday();
-
-    }
+//    @SuppressWarnings("unused")
+//    @Schedule(hour = "09", minute = "30", second = "00", dayOfMonth = "*", info = "Daily Morning", persistent = false)
+//    public void myTimerDailyDoctorPaymentDuplicateFinder() {
+//
+//        sendMailDoctorpaymentDuplicates();
+//        sendMailDoctorpaymentCanBeDuplicate();
+//        sendMailOnlineChannelDuplicate();
+//        sendMailBirthdaysToday();
+//
+//    }
 
 //    @SuppressWarnings("unused")
 //    @Schedule(hour = "03", minute = "15", second = "00", dayOfMonth = "*", info = "Daily Mornining", persistent = false)

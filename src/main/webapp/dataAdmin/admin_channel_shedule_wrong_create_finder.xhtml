@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:panel header="Search Bills" >
+                        <f:facet name="header">
+                            <h:outputLabel value="Channel Schedule Wrong Create Finder"/>
+                        </f:facet>
+                        <p:panel>
+                            <h:panelGrid columns="1" >
+                                <h:panelGrid columns="2" >
+
+<!--                                    <h:outputLabel value="From Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="fromDate" 
+                                                value="#{dataAdministrationController.reportKeyWord.fromDate}" 
+                                                navigator="true" pattern="yyyy MM dd hh mm ss a" >      
+                                    </p:calendar>
+                                    <h:outputLabel value="To Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="toDate" 
+                                                value="#{dataAdministrationController.reportKeyWord.toDate}" 
+                                                navigator="true" pattern="yyyy MM dd hh mm ss a" >                                                                              
+                                    </p:calendar>-->
+                                    <p:commandButton id="btnSearch" ajax="false" value="Search" 
+                                                     action="#{dataAdministrationController.checkWronglyCreatedSessions()}" />
+                                    <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton"  >
+                                        <pe:exporter type="xlsx" target="tbl,tbl1" fileName="Channel Schedule Wrong Create Finder"  />
+                                    </p:commandButton>
+                                </h:panelGrid>
+                            </h:panelGrid>
+                        </p:panel>
+                        <p:panel styleClass="noBorder summeryBorder" >
+                            <p:dataTable id="tbl" value="#{dataAdministrationController.serviceSessions}" var="ss" rowIndexVar="i">
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Channel Schedule Wrong Create Finder" />
+                                </f:facet>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{i+1}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Staff" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.staff.person.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Specility" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.staff.speciality.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Session At" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.sessionDate}" >
+                                        <f:convertDateTime pattern="YYYY MM dd" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Time" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.startingTime}" >
+                                        <f:convertDateTime pattern="hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Original Session At" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.originatingSession.sessionDate}" >
+                                        <f:convertDateTime pattern="YYYY MM dd" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Original Time" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.originatingSession.startingTime}" >
+                                        <f:convertDateTime pattern="hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </p:column>
+                            </p:dataTable>
+                            <p:dataTable id="tbl1" value="#{dataAdministrationController.serviceSessionDuplicates}" var="ss" rowIndexVar="i">
+                                <f:facet name="header" >
+                                    <p:outputLabel value="Channel Schedule Duplicate Finder" />
+                                </f:facet>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="No" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{i+1}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Staff" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.staff.person.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Specility" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.staff.speciality.name}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Session At" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.sessionDate}" >
+                                        <f:convertDateTime pattern="YYYY MM dd" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Time" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.startingTime}" >
+                                        <f:convertDateTime pattern="hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Original Session At" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.originatingSession.sessionDate}" >
+                                        <f:convertDateTime pattern="YYYY MM dd" />
+                                    </p:outputLabel>
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Original Time" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{ss.originatingSession.startingTime}" >
+                                        <f:convertDateTime pattern="hh:mm:ss a" />
+                                    </p:outputLabel>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>
