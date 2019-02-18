@@ -114,6 +114,13 @@
                                     <p:outputLabel value="#{bi.paidForBillFee.paidValue}" >
                                     </p:outputLabel>
                                 </p:column>
+                                <p:column>
+                                    <f:facet name="header" >
+                                        <p:outputLabel value="Defferent" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{bi.paidForBillFee.feeValue-bi.paidForBillFee.paidValue}" >
+                                    </p:outputLabel>
+                                </p:column>
                             </p:dataTable>
                         </p:panel>
 
