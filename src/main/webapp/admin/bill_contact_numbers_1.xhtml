@@ -14,26 +14,31 @@
             <h:form id="form" enctype="multipart/form-data" >
                 <p:panel header="Contact numbers" >
                     <f:facet name="header">
-                        <h:panelGrid columns="2" id="panGrup1">
-
-                            <h:outputLabel value="Import Pharmaceutical Items" ></h:outputLabel>
-                            <p>Please make sure the following order of Columns.</p>
-                            <p>Leave First Row for Row Headings.</p>
-                            <p style="color: red;" >Use only *.xls files. <b><i>NOT</i> xlsx files.</b></p>
-                            <p:panelGrid columns="2" style="border: 1px solid blue;" >
-                                <h:outputLabel value ="0. No(Optional)" ></h:outputLabel>
-                                <h:outputLabel value ="1. Phone Number"></h:outputLabel>
-                            </p:panelGrid>
-
-                            <p:fileUpload value="#{searchController.file}" mode="simple"/>
-                            <h:commandButton value="Submit" action="#{searchController.importToExcel}" />
-                            <h:outputLabel></h:outputLabel>
-                            <p:outputLabel value="Message" />
-                            <p:inputMask mask="" maxlength="160" style="height: 50px;" value="#{searchController.smsText}"></p:inputMask>
-
-                            <p:commandButton id="btnSend2" ajax="false" value="Send All" action="#{searchController.sendSmsAll()}"  />
-                        </h:panelGrid>
+                        <h:outputLabel value="Bulk SMS by Excel Sheet" ></h:outputLabel>
                     </f:facet>
+                    <h:panelGrid columns="2" id="panGrup1">
+                        <h:outputLabel value="Import Pharmaceutical Items" ></h:outputLabel>
+                        <p>Please make sure the following order of Columns.</p>
+                        <p>Leave First Row for Row Headings.</p>
+                        <p style="color: red;" >Use only *.xls files. <b><i>NOT</i> xlsx files.</b></p>
+                        <p:panelGrid columns="2" style="border: 1px solid blue;" >
+                            <h:outputLabel value ="0. No(Optional)" ></h:outputLabel>
+                            <h:outputLabel value ="1. Phone Number"></h:outputLabel>
+                        </p:panelGrid>
+
+                        <p:fileUpload value="#{searchController.file}" mode="simple"/>
+                        <h:commandButton value="Submit" action="#{searchController.importToExcel}" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="2" id="panGrup2">
+                        <p:outputLabel value="Message" />
+<!--                            <p:inputMask mask="" maxlength="160" style="height: 50px;" value="#{searchController.smsText}"></p:inputMask>-->
+                        <p:inputTextarea rows="5" cols="60" value="#{searchController.smsText}"
+                                         counter="display" maxlength="160" counterTemplate="{0} characters remaining." autoResize="false" />
+                        <br />
+                        <h:outputText id="display" />
+
+                        <p:commandButton id="btnSend2" ajax="false" value="Send All" action="#{searchController.sendSmsAll()}"  />
+                    </h:panelGrid>
                 </p:panel>
 
                 <p:dataTable value="#{searchController.telephoneNumbers}" var="b" id="tb1" rowIndexVar="i"

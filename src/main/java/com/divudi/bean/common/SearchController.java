@@ -4009,7 +4009,7 @@ public class SearchController implements Serializable {
             sql += " and  (upper(bi.bill.toInstitution.name) like :toIns )";
             m.put("toIns", "%" + searchKeyword.getToInstitution().trim().toUpperCase() + "%");
         }
-        
+
         if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
             sql += " and bi.bill.institution=:ins";
             m.put("ins", getSessionController().getInstitution());
@@ -4064,7 +4064,7 @@ public class SearchController implements Serializable {
             sql += " and  (upper(bi.bill.toInstitution.name) like :toIns )";
             m.put("toIns", "%" + searchKeyword.getToInstitution().trim().toUpperCase() + "%");
         }
-        
+
         if (getSessionController().getInstitutionPreference().isInstitutionSpecificItems()) {
             sql += " and bi.bill.institution=:ins";
             m.put("ins", getSessionController().getInstitution());
@@ -5243,7 +5243,7 @@ public class SearchController implements Serializable {
         checkLabReportsApproved(bills);
         commonController.printReportDetails(fromDate, toDate, startTime, "Collecting Center Bill Search(/opd_search_pre_batch_bill.xhtml)");
     }
-    
+
     public void createOpdPackageBillSearch() {
         Date startTime = new Date();
         bills = null;
@@ -5298,7 +5298,7 @@ public class SearchController implements Serializable {
         System.out.println("temMap = " + temMap);
         bills = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
         System.out.println("size" + bills.size());
-        
+
         commonController.printReportDetails(fromDate, toDate, startTime, "OPD Bill Search(Package)(/opd_search_bill_own_pack.xhtml)");
     }
 
@@ -6779,7 +6779,6 @@ public class SearchController implements Serializable {
 //            JsfUtil.addErrorMessage("You Need To select Surgury to Search All");
 //            return;
 //        }
-
         String sql;
         Map temMap = new HashMap();
         sql = "select b from BilledBill b where "
@@ -7338,7 +7337,15 @@ public class SearchController implements Serializable {
                         || number.contains("070")
                         || number.contains("071") || number.contains("072")
                         || number.contains("075") || number.contains("078")) {
-                    telephoneNumbers.add(number);
+                    if (number.length() == 10) {
+                        String s = number.substring(0, 3) + "-" + number.substring(3);
+                        System.out.println("s = " + s);
+                        telephoneNumbers.add(s);
+                    }
+                    if (number.length() == 11) {
+                        telephoneNumbers.add(number);
+                    }
+
                 }
             }
             System.out.println("telephoneNumbers.size() = " + telephoneNumbers.size());

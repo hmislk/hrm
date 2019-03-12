@@ -9,6 +9,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.DoctorSpecialityController;
 import com.divudi.bean.common.PriceMatrixController;
 import com.divudi.bean.common.SessionController;
+import com.divudi.bean.common.SmsController;
 import com.divudi.bean.common.UtilityController;
 import com.divudi.bean.common.WebUserController;
 import com.divudi.bean.memberShip.PaymentSchemeController;
@@ -18,6 +19,7 @@ import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.HistoryType;
 import com.divudi.data.PaymentMethod;
+import com.divudi.data.SmsType;
 import com.divudi.data.dataStructure.PaymentMethodData;
 import com.divudi.ejb.BillNumberGenerator;
 import com.divudi.ejb.ChannelBean;
@@ -55,6 +57,8 @@ import com.divudi.facade.PersonFacade;
 import com.divudi.facade.ServiceSessionFacade;
 import com.divudi.facade.util.JsfUtil;
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -158,6 +162,8 @@ public class ChannelBillController implements Serializable {
     CommonController commonController;
     @Inject
     WebUserController webUserController;
+    @Inject
+    SmsController smsController;
     //////////////////////////////
     @EJB
     private BillNumberGenerator billNumberBean;
@@ -2249,6 +2255,10 @@ public class ChannelBillController implements Serializable {
                 }
             }
         }
+        if (paymentMethod == PaymentMethod.Agent && printingBill.getCreditCompany().getMobile() != null) {
+            String pno = checkAndCorrectPhoneNo(printingBill.getCreditCompany().getMobile());
+            sendConfermationSms(printingBill, pno);
+        }
 //        System.out.println("printingBill.getCreditCardCommission() = " + printingBill.getCreditCardCommission());
         commonController.printReportDetails(null, null, startTime, "Channel Booking");
         UtilityController.addSuccessMessage("Channel Booking Added.");
@@ -2900,6 +2910,94 @@ public class ChannelBillController implements Serializable {
 //        System.out.println("billClassType = " + billClassType);
 //        System.out.println("deptId = " + deptId);
         return deptId;
+    }
+
+    public void sendConfermationSms(Bill b, String pn) {
+        System.out.println("ss.getSessionAt() = " + b.getSingleBillSession().getServiceSession().getSessionAt());
+        System.out.println("ss.getSessionDate() = " + b.getSingleBillSession().getServiceSession().getSessionDate());
+        System.out.println("ss.getSessionTime() = " + b.getSingleBillSession().getServiceSession().getSessionTime());
+        System.out.println("ss.getStartingTime() = " + b.getSingleBillSession().getServiceSession().getStartingTime());
+        System.out.println("ss.getEndingTime() = " + b.getSingleBillSession().getServiceSession().getEndingTime());
+        double d = b.getNetTotal() + b.getVat();
+
+        SimpleDateFormat fd = new SimpleDateFormat("YYYY-MM-dd");
+        SimpleDateFormat fdd = new SimpleDateFormat("hh:mm a");
+
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        String msg = "Channel Details\n";
+        msg += "Ref : " + b.getSingleBillItem().getAgentRefNo() + "\n";
+        msg += "Doctor : " + b.getStaff().getPerson().getNameWithTitle() + "\n";
+        msg += "App. No : " + b.getSingleBillSession().getSerialNo() + "\n";
+        msg += "Date : " + fd.format(b.getSingleBillSession().getServiceSession().getSessionDate()) + "\n";
+        msg += "Time : " + fdd.format(b.getSingleBillSession().getServiceSession().getStartingTime()) + "\n";
+        msg += "Total : " + df.format(d) + "\n";
+        msg += "Balance : " + df.format(b.getCreditCompany().getBallance());
+
+        System.out.println("msg.length() = " + msg.length());
+
+        if (msg.length() < 160) {
+            smsController.sendSmsToNumberList(pn, getSessionController().getUserPreference().getApplicationInstitution(),
+                    msg, b, SmsType.ChannelConfermation);
+        } else {
+            smsController.sendSmsToNumberList(pn, getSessionController().getUserPreference().getApplicationInstitution(),
+                    msg.substring(0, 160), b, SmsType.ChannelConfermation);
+            smsController.sendSmsToNumberList(pn, getSessionController().getUserPreference().getApplicationInstitution(),
+                    msg.substring(160), b, SmsType.ChannelConfermation);
+        }
+
+//        String msg = "Dear Sir/Madam,\n"
+//                + b.getSingleBillSession().getServiceSession().getStaff().getPerson().getName() + " has arrived.\n"
+//                //                + "** Now you can channel your doctor online on www.ruhunuhospital.lk **";
+//                + "** Now you can channel your doctor online on https://goo.gl/aEbnDD **";
+//        System.out.println("ss.getStaff().getPerson().getName() = " + ss.getStaff().getPerson().getName().length());
+//        System.out.println("msg.length() = " + msg.length());
+////        fillBillSessions();
+//        for (BillSession bs : bSessions) {
+//            if (bs.getBill().isCancelled() || bs.getBill().isRefunded()) {
+//                System.out.println("bs.getBill().getPatient().getPerson().getPhone() = " + bs.getBill().getPatient().getPerson().getPhone());
+//                continue;
+//            }
+//        }
+//        smsController.sendSmsToNumberList(pn, getSessionController().getUserPreference().getApplicationInstitution(),
+//                msg, b, SmsType.ChannelConfermation);
+    }
+
+    public String checkAndCorrectPhoneNo(String no) {
+        String pno = "";
+        System.out.println("no = " + no);
+        System.out.println("no = " + no.length());
+        no = no.replaceAll("\\s", "");
+        System.out.println("no remove space = " + no.length());
+        if (no.length() == 11) {
+            System.out.println("no.charAt(3) = " + no.charAt(3));
+            if ("-".equals(String.valueOf(no.charAt(3)))) {
+                pno = no;
+            } else {
+                pno = "000-0000000";
+            }
+        } else {
+            System.out.println("no = " + no);
+            System.out.println("no.length() = " + no.length());
+            System.out.println("no.replaceAll(\"\\\\s\", \"\").length() = " + no.replaceAll("\\s", "").length());
+            if (no.replaceAll("\\s", "").length() == 11) {
+                System.out.println("no.charAt(3) = " + no.charAt(3));
+                if ("".equals(no.charAt(3))) {
+                    pno = no;
+                } else {
+                    pno = "000-0000000";
+                }
+            } else {
+                if (no.replaceAll("\\s", "").length() == 10) {
+                    pno = no.substring(0, 3) + "-" + no.substring(3);
+                } else {
+                    pno = "000-0000000";
+                }
+            }
+
+        }
+        System.out.println("FInal Phone No = " + pno);
+        return pno;
     }
 
     public List<BillFee> getBillFee() {

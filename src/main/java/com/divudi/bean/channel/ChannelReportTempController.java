@@ -1690,6 +1690,63 @@ public class ChannelReportTempController implements Serializable {
         return ls;
     }
 
+    public List<Long> fetchChannelDocCountsRows(Institution i, BillType bt, BillType[] bts, boolean withOutDoc, boolean count, Staff s, boolean byDate, Speciality sp, String st) {
+        List<Long> ls = new ArrayList<>();
+        Date nowDate = getFromDate();
+        double netTot = 0.0;
+        while (nowDate.before(getToDate())) {
+            String formatedDate;
+            Date fd;
+            Date td;
+            if (byDate) {
+                fd = commonFunctions.getStartOfDay(nowDate);
+                td = commonFunctions.getEndOfDay(nowDate);
+
+                DateFormat df = new SimpleDateFormat("yy MM dd");
+                formatedDate = df.format(fd);
+                System.out.println("formatedDate = " + formatedDate);
+
+            } else {
+                fd = commonFunctions.getStartOfMonth(nowDate);
+                td = commonFunctions.getEndOfMonth(commonFunctions.getStartOfMonth(nowDate));
+
+                DateFormat df = new SimpleDateFormat("yy MM");
+                formatedDate = df.format(fd);
+                System.out.println("formatedDate = " + formatedDate);
+            }
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+//            System.out.println("fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null) = " + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null));
+            double tmpTot = 0;
+            if (st.equals("0")) {
+                tmpTot = fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true)
+                        - (fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true)
+                        + fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true));
+            } else if (st.equals("1")) {
+                tmpTot = fetchBillsTotal(bts, bt, null, null, new BilledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true);
+            } else if (st.equals("2")) {
+                tmpTot = fetchBillsTotal(bts, bt, null, null, new CancelledBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true);
+            } else if (st.equals("3")) {
+                tmpTot = fetchBillsTotal(bts, bt, null, null, new RefundBill(), fd, td, null, i, withOutDoc, count, s, sp, null, true);
+            }
+
+            ls.add((long) tmpTot);
+            netTot += tmpTot;
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(nowDate);
+            if (byDate) {
+                cal.add(Calendar.DATE, 1);
+            } else {
+                cal.add(Calendar.MONTH, 1);
+            }
+            nowDate = cal.getTime();
+            System.out.println("nowDate = " + nowDate);
+        }
+        ls.add((long) netTot);
+        return ls;
+    }
+
     public List<String> fetchChannelHeaders() {
         headers = new ArrayList<>();
         Date nowDate = getFromDate();
@@ -1821,7 +1878,8 @@ public class ChannelReportTempController implements Serializable {
         if (getReportKeyWord().getStaff() != null) {
             ChannelDoctorCountsRow row = new ChannelDoctorCountsRow();
             row.setStaff(getReportKeyWord().getStaff());
-            row.setCounts(fetchChannelDocCountsRows(null, null, new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, false, true, getReportKeyWord().getStaff(), byDate, null));
+            row.setCounts(fetchChannelDocCountsRows(null, null, new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, false, true, getReportKeyWord().getStaff(), byDate, null, getReportKeyWord().getString()));
+//            row.setCounts(fetchChannelDocCountsRows(null, null, new BillType[]{BillType.ChannelCash, BillType.ChannelPaid, BillType.ChannelAgent}, false, true, getReportKeyWord().getStaff(), byDate, null));
             System.out.println("row.getCounts().size() = " + row.getCounts().size());
             channelDoctorCountsRows.add(row);
         } else {

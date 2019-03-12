@@ -8,12 +8,15 @@ package com.divudi.ws.channel;
 import com.divudi.bean.channel.AgentReferenceBookController;
 import com.divudi.bean.common.BillBeanController;
 import com.divudi.bean.common.CommonController;
+import com.divudi.bean.common.SmsController;
+import com.divudi.data.ApplicationInstitution;
 import com.divudi.data.BillClassType;
 import com.divudi.data.BillType;
 import com.divudi.data.FeeType;
 import com.divudi.data.HistoryType;
 import com.divudi.data.PaymentMethod;
 import com.divudi.data.PersonInstitutionType;
+import com.divudi.data.SmsType;
 import com.divudi.ejb.BillNumberGenerator;
 import com.divudi.ejb.ChannelBean;
 import com.divudi.ejb.CommonFunctions;
@@ -50,6 +53,7 @@ import com.divudi.facade.ServiceSessionLeaveFacade;
 import com.divudi.facade.StaffFacade;
 import java.net.URLDecoder;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,6 +133,8 @@ public class Api {
     private CommonController commonController;
     @Inject
     AgentReferenceBookController AgentReferenceBookController;
+    @Inject
+    SmsController smsController;
 
     /**
      * Creates a new instance of Api
@@ -447,6 +453,7 @@ public class Api {
             jSONObjectOut.put("make_booking", bill);
             jSONObjectOut.put("error", "0");
             jSONObjectOut.put("error_description", "");
+            sendConfermationSms(b);
         } catch (Exception e) {
             e.printStackTrace();
             jSONObjectOut.put("make_booking", bill);
@@ -1222,7 +1229,7 @@ public class Api {
             return 0;
         }
 
-        return obj*0;
+        return obj * 0;
 //        return obj * 0.15; 2018-07-05
     }
 
@@ -1497,7 +1504,7 @@ public class Api {
             if (f.getFeeType() == FeeType.Staff) {
                 bf.setStaff(f.getStaff());
                 bf.setFeeGrossValue(bf.getFeeValue());
-                bf.setFeeVat(bf.getFeeValue()*0);
+                bf.setFeeVat(bf.getFeeValue() * 0);
                 bf.setFeeVatPlusValue(bf.getFeeValue());
 //                bf.setFeeVat(bf.getFeeValue() * 0.15);
 //                bf.setFeeVatPlusValue(bf.getFeeValue() * 1.15);
@@ -1821,6 +1828,43 @@ public class Api {
         System.out.println("serviceSessionLeaves.size() = " + serviceSessionLeaves.size());
 
         return serviceSessionLeaves;
+
+    }
+
+    public void sendConfermationSms(Bill b) {
+        System.out.println("ss.getSessionAt() = " + b.getSingleBillSession().getServiceSession().getSessionAt());
+        System.out.println("ss.getSessionDate() = " + b.getSingleBillSession().getServiceSession().getSessionDate());
+        System.out.println("ss.getSessionTime() = " + b.getSingleBillSession().getServiceSession().getSessionTime());
+        System.out.println("ss.getStartingTime() = " + b.getSingleBillSession().getServiceSession().getStartingTime());
+        System.out.println("ss.getEndingTime() = " + b.getSingleBillSession().getServiceSession().getEndingTime());
+        double d = b.getNetTotal() + b.getVat();
+
+        SimpleDateFormat fd = new SimpleDateFormat("YYYY-MM-dd");
+        SimpleDateFormat fdd = new SimpleDateFormat("hh:mm a");
+
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        String msg = "Channel Details\n";
+        msg += "Ref : " + b.getSingleBillItem().getAgentRefNo() + "\n";
+        msg += "Doctor : " + b.getStaff().getPerson().getNameWithTitle() + "\n";
+        msg += "Patient : " + b.getPatient().getPerson().getNameWithTitle() + "\n";
+        msg += "App. No : " + b.getSingleBillSession().getSerialNo() + "\n";
+        msg += "Date : " + fd.format(b.getSingleBillSession().getServiceSession().getSessionDate()) + "\n";
+        msg += "Time : " + fdd.format(b.getSingleBillSession().getServiceSession().getStartingTime()) + "\n";
+        msg += "Total : " + df.format(d) + "\n";
+        msg += "Balance : " + df.format(b.getCreditCompany().getBallance());
+
+        System.out.println("msg.length() = " + msg.length());
+
+        if (msg.length() <= 160) {
+            smsController.sendSmsToNumberList(b.getPatient().getPerson().getPhone(), ApplicationInstitution.Ruhuna,
+                    msg, b, SmsType.ChannelConfermation);
+        } else {
+            smsController.sendSmsToNumberList(b.getPatient().getPerson().getPhone(), ApplicationInstitution.Ruhuna,
+                    msg.substring(0, 160), b, SmsType.ChannelConfermation);
+            smsController.sendSmsToNumberList(b.getPatient().getPerson().getPhone(), ApplicationInstitution.Ruhuna,
+                    msg.substring(160), b, SmsType.ChannelConfermation);
+        }
 
     }
 
