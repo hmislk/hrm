@@ -144,7 +144,6 @@ public class StaffBasicController implements Serializable {
     }
 
     public void save() {
-        getCurrent().setPaysheetComponent(getPaysheetComponent());
         if (errorCheck()) {
             return;
         }
@@ -464,7 +463,7 @@ public class StaffBasicController implements Serializable {
     public StaffPaysheetComponent getCurrent() {
         if (current == null) {
             current = new StaffPaysheetComponent();
-//            current.setPaysheetComponent(getBasicCompnent());
+            current.setPaysheetComponent(getBasicCompnent());
         }
         return current;
     }

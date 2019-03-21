@@ -14,6 +14,7 @@ import com.divudi.data.Sex;
 import com.divudi.data.dataStructure.WeekDayWork;
 import com.divudi.data.hr.DayType;
 import com.divudi.data.hr.DepartmentAttendance;
+import com.divudi.data.hr.EmployeeStatus;
 import com.divudi.data.hr.FingerPrintRecordType;
 import com.divudi.data.hr.LeaveType;
 import com.divudi.data.hr.PaysheetComponentType;
@@ -4461,9 +4462,9 @@ public class HrReportController implements Serializable {
         Date startTime = new Date();
         Date fromDate = null;
         Date toDate = null;
-        if (getReportKeyWord().getSalaryCycle()==null && getReportKeyWord().getStaff()==null) {
+        if (getReportKeyWord().getSalaryCycle() == null && getReportKeyWord().getStaff() == null) {
             JsfUtil.addErrorMessage("Pleasse Select Staff Or Salary Cycle");
-            return ;
+            return;
         }
 
         System.out.println("Creating Staff Salary");
@@ -4507,14 +4508,14 @@ public class HrReportController implements Serializable {
         }
     }
 
-    public void createStaffSalaryGenereateOrNotStaffTable() {
+    public void createStaffSalaryGenereateOrNotStaffTable(boolean training) {
         Date startTime = new Date();
         Date fromDate = null;
         Date toDate = null;
 
-        salaryGeneratedStaffs = fetchOnlySalaryGeneratedStaff();
+        salaryGeneratedStaffs = fetchOnlySalaryGeneratedStaff(training);
         staffController.setReportKeyWord(getReportKeyWord());
-        staffController.createActiveStaffTable(getReportKeyWord().getSalaryCycle().getDayOffPhFromDate());
+        staffController.createActiveStaffTable(getReportKeyWord().getSalaryCycle().getDayOffPhFromDate(),training);
         salaryNotGeneratedStaffs = staffController.getStaffWithCode();
         System.out.println("salaryGeneratedStaffs.size() = " + salaryGeneratedStaffs.size());
         System.out.println("salaryNotGeneratedStaffs.size() = " + salaryNotGeneratedStaffs.size());
@@ -4524,7 +4525,7 @@ public class HrReportController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Salary Report/Staff salary generate or net report(/faces/hr/hr_report_staff_salary_generate_or_not.xhtml)");
     }
 
-    public List<Staff> fetchOnlySalaryGeneratedStaff() {
+    public List<Staff> fetchOnlySalaryGeneratedStaff(boolean training) {
         String sql;
         HashMap hm = new HashMap();
         sql = "select ss.staff from StaffSalary ss "
@@ -4537,6 +4538,11 @@ public class HrReportController implements Serializable {
             sql += " and ss.hold=true";
         }
         hm.put("scl", getReportKeyWord().getSalaryCycle());
+
+        if (training) {
+            sql += " and ss.staff.employeeStatus!=:sts ";
+            hm.put("sts", EmployeeStatus.Permanent);
+        }
 
         if (getReportKeyWord().getStaff() != null) {
             sql += " and ss.staff=:stf ";
@@ -5635,13 +5641,12 @@ public class HrReportController implements Serializable {
                 now.add(Calendar.DATE, 7);
                 Date td = commonFunctions.getEndOfDay(now.getTime());
 //                System.out.println("td = " + td);
-                
+
 //                System.out.println("dob.getTime().after(fd) = " + dob.getTime().after(fd));
 //                System.out.println("(fd.getTime() == dob.getTime().getTime()) = " + (fd.getTime() == dob.getTime().getTime()));
 //                System.out.println("fd.equals(dob.getTime()) = " + fd.equals(dob.getTime()));
 //                System.out.println("fd.getTime() = " + fd.getTime());
 //                System.out.println("dob.getTime().getTime() = " + dob.getTime().getTime());
-                
                 if ((dob.getTime().after(fd) || fd.getTime() == dob.getTime().getTime())
                         && (dob.getTime().before(td) || td.getTime() == dob.getTime().getTime())) {
                     subArray = new JSONArray();
