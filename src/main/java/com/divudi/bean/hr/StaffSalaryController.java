@@ -1713,7 +1713,9 @@ public class StaffSalaryController implements Serializable {
                     addSalaryComponent();
                 } else {
                     Date nowDate;
-                    if (checkDateRange(commonFunctions.getEndOfDay(getCurrent().getStaff().getDateJoined()))) {
+                    if (salaryCycle.getDayOffPhFromDate().getTime() <= commonFunctions.getEndOfDay(getCurrent().getStaff().getDateJoined()).getTime()
+                            && salaryCycle.getDayOffPhToDate().getTime() >= commonFunctions.getEndOfDay(getCurrent().getStaff().getDateJoined()).getTime()) {
+//                    if (checkDateRange(commonFunctions.getEndOfDay(getCurrent().getStaff().getDateJoined()))) {
                         nowDate = getCurrent().getStaff().getDateJoined();
                     } else {
                         nowDate = salaryCycle.getDayOffPhFromDate();

@@ -73,6 +73,12 @@
                         </p:column>
                         <p:column>
                             <f:facet name="header">
+                                <p:outputLabel value="Doctor" />
+                            </f:facet>
+                            <p:outputLabel value="#{a.bill.staff.person.name}" />
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
                                 <p:outputLabel value="Created At" />
                             </f:facet>
                             <p:outputLabel value="#{a.createdAt}" >

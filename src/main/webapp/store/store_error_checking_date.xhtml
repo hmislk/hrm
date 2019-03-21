@@ -169,6 +169,10 @@
                                     <h:outputLabel value="Ph Free Qty"/>
                                     <h:outputLabel value="#{pb.pharmaceuticalBillItem.freeQtyInUnit}" >
                                     </h:outputLabel>
+                                    <h:outputLabel value="P.R"/>
+                                    <h:outputLabel value="#{pb.pharmaceuticalBillItem.purchaseRate}" >
+                                        <f:convertNumber parent="#,##0.00" />
+                                    </h:outputLabel>
                                 </h:panelGrid>
 
                             </p:column>
@@ -187,6 +191,10 @@
                                     </h:outputLabel>
                                     <h:outputLabel value="Bill Class"/>
                                     <h:outputLabel value="#{pb.bill.billClass}" >
+                                    </h:outputLabel>
+                                    <h:outputLabel value="Dealor"/>
+                                    <h:outputLabel value="#{pb.bill.fromInstitution.name}" >
+                                        <f:convertNumber parent="#,##0.00" />
                                     </h:outputLabel>
                                 </h:panelGrid>
                             </p:column>
