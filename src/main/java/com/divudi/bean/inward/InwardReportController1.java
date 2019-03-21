@@ -312,8 +312,8 @@ public class InwardReportController1 implements Serializable {
         return patientRoomFacade.findBySQL(sql, hm, TemporalType.TIMESTAMP);
 
     }
-    
-    public List<PatientRoom> fetchPatientRoomTime(Category roomCategory,Room room) {
+
+    public List<PatientRoom> fetchPatientRoomTime(Category roomCategory, Room room) {
         HashMap hm = new HashMap();
         String sql = "SELECT pr "
                 + " FROM PatientRoom pr "
@@ -1258,8 +1258,8 @@ public class InwardReportController1 implements Serializable {
         return billItemNetValue;
 
     }
-    
-    public void createRoomTime(){
+
+    public void createRoomTime() {
         if (getReportKeyWord().isAdditionalDetails()) {
             createRoomTimeCategory();
         } else {
@@ -1313,7 +1313,7 @@ public class InwardReportController1 implements Serializable {
                 Calendar frm = Calendar.getInstance();
                 Calendar to = Calendar.getInstance();
                 Calendar ans = Calendar.getInstance();
-                List<PatientRoom> list = fetchPatientRoomTime(rm,r);
+                List<PatientRoom> list = fetchPatientRoomTime(rm, r);
 //                System.out.println("list.size() = " + list.size());
                 if (list.isEmpty()) {
                     continue;
@@ -1468,6 +1468,79 @@ public class InwardReportController1 implements Serializable {
         } else {
             return Arrays.copyOf(obj, obj.length, Double[].class);
         }
+
+    }
+
+    public void createInwardSurgerySummery() {
+        itemRateRows = new ArrayList<>();
+        inwardNetValue = 0.0;
+        Date startTime = new Date();
+        String sql;
+        Map temMap = new HashMap();
+        sql = " select ";
+
+        if (getReportKeyWord().isAdditionalDetails()) {
+            sql += " b.procedure.item,count(b.procedure.item) ";
+        } else {
+            sql += " b.procedure.item,b.staff,count(b.procedure.item) ";
+        }
+
+        sql += " from BilledBill b where "
+                + " b.billType = :billType and "
+                + " b.createdAt between :fromDate and :toDate "
+                + " and b.retired=false  ";
+
+        if (getReportKeyWord().getStaff() != null) {
+            sql += " and b.staff=:staff";
+            temMap.put("staff", getReportKeyWord().getStaff());
+        }
+
+        if (getReportKeyWord().getItem() != null) {
+            sql += " and b.procedure.item=:item ";
+            temMap.put("item", getReportKeyWord().getItem());
+        }
+
+        if (getReportKeyWord().isAdditionalDetails()) {
+            sql += " group by b.procedure.item "
+                    + " order by b.procedure.item.name ";
+        } else {
+            sql += " group by b.procedure.item, b.staff "
+                    + " order by b.procedure.item.name, b.staff.person.name ";
+        }
+
+        temMap.put("billType", BillType.SurgeryBill);
+        temMap.put("toDate", toDate);
+        temMap.put("fromDate", fromDate);
+
+        List<Object[]> objects = getBillFacade().findAggregates(sql, temMap, TemporalType.TIMESTAMP);
+        System.out.println("objects.size() = " + objects.size());
+
+        for (Object[] ob : objects) {
+            ItemRateRow row = new ItemRateRow();
+            if (getReportKeyWord().isAdditionalDetails()) {
+                Item i = (Item) ob[0];
+                row.setItem(i);
+                System.out.println("i.getName() = " + i.getName());
+                long l = (long) ob[1];
+                row.setCount(l);
+                System.out.println("l = " + l);
+                itemRateRows.add(row);
+            } else {
+                Item i = (Item) ob[0];
+                row.setItem(i);
+                System.out.println("i.getName() = " + i.getName());
+                Staff s = (Staff) ob[1];
+                System.out.println("s.getPerson().getName() = " + s.getPerson().getName());
+                row.setStaff(s);
+                long l = (long) ob[2];
+                row.setCount(l);
+                System.out.println("l = " + l);
+                itemRateRows.add(row);
+            }
+            inwardNetValue += row.getCount();
+        }
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "Theater/Search(/faces/theater/inward_search_surgery.xhtml)");
 
     }
 
@@ -2810,8 +2883,8 @@ public class InwardReportController1 implements Serializable {
     }
 
     public ReportKeyWord getReportKeyWord() {
-        if (reportKeyWord==null) {
-            reportKeyWord=new ReportKeyWord();
+        if (reportKeyWord == null) {
+            reportKeyWord = new ReportKeyWord();
         }
         return reportKeyWord;
     }
@@ -3103,6 +3176,24 @@ public class InwardReportController1 implements Serializable {
 
         Item item;
         double rate;
+        long count;
+        Staff staff;
+
+        public Staff getStaff() {
+            return staff;
+        }
+
+        public void setStaff(Staff staff) {
+            this.staff = staff;
+        }
+
+        public long getCount() {
+            return count;
+        }
+
+        public void setCount(long count) {
+            this.count = count;
+        }
 
         public Item getItem() {
             return item;

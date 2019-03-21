@@ -31,11 +31,19 @@
                     <p:inputText value="#{pharmacySaleReport.searchKeyword.billNo}"></p:inputText>
                     <p:outputLabel value="Department"/>
                     <p:autoComplete  value="#{pharmacySaleReport.department}"
-                                         completeMethod="#{departmentController.completeDept}" var="i"
-                                         itemValue="#{i}" itemLabel="#{i.name}"
-                                         forceSelection="true" rendered="true">
-                        </p:autoComplete>
-                               
+                                     completeMethod="#{departmentController.completeDept}" var="i"
+                                     itemValue="#{i}" itemLabel="#{i.name}"
+                                     forceSelection="true" rendered="true">
+                    </p:autoComplete>
+                    <h:outputLabel value="Item Category"/>
+                    <p:selectOneMenu id="parentCategory" 
+                                     value="#{pharmacySaleReport.category}" >
+                        <f:selectItem itemLabel="Select Category"/>
+                        <f:selectItems value="#{consumableCategoryController.itemsAvailableSelectOne}"
+                                       var="parentCategoryItem" 
+                                       itemValue="#{parentCategoryItem}"/>
+                    </p:selectOneMenu>
+
                     <p:panelGrid columns="3">
                         <p:commandButton ajax="false" value="Process" action="#{pharmacySaleReport.createStoreGRNBillItemTable()}"/>
                         <p:commandButton actionListener="#{pharmacySaleReport.createStoreGRNBillItemTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >

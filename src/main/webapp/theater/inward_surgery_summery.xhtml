@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:au="http://java.sun.com/jsf/composite/autocomplete"
+      xmlns:se="http://java.sun.com/jsf/composite/inward/search">
+
+    <h:body>
+        <ui:composition template="/resources/template/template.xhtml">
+            <ui:define name="content">
+                <h:form>
+                    <p:panel header="Inward Surgery Summery" >
+                        <f:facet name="header" >
+                            <h:panelGroup>
+                                <h:panelGrid columns="2">
+                                    <h:outputLabel value="From Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="fromDate" 
+                                                value="#{inwardReportController1.fromDate}" navigator="true" 
+                                                pattern="dd MMMM yyyy hh mm ss a" />
+                                    <h:outputLabel value="To Date"/>
+                                    <p:calendar styleClass="dateTimePicker" id="toDate" 
+                                                value="#{inwardReportController1.toDate}" navigator="true" 
+                                                pattern="dd MMMM yyyy hh mm ss a" />
+                                    <h:outputLabel value="Surgery Name"/>                                  
+                                    <p:autoComplete forceSelection="true" placeholder="Surgery Name"
+                                                    value="#{inwardReportController1.reportKeyWord.item}" 
+                                                    completeMethod="#{procedureController.completeDiagnosis}"
+                                                    var="apt2" itemLabel="#{apt2.name}"
+                                                    itemValue="#{apt2}" size="30" styleClass="mediuminput">
+                                    </p:autoComplete>
+                                    <h:outputLabel value="Doctor Name"/>
+                                    <au:completeConsultant value="#{inwardReportController1.reportKeyWord.staff}" />
+                                    <h:outputLabel value="Summery"/>
+                                    <p:selectBooleanCheckbox value="#{inwardReportController1.reportKeyWord.additionalDetails}" />
+                                    <p:commandButton ajax="false" action="#{inwardReportController1.createInwardSurgerySummery}" value="Search" onclick="onSubmitButton();" />
+                                    <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" >
+                                        <p:dataExporter target="tblBills" type="xls" fileName="Inward Surgery Summery" />
+                                    </p:commandButton>
+                                </h:panelGrid>
+
+                            </h:panelGroup>
+                        </f:facet>
+                        <p:panel id="print" styleClass="noBorder summeryBorder" >
+                            <p:dataTable id="tblBills" 
+                                         value="#{inwardReportController1.itemRateRows}" 
+                                         var="r"
+                                         rowIndexVar="i">
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="No" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{i+1}" ></h:outputLabel>
+                                </p:column>
+                                <p:column sortBy="#{r.item.name}">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Surgery Name" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{r.item.name}" ></h:outputLabel>
+                                </p:column>
+                                <p:column sortBy="#{r.staff.person.name}" rendered="#{inwardReportController1.reportKeyWord.additionalDetails ne true}">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Doctor Name" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{r.staff.person.name}" ></h:outputLabel>
+                                </p:column>
+                                <p:column sortBy="#{r.count}"  >
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Count" />
+                                    </f:facet>
+                                    <h:outputLabel value="#{r.count}" style="float: right;" >
+                                        <f:convertNumber pattern="#,##0"/>
+                                    </h:outputLabel>
+                                    <f:facet name="footer">
+                                        <h:outputLabel value="#{inwardReportController1.inwardNetValue}" style="float: right;" >
+                                            <f:convertNumber pattern="#,##0"/>
+                                        </h:outputLabel>
+                                    </f:facet>
+                                </p:column>                   
+                            </p:dataTable>
+                        </p:panel>
+
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+</html>

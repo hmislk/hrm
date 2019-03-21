@@ -316,7 +316,7 @@ public class StaffController implements Serializable {
         this.toDate = toDate;
     }
 
-    public void createActiveStaffTable(Date ssDate) {
+    public void createActiveStaffTable(Date ssDate, boolean training) {
         Date startTime = new Date();
         Date toDate = null;
 
@@ -332,7 +332,11 @@ public class StaffController implements Serializable {
         sql += " and (ss.dateLeft is null or ss.dateLeft > :to ) ";
         hm.put("to", ssDate);
 
-        hm.put("sts", EmployeeStatus.Temporary);
+        if (training) {
+            hm.put("sts", EmployeeStatus.Permanent);
+        } else {
+            hm.put("sts", EmployeeStatus.Temporary);
+        }
 
         if (getReportKeyWord().getStaff() != null) {
             sql += " and ss=:stf ";
@@ -376,7 +380,7 @@ public class StaffController implements Serializable {
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Salary Report/Staff payrol(selected staff)(/faces/hr/hr_staff_salary_1.xhtml)");
     }
 
-    public void createResignedStaffTable() {
+    public void createResignedStaffTable(boolean training) {
         HashMap hm = new HashMap();
         hm.put("class", Consultant.class);
         String sql = "select ss from Staff ss "
@@ -390,7 +394,11 @@ public class StaffController implements Serializable {
         hm.put("to", staffSalaryController.getSalaryCycle().getSalaryToDate());
         hm.put("fd", staffSalaryController.getSalaryCycle().getSalaryFromDate());
 
-        hm.put("sts", EmployeeStatus.Temporary);
+        if (training) {
+            hm.put("sts", EmployeeStatus.Permanent);
+        } else {
+            hm.put("sts", EmployeeStatus.Temporary);
+        }
 
         if (getReportKeyWord().getStaff() != null) {
             sql += " and ss=:stf ";
@@ -432,19 +440,19 @@ public class StaffController implements Serializable {
         fetchWorkDays(staffWithCode);
     }
 
-    public void createActiveStaffOnylSalaryGeneratedTable() {
+    public void createActiveStaffOnylSalaryGeneratedTable(boolean training) {
         staffWithCode = new ArrayList<>();
         hrReportController.setReportKeyWord(reportKeyWord);
         hrReportController.getReportKeyWord().setSalaryCycle(staffSalaryController.getSalaryCycle());
-        staffWithCode = hrReportController.fetchOnlySalaryGeneratedStaff();
+        staffWithCode = hrReportController.fetchOnlySalaryGeneratedStaff(training);
         fetchWorkDays(staffWithCode);
     }
 
-    public void createActiveStaffOnylSalaryNotGeneratedTable(Date ssDate) {
+    public void createActiveStaffOnylSalaryNotGeneratedTable(Date ssDate, boolean training) {
         List<Staff> salaryGeneratedStaff = new ArrayList<>();
         hrReportController.getReportKeyWord().setSalaryCycle(staffSalaryController.getSalaryCycle());
-        salaryGeneratedStaff = hrReportController.fetchOnlySalaryGeneratedStaff();
-        createActiveStaffTable(ssDate);
+        salaryGeneratedStaff = hrReportController.fetchOnlySalaryGeneratedStaff(training);
+        createActiveStaffTable(ssDate, training);
         System.out.println("salaryGeneratedStaff.size() = " + salaryGeneratedStaff.size());
         System.out.println("staffWithCode.size() = " + staffWithCode.size());
         staffWithCode.removeAll(salaryGeneratedStaff);
@@ -907,7 +915,7 @@ public class StaffController implements Serializable {
          *
          *
          */
-        String sql = "";    
+        String sql = "";
         HashMap hm = new HashMap();
         if (selectText.trim().equals("")) {
             sql = "select c from Staff c "
@@ -1169,8 +1177,8 @@ public class StaffController implements Serializable {
         recreateModel();
         getItems();
     }
-    
-    private boolean errorCheckEPFAndCode(Staff staff){
+
+    private boolean errorCheckEPFAndCode(Staff staff) {
         String sql;
         Map m = new HashMap();
         if (getCurrent().getId() == null || getCurrent().getId() == 0.0) {

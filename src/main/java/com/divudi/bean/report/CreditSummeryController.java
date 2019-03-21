@@ -359,9 +359,9 @@ public class CreditSummeryController implements Serializable {
 
         BillItems = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
         System.out.println("BillItems.size() = " + BillItems.size());
-        total=0.0;
-        totalVat=0.0;
-        totalVatCalculatedValue=0.0;
+        total = 0.0;
+        totalVat = 0.0;
+        totalVatCalculatedValue = 0.0;
         for (BillItem bi : BillItems) {
             total += bi.getGrossValue();
             totalVat += bi.getDiscount();
@@ -604,7 +604,11 @@ public class CreditSummeryController implements Serializable {
         Date startTime = new Date();
 
         creditBills = new ArrayList<>();
-        creditBills = billController.getCreditBills(institution, fromDate, toDate);
+//        creditBills = billController.getCreditBills(institution, fromDate, toDate);
+        creditBills = billController.getCreditBills(institution, fromDate, toDate, BillType.OpdBill);
+        if (getReportKeyWord().isAdditionalDetails()) {
+            creditBills.addAll(billController.getCreditBills(institution, fromDate, toDate, BillType.PharmacySale));
+        }
         total = 0.0;
         List<Bill> bills = new ArrayList<>();
         for (Bill b : creditBills) {

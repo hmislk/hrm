@@ -40,6 +40,14 @@
                         </p:autoComplete>
                         <h:outputLabel value="Specility" rendered="#{!channelReportTempController.paid}"/>
                         <au:completeSpeciality value="#{channelReportTempController.reportKeyWord.speciality}" rendered="#{!channelReportTempController.paid}" />
+                        <h:outputLabel value="Select" />
+                        <p:selectOneRadio id="console" value="#{channelReportTempController.reportKeyWord.string}" >
+                            <f:selectItem itemLabel="All" itemValue="0" />
+                            <f:selectItem itemLabel="Billed" itemValue="1" />
+                            <f:selectItem itemLabel="Canceled" itemValue="2" />
+                            <f:selectItem itemLabel="Refund" itemValue="3" />
+                            <!--<p:ajax process="console" update="gpSelectTextS" event="change" listener="#{channelSessionWizard.sessionListner()}"/>-->
+                        </p:selectOneRadio>
                     </h:panelGrid>
                     <h:panelGrid columns="2" id="pg1" >
                         <h:outputLabel value="By Date"/> 

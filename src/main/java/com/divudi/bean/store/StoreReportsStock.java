@@ -216,15 +216,18 @@ public class StoreReportsStock implements Serializable {
     }
 
     public void fillDepartmentInventryStocks() {
-        if (institution == null) {
-            UtilityController.addErrorMessage("Please select a Institution");
+        if (institution == null && item == null) {
+            UtilityController.addErrorMessage("Please select a Institution or Item");
             return;
         }
         Map m = new HashMap();
         String sql;
-        sql = "select s from Stock s where s.department.institution=:i"
-                + " and s.itemBatch.item.departmentType=:depty "
+        sql = "select s from Stock s where s.itemBatch.item.departmentType=:depty "
                 + " and s.itemBatch.lastPurchaseBillItem.parentBillItem is null ";
+        if (institution != null) {
+            sql += " and s.department.institution=:i ";
+            m.put("i", institution);
+        }
         if (item != null) {
             sql += " and s.itemBatch.item=:itm ";
             m.put("itm", item);
@@ -246,7 +249,6 @@ public class StoreReportsStock implements Serializable {
         sql += " order by s.itemBatch.item.name";
 
         m.put("depty", DepartmentType.Inventry);
-        m.put("i", institution);
         stocks = getStockFacade().findBySQL(sql, m);
         stockPurchaseValue = 0.0;
         stockSaleValue = 0.0;

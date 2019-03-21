@@ -685,12 +685,14 @@
                                                  actionListener="#{staffSalaryController.clear}"/>
                                     <p:menuitem  ajax="false"  action="/hr/hr_staff_salary_special" value="Staff Salary Special"  rendered="#{webUserController.hasPrivilege('HrGenerateSalarySpecial')}" 
                                                  actionListener="#{staffSalaryController.clear}"/>
+                                    <p:menuitem  ajax="false"  action="/hr/hr_staff_salary_traning" value="Staff Salary Training"  rendered="#{webUserController.hasPrivilege('HrGenerateSalarySpecial')}" 
+                                                 actionListener="#{staffSalaryController.clear}"/>
 
                                     <p:menuitem  ajax="false"  action="/hr/hr_staff_salary_print" value="Staff Salary Print"   
                                                  actionListener="#{staffSalaryController.clear}" rendered="#{webUserController.hasPrivilege('HrPrintSalary')}" />
 
                                     <p:menuitem  ajax="false"  action="/hr/hr_reports" value="Reports" rendered="#{webUserController.hasPrivilege('HrReports')}" />
-                                    <p:menuitem  ajax="false"  action="/hr/report_dashboard_accounts" value="Dashboard" />
+                                    <p:menuitem  ajax="false"  action="/hr/hr_report_dashboard" value="Dashboard" />
                                     <p:menuitem  ajax="false"  action="/hr/hr_admin" value="Administration" rendered="#{webUserController.hasPrivilege('HrAdmin')}" />
                                 </p:submenu>
 

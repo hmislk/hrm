@@ -144,7 +144,6 @@ public class StaffBasicController implements Serializable {
     }
 
     public void save() {
-
         if (errorCheck()) {
             return;
         }
@@ -446,6 +445,15 @@ public class StaffBasicController implements Serializable {
         hm.put("tp", PaysheetComponentType.BasicSalary);
 
         return getPaysheetComponentFacade().findFirstBySQL(sql, hm, TemporalType.DATE);
+
+    }
+    
+    public List<PaysheetComponent> getBasicCompnents() {
+        String sql = "Select pc From PaysheetComponent pc where pc.retired=false and pc.componentType=:tp";
+        HashMap hm = new HashMap();
+        hm.put("tp", PaysheetComponentType.BasicSalary);
+
+        return getPaysheetComponentFacade().findBySQL(sql, hm);
 
     }
 

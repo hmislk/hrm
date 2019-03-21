@@ -226,6 +226,7 @@
                                                                 </h:panelGroup>
                                                                 <h:panelGroup rendered="#{pvm.investigationItem.ixItemValueType eq 'Varchar'}">
                                                                     <p:selectOneMenu id="cmbMicStrVal" value="#{pvm.strValue}" editable="true"  style="min-width: 300px!important;" disabled="#{patientReportController.currentPatientReport.approved eq true and !webUserController.hasPrivilege('LabReportEdit')}">
+                                                                        <f:selectItem itemLabel="Select Value" ></f:selectItem>
                                                                         <f:selectItem itemLabel="SENSITIVE" itemValue="SENSITIVE" ></f:selectItem>
                                                                         <f:selectItem itemLabel="Resistant" itemValue="Resistant" ></f:selectItem>
                                                                         <f:selectItem itemLabel="Intermediate" itemValue="Intermediate" ></f:selectItem>

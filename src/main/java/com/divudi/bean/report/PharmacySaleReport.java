@@ -402,6 +402,11 @@ public class PharmacySaleReport implements Serializable {
             sql += "and bi.bill.department=:dep ";
             m.put("dep", department);
         }
+        
+        if (getCategory()!=null) {
+            sql += "and bi.item.category=:cat ";
+            m.put("cat", getCategory());
+        }
 
         m.put("bt", billType);
         m.put("bt1", returnBillType);
