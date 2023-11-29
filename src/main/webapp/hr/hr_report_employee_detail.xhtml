@@ -30,6 +30,10 @@
                             <hr:completeDesignation value="#{hrReportController.reportKeyWord.designation}"/>
                             <h:outputLabel value="Staff Roster : "/>
                             <hr:completeRoster value="#{hrReportController.reportKeyWord.roster}"/>
+                            <h:outputLabel value="With out Resigned : "/>
+                            <h:selectBooleanCheckbox value="#{hrReportController.reportKeyWord.additionalDetails}"/>
+                            <h:outputLabel value="Only Roster Staff : "/>
+                            <h:selectBooleanCheckbox value="#{hrReportController.reportKeyWord.bool1}"/>
                         </h:panelGrid>
                         <h:panelGrid columns="3">
                             <p:commandButton ajax="false" action="#{hrReportController.createStaffList}" value="Fill" />

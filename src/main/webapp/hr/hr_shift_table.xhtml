@@ -42,8 +42,12 @@
                                                  action="#{shiftTableController.fetchShiftTable()}"
                                                  onclick="onSubmitButton();"  />   
                             </td>
-                            <td colspan="2" >
-                                <p:commandButton value="Go to Roster Table" ajax="false" action="hr_shift_table_finger_print" actionListener="#{shiftTableController.makeNull()}"  >
+                            <td>
+                                <p:commandButton value="Copy Last Week" ajax="false" action="hr_shift_table_finger_print" actionListener="#{shiftTableController.makeNull()}"  >
+                                </p:commandButton>
+                            </td>
+                            <td>
+                                <p:commandButton value="Create This week Roster" ajax="false" action="#{shiftTableController.createNextWeekRoster()}"  >
                                 </p:commandButton>
                             </td>
                         </tr>

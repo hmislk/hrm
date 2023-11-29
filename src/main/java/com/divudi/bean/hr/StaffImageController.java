@@ -25,7 +25,7 @@ import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  *
@@ -87,7 +87,7 @@ public class StaffImageController implements Serializable {
         ////System.out.println("file name is not null");
         ////System.out.println(file.getFileName());
         try {
-            in = getFile().getInputstream();
+            in = getFile().getInputStream();
             File f = new File(getStaffController().getCurrent().toString() + getStaffController().getCurrent().getFileType());
             FileOutputStream out = new FileOutputStream(f);
 
@@ -104,7 +104,7 @@ public class StaffImageController implements Serializable {
             getStaffController().getCurrent().setRetireComments(f.getAbsolutePath());
             getStaffController().getCurrent().setFileName(file.getFileName());
             getStaffController().getCurrent().setFileType(file.getContentType());
-            in = file.getInputstream();
+            in = file.getInputStream();
             getStaffController().getCurrent().setBaImage(IOUtils.toByteArray(in));
             getStaffFacade().edit(getStaffController().getCurrent());
             return "";

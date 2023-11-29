@@ -12,6 +12,7 @@ import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.FormItemValue;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.bean.common.WebUserController;
 import com.divudi.data.InvestigationItemType;
 import com.divudi.data.Sex;
 import com.divudi.data.hr.EmployeeStatus;
@@ -65,7 +66,7 @@ import javax.persistence.TemporalType;
 import org.apache.commons.io.IOUtils;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  *
@@ -99,6 +100,8 @@ public class StaffController implements Serializable {
     private DepartmentFacade departmentFacade;
     @EJB
     StaffSalaryFacade staffSalaryFacade;
+    @Inject
+    WebUserController webUserController;
     List<Staff> selectedItems;
     List<Staff> selectedList;
     private List<Staff> filteredStaff;
@@ -818,7 +821,7 @@ public class StaffController implements Serializable {
         ////System.out.println("file name is not null");
         ////System.out.println(file.getFileName());
         try {
-            in = getFile().getInputstream();
+            in = getFile().getInputStream();
             getCurrent().setFileName(file.getFileName());
             getCurrent().setFileType(file.getContentType());
             getCurrent().setBaImage(IOUtils.toByteArray(in));
@@ -1095,7 +1098,7 @@ public class StaffController implements Serializable {
             current.setDateLeft(null);
             removeResign = false;
         } else {
-            if (tempRetireDate != null && checkDateBetwenSalaryCycle(tempRetireDate)) {
+            if (tempRetireDate != null && checkDateBetwenSalaryCycle(tempRetireDate) && !webUserController.hasPrivilege("Developers")) {
                 UtilityController.addErrorMessage("This Retire Date Inside in Salary Cycle. Please Check and add Retire date");
                 tempRetireDate = null;
                 return;

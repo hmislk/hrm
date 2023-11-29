@@ -8,6 +8,7 @@ package com.divudi.bean.hr;
 import com.divudi.bean.common.CommonController;
 import com.divudi.bean.common.SessionController;
 import com.divudi.bean.common.UtilityController;
+import com.divudi.bean.common.util.JsfUtil;
 import com.divudi.data.dataStructure.ShiftTable;
 import com.divudi.data.hr.DayType;
 import com.divudi.ejb.CommonFunctions;
@@ -81,6 +82,105 @@ public class ShiftTableController implements Serializable {
             return true;
         }
 
+        return false;
+    }
+    
+    private boolean errorCheckAutoRoster() {
+        if (getFromDate() == null || getToDate() == null) {
+            JsfUtil.addErrorMessage("Please Select From Date &amp; To Date");
+            return true;
+        }
+        if (checkRosterAlradyExsist(getFromDate(), getToDate(), getRoster())) {
+            JsfUtil.addErrorMessage("This date range Alrady Filled");
+            return true;
+        }
+        if (checkSelectedDateRange(getFromDate(), getToDate())) {
+            JsfUtil.addErrorMessage("Please Selected Date range Should be start Sunday &amp; end with Saturday and Only Seven Days allowed");
+            return true;
+        }
+
+        return false;
+    }
+    
+    public boolean checkRosterAlradyExsist(Date fd,Date td,Roster ros) {
+        Date startTime = new Date();
+
+        if (errorCheck()) {
+            return true;
+        }
+
+        shiftTables = new ArrayList<>();
+
+        Calendar nc = Calendar.getInstance();
+        nc.setTime(getFromDate());
+        Date nowDate = nc.getTime();
+
+        nc.setTime(getToDate());
+        nc.add(Calendar.DATE, 1);
+        Date tmpToDate = nc.getTime();
+
+        //CREATE FIRTS TABLE For Indexing Purpuse
+        ShiftTable netT;
+
+        while (tmpToDate.after(nowDate)) {
+            netT = new ShiftTable();
+            netT.setDate(nowDate);
+
+            Calendar calNowDate = Calendar.getInstance();
+            calNowDate.setTime(nowDate);
+
+            Calendar calFromDate = Calendar.getInstance();
+            calFromDate.setTime(getFromDate());
+
+            if (calNowDate.get(Calendar.DATE) == calFromDate.get(Calendar.DATE)) {
+                netT.setFlag(Boolean.TRUE);
+            } else {
+                netT.setFlag(Boolean.FALSE);
+            }
+
+            List<Staff> staffs = getHumanResourceBean().fetchStaffShift(fd, td, ros);
+            
+            for (Staff staff : staffs) {
+                System.out.println("staff = " + staff.getPerson().getName());
+                List<StaffShift> ss = getHumanResourceBean().fetchStaffShift(nowDate, staff);
+                System.out.println("ss.size() = " + ss.size());
+                if (ss.size()>0) {
+                    return true;
+                } 
+            }
+
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(nowDate);
+            c.add(Calendar.DATE, 1);
+            nowDate = c.getTime();
+
+        }
+
+        return false;
+    }
+    
+    public boolean checkSelectedDateRange(Date fd,Date td){
+        
+        long coount=commonFunctions.getDayCount(fd, td);
+        System.out.println("coount = " + coount);
+        if (coount!=7) {
+            JsfUtil.addErrorMessage("Date Range Should Be 7 Days");
+            return true;
+        }
+        Calendar cal=Calendar.getInstance();
+        cal.setTime(fd);
+        System.out.println("cal = " + cal.get(Calendar.DAY_OF_WEEK));
+        if (cal.get(Calendar.DAY_OF_WEEK)!=1) {
+            JsfUtil.addErrorMessage("From Date Shoulde be Start from Sunday");
+            return true;
+        }
+        cal.setTime(fd);
+        System.out.println("cal = " + cal.get(Calendar.DAY_OF_WEEK));
+        if (cal.get(Calendar.DAY_OF_WEEK)!=7) {
+            JsfUtil.addErrorMessage("To Date Shoulde be End with Saturdaty");
+            return true;
+        }
         return false;
     }
 
@@ -304,6 +404,95 @@ public class ShiftTableController implements Serializable {
 //                netT.getStaffShift().add(ss);
 //            }
             List<Staff> staffs = getHumanResourceBean().fetchStaffShift(fromDate, toDate, roster);
+
+            for (Staff staff : staffs) {
+                List<StaffShift> ss = getHumanResourceBean().fetchStaffShift(nowDate, staff);
+                if (ss == null) {
+                    for (int i = 0; i < roster.getShiftPerDay(); i++) {
+                        StaffShift newStaffShift = new StaffShift();
+                        newStaffShift.setStaff(staff);
+                        newStaffShift.setShiftDate(nowDate);
+                        newStaffShift.setCreatedAt(new Date());
+                        newStaffShift.setCreater(sessionController.getLoggedUser());
+                        newStaffShift.setRoster(roster);
+                        netT.getStaffShift().add(newStaffShift);
+                    }
+                } else {
+                    netT.getStaffShift().addAll(ss);
+                    int ballance = roster.getShiftPerDay() - ss.size();
+                    if (ballance < 0) {
+                        continue;
+                    }
+                    for (int i = 0; i < ballance; i++) {
+                        StaffShift newStaffShift = new StaffShift();
+                        newStaffShift.setStaff(staff);
+                        newStaffShift.setShiftDate(nowDate);
+                        newStaffShift.setCreatedAt(new Date());
+                        newStaffShift.setCreater(sessionController.getLoggedUser());
+                        newStaffShift.setRoster(roster);
+                        netT.getStaffShift().add(newStaffShift);
+                    }
+
+                }
+            }
+
+            shiftTables.add(netT);
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(nowDate);
+            c.add(Calendar.DATE, 1);
+            nowDate = c.getTime();
+
+        }
+
+        Long range = getCommonFunctions().getDayCount(getFromDate(), getToDate());
+        setDateRange(range + 1);
+
+        commonController.printReportDetails(fromDate, toDate, startTime, "HR/Working Time/Roster table(Fill Old Roster)(/faces/hr/hr_shift_table.xhtml)");
+    }
+    
+    public void fetchShiftTable(Date fd,Date td,Roster ros) {
+        Date startTime = new Date();
+
+        if (errorCheck()) {
+            return;
+        }
+
+        shiftTables = new ArrayList<>();
+
+        Calendar nc = Calendar.getInstance();
+        nc.setTime(getFromDate());
+        Date nowDate = nc.getTime();
+
+        nc.setTime(getToDate());
+        nc.add(Calendar.DATE, 1);
+        Date tmpToDate = nc.getTime();
+
+        //CREATE FIRTS TABLE For Indexing Purpuse
+        ShiftTable netT;
+
+        while (tmpToDate.after(nowDate)) {
+            netT = new ShiftTable();
+            netT.setDate(nowDate);
+
+            Calendar calNowDate = Calendar.getInstance();
+            calNowDate.setTime(nowDate);
+
+            Calendar calFromDate = Calendar.getInstance();
+            calFromDate.setTime(getFromDate());
+
+            if (calNowDate.get(Calendar.DATE) == calFromDate.get(Calendar.DATE)) {
+                netT.setFlag(Boolean.TRUE);
+            } else {
+                netT.setFlag(Boolean.FALSE);
+            }
+
+//            List<StaffShift> staffShifts = getHumanResourceBean().fetchStaffShift(nowDate, roster);
+//
+//            for (StaffShift ss : staffShifts) {
+//                netT.getStaffShift().add(ss);
+//            }
+            List<Staff> staffs = getHumanResourceBean().fetchStaffShift(fd, td, ros);
 
             for (Staff staff : staffs) {
                 List<StaffShift> ss = getHumanResourceBean().fetchStaffShift(nowDate, staff);
@@ -635,6 +824,22 @@ public class ShiftTableController implements Serializable {
         setDateRange(range + 1);
 
         commonController.printReportDetails(fromDate, toDate, startTime, "HR/Reports/Shift/Roster table and vertify time(/faces/hr/hr_report_shift_table.xhtml)");
+    }
+    
+    public void createNextWeekRoster(){
+        if (errorCheckAutoRoster()) {
+            return;
+        }
+        Calendar cal=Calendar.getInstance();
+        cal.setTime(getFromDate());
+        cal.add(Calendar.DATE, -7);
+        Date LastWeekFD=cal.getTime();
+        System.out.println("LastWeekFD = " + LastWeekFD);
+        
+        cal.setTime(getToDate());
+        cal.add(Calendar.DATE, -7);
+        Date LastWeekTD=cal.getTime();
+        System.out.println("LastWeekTD = " + LastWeekTD);
     }
 
     public double fetchWorkTime(Staff staff, Date date) {

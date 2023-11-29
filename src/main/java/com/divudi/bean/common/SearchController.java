@@ -67,7 +67,10 @@ import javax.persistence.TemporalType;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
+//import org.primefaces.model.file.UploadedFile;
+
+
 
 /**
  *
@@ -7306,7 +7309,7 @@ public class SearchController implements Serializable {
             System.err.println("in 1");
             UtilityController.addSuccessMessage(file.getFileName());
             System.err.println("in 2");
-            in = file.getInputstream();
+            in = file.getInputStream();
             System.err.println("in 3");
             File f;
             f = new File(Calendar.getInstance().getTimeInMillis() + file.getFileName());

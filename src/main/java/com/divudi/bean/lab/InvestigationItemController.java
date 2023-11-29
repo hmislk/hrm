@@ -55,7 +55,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  *
@@ -630,7 +630,7 @@ public class InvestigationItemController implements Serializable {
         if (file != null) {
             try {
                 File uploadedFile = new File("/tmp/" + file.getFileName());
-                InputStream inputStream = file.getInputstream();
+                InputStream inputStream = file.getInputStream();
                 OutputStream out = new FileOutputStream(uploadedFile);
                 int read = 0;
                 byte[] bytes = new byte[1024];

@@ -103,6 +103,20 @@
                                     <p:outputLabel value="  #{ss.staff.person.nameWithTitle}" ></p:outputLabel>
 
                                 </p:column>
+                                <p:column headerText="Roster">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Roster"/>
+                                    </f:facet>
+                                    <p:outputLabel value="  #{ss.staff.roster.name}" ></p:outputLabel>
+
+                                </p:column>
+                                <p:column headerText="Department">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Department"/>
+                                    </f:facet>
+                                    <p:outputLabel value="  #{ss.staff.workingDepartment.name}" ></p:outputLabel>
+
+                                </p:column>
                                 <p:column headerText="Department Name">
                                     <f:facet name="header">
                                         <h:outputLabel value="Department Name"/>

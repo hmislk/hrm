@@ -1206,8 +1206,8 @@ public class BookingController implements Serializable {
             ChannelScheduleEvent e = new ChannelScheduleEvent();
             e.setServiceSession(s);
             e.setTitle(s.getName());
-            e.setStartDate(s.getTransStartTime());
-            e.setEndDate(s.getTransEndTime());
+//            e.setStartDate(s.getTransStartTime());
+//            e.setEndDate(s.getTransEndTime());
             eventModel.addEvent(e);
             checkDoctorArival(s);
         }

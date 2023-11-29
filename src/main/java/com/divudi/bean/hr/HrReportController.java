@@ -84,7 +84,7 @@ import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.json.JSONArray;
 import org.primefaces.event.RowEditEvent;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  *
@@ -299,7 +299,7 @@ public class HrReportController implements Serializable {
         UtilityController.addSuccessMessage(file.getFileName());
         try {
             UtilityController.addSuccessMessage(file.getFileName());
-            in = file.getInputstream();
+            in = file.getInputStream();
             File f;
             f = new File(Calendar.getInstance().getTimeInMillis() + file.getFileName());
             FileOutputStream out = new FileOutputStream(f);
@@ -842,6 +842,7 @@ public class HrReportController implements Serializable {
 
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
+                + " and type(ss)!=:class"
                 + " and ss.codeInterger!=0 ";
 
         if (getReportKeyWord().getDepartment() != null) {
@@ -873,6 +874,19 @@ public class HrReportController implements Serializable {
             sql += " and ss.roster=:rs ";
             hm.put("rs", getReportKeyWord().getRoster());
         }
+        
+        if (getReportKeyWord().isAdditionalDetails()) {
+            sql += " and (ss.dateRetired is null or  ss.dateRetired >=:date) ";
+            Date d= commonFunctions.getEndOfDay();
+            hm.put("date", d);
+        }
+        if (getReportKeyWord().isBool1()) {
+            sql += " and ss.roster is not null ";
+            Date d= commonFunctions.getEndOfDay();
+            hm.put("date", d);
+        }
+        
+        hm.put("class", Consultant.class);
 
         sql += " order by ss.codeInterger ";
         staffs = getStaffFacade().findBySQL(sql, hm);
@@ -991,10 +1005,12 @@ public class HrReportController implements Serializable {
                 + " where ss.retired=false "
                 + " and ss.dateRetired between :fd and :td "
                 + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
+                + " and (ss.dateRetired is null or ss.dateRetired >=:cd) "
+                + " and ss.roster is not null "
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
-        m.put("cd", new Date());
+        m.put("cd", commonFunctions.getStartOfDay());
 //        System.out.println("m = " + m);
 //        System.out.println("sql = " + sql);
         staffs = getStaffFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
@@ -1043,11 +1059,13 @@ public class HrReportController implements Serializable {
         sql = "select ss from Staff ss "
                 + " where ss.retired=false "
                 + " and ss.dateJoined between :fd and :td "
-                + " and (ss.dateLeft is null or ss.dateLeft>:cd)"
+                + " and (ss.dateLeft is null or ss.dateLeft>:cd) "
+                + " and (ss.dateRetired is null or ss.dateRetired >=:cd) "
+                + " and ss.roster is not null "
                 + " order by ss.codeInterger ";
         m.put("fd", f.getTime());
         m.put("td", t.getTime());
-        m.put("cd", new Date());
+        m.put("cd", commonFunctions.getStartOfDay());
 
 //        System.out.println("m = " + m);
 //        System.out.println("sql = " + sql);
@@ -5456,10 +5474,12 @@ public class HrReportController implements Serializable {
                 + " and type(s)!=:class "
                 + " and s.person.sex is not null "
                 + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " and s.roster is not null"
+                + " and (s.dateRetired is null or s.dateRetired >=:d) "
                 + " group by s.person.sex "
                 + " order by s.person.sex ";
 
-        m.put("d", new Date());
+        m.put("d", commonFunctions.getStartOfDay());
         m.put("class", Consultant.class);
 
         List<Object[]> objects = getStaffFacade().findAggregates(sql, m, TemporalType.DATE);
@@ -5563,10 +5583,12 @@ public class HrReportController implements Serializable {
                 + " where c.retired=false "
                 + " and type(c)!=:class "
                 + " and (c.dateLeft is null or c.dateLeft>:cd)"
+                + " and (c.dateRetired is null or  c.dateRetired >=:cd) "
+                + " and c.roster is not null "
                 + " and c.person.dob is not null "
                 + " order by c.person.name ";
         m.put("class", Consultant.class);
-        m.put("cd", new Date());
+        m.put("cd", commonFunctions.getStartOfDay());
 
         List<Staff> list = staffFacade.findBySQL(sql, m);
 //        System.out.println("staffs = " + list.size());
@@ -5615,7 +5637,9 @@ public class HrReportController implements Serializable {
         sql = "select c from Staff c "
                 + " where c.retired=false "
                 + " and type(c)!=:class "
-                + " and (c.dateLeft is null or c.dateLeft>:cd)"
+                + " and (c.dateLeft is null or c.dateLeft>:cd) "
+                + " and (c.dateRetired is null or c.dateRetired >=:cd) "
+                + " and c.roster is not null "
                 + " and c.person.dob is not null "
                 + " order by c.person.name ";
         m.put("class", Consultant.class);
@@ -5689,6 +5713,8 @@ public class HrReportController implements Serializable {
                 + " and type(s)!=:class "
                 + " and s.workingDepartment is not null "
                 + " and (s.dateLeft is null or s.dateLeft>:d) "
+                + " and (s.dateRetired is null or s.dateRetired >=:d) "
+                + " and s.roster is not null "
                 + " group by s.workingDepartment "
                 + " order by s.workingDepartment.name ";
 

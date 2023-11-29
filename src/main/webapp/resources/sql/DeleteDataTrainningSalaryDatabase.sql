@@ -1,0 +1,27 @@
+-- SELECT * FROM bill WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM billfee WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM billitem WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM batchbill WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM billcomponent WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM billnumber;
+-- SELECT * FROM billsession WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM agenthistory WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM agentreferencebook WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM appointment WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+
+-- SELECT * FROM patientencounter WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientflag WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientinvestigation WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientitem WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientreport WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientreportitemvalue WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+-- SELECT * FROM patientroom WHERE `CREATEDAT` between '2013-01-01 00:00:00.000' and '2013-12-31 23:59:59.000';
+
+
+SET FOREIGN_KEY_CHECKS=0;
+-- DELETE from item where `DTYPE` in ('Amp','Vmp','Atm','Vtm','Ampp','Vmpp');
+
+DELETE from billnumber;
+DELETE from bill WHERE `CREATEDAT` between '2015-01-01 00:00:00.000' and '2015-12-31 23:59:59.000';
+
+SET FOREIGN_KEY_CHECKS=1;

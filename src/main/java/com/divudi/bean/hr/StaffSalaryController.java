@@ -2445,6 +2445,16 @@ public class StaffSalaryController implements Serializable {
 //                save();
             } else {
                 // Allready in database
+                // Working Days
+                if (!(s.getDateJoined().getTime() > salaryCycle.getDayOffPhToDate().getTime())) {
+                    double workedDays = humanResourceBean.calculateWorkedDaysForSalary(salaryCycle.getDayOffPhFromDate(), salaryCycle.getDayOffPhToDate(), s);
+                    System.out.println("workedDays = " + workedDays);
+                    if (workedDays == 0.0) {
+                        JsfUtil.addErrorMessage("No Working Days - " + s.getPerson().getName());
+                        continue;
+                    }
+
+                }
 
             }
 
