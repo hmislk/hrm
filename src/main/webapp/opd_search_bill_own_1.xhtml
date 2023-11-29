@@ -5,7 +5,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:pe="http://primefaces.org/ui/extensions">
+      >
 
     <h:body>
         <ui:composition template="/resources/template/template.xhtml">
@@ -23,7 +23,7 @@
                                 </p:calendar>
                                 <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createOpdPackageBillSearch()}"/>
                                 <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                                    <pe:exporter type="xlsx" target="tblBills" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
+                                    <p:dataExporter type="xlsx" target="tblBills" fileName="report_pharmacy_sale_by_date_summery_payment_method"  />
                                 </p:commandButton>
                             </h:panelGrid>
                             <h:panelGrid columns="5" >

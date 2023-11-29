@@ -6,7 +6,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:pe="http://primefaces.org/ui/extensions">
+                >
 
 
     <ui:define name="content">
@@ -26,7 +26,7 @@
                         </p:commandButton>
 
                         <p:commandButton value="Excel" ajax="false" style="float: right;">
-                            <pe:exporter type="xlsx" fileName="Investigation Month End Summary" facetBackground="#AAFFBB"   datasetPadding="4"
+                            <p:dataExporter type="xlsx" fileName="Investigation Month End Summary" facetBackground="#AAFFBB"   datasetPadding="4"
                                          target="tbl"/>
                         </p:commandButton>
 

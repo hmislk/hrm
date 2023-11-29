@@ -7,7 +7,7 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:au="http://java.sun.com/jsf/composite/autocomplete"
-                xmlns:pe="http://primefaces.org/ui/extensions">
+                >
 
 
     <ui:define name="content">
@@ -88,7 +88,7 @@
                                          action="#{commonReport1.listBillItemsByReferringDoctor}"
                                          />
                         <p:commandButton value="Excel" ajax="false" styleClass="noPrintButton" style="float: right;">
-                            <pe:exporter type="xlsx" target="tbl" fileName="Report by Referring Doctor"
+                            <p:dataExporter type="xlsx" target="tbl" fileName="Report by Referring Doctor"
                                          facetBackground="#008000" facetFontSize="15" 
                                          facetFontColor="#FFFFFF" facetFontStyle="BOLD" cellFontColor="#0000FF" cellFontSize="12"  cellFontStyle="NORMAL"  
                                          fontName="Courier New"  />

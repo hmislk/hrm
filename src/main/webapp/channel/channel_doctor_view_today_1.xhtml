@@ -7,7 +7,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:ch="http://java.sun.com/jsf/composite/channel"
                 xmlns:pa="http://java.sun.com/jsf/composite/paymentMethod"
-                xmlns:pe="http://primefaces.org/ui/extensions"
+                
                 xmlns:au="http://java.sun.com/jsf/composite/autocomplete">
 
     <ui:define name="content">
@@ -39,7 +39,7 @@
                             <p:printer target="pan1" />
                         </p:commandButton>
                         <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                            <pe:exporter type="xlsx" target="tbl1" fileName="Price_metrix_investigation"  />
+                            <p:dataExporter type="xlsx" target="tbl1" fileName="Price_metrix_investigation"  />
                         </p:commandButton>
                     </h:panelGrid>
                 </p:panel>

@@ -7,7 +7,7 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ez="http://java.sun.com/jsf/composite/ezcomp"
-                xmlns:pe="http://primefaces.org/ui/extensions"
+                
                 xmlns:ca="http://java.sun.com/jsf/composite/cashier">
 
 
@@ -47,7 +47,7 @@
                             </p:commandButton>
 
                             <p:commandButton ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                                <pe:exporter type="xlsx" target="opd_b:opd_b,opd_c:opd_c,opd_r:opd_r,
+                                <p:dataExporter type="xlsx" target="opd_b:opd_b,opd_c:opd_c,opd_r:opd_r,
                                              phy_b:phy_b,phy_c:phy_c,phy_r:phy_r,
                                              phyw_b:phyw_b,phyw_c:phyw_c,phyw_r:phyw_r,
                                              phyg_b:phyg_b,phyg_c:phyg_c,phyg_r:phyg_r,

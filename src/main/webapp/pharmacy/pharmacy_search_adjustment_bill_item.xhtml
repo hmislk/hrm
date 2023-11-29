@@ -5,7 +5,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:pe="http://primefaces.org/ui/extensions" >
+       >
 
     <h:body>
         <ui:composition template="/resources/template/template.xhtml">
@@ -25,7 +25,7 @@
                                 <p:selectBooleanCheckbox value="#{searchController.reportKeyWord.additionalDetails}" itemLabel="Search All" />
                                 <p:commandButton id="btnSearch" ajax="false" value="Search" action="#{searchController.createPharmacyAdjustmentBillItemTable()}"/>
                                 <p:commandButton actionListener="#{commonReport.createGrnDetailTable()}" ajax="false" value="Excel" styleClass="noPrintButton" style="float: right;" >
-                                    <pe:exporter type="xlsx" target="tblBills" fileName="report_grn_detail"  />
+                                    <p:dataExporter type="xlsx" target="tblBills" fileName="report_grn_detail"  />
                                 </p:commandButton>
                             </h:panelGrid>
                             <p:spacer height="20"/>
