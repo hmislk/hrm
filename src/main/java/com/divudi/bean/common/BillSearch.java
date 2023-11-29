@@ -28,7 +28,6 @@ import com.divudi.entity.BillFee;
 import com.divudi.entity.BillItem;
 import com.divudi.entity.CancelledBill;
 import com.divudi.entity.Institution;
-import com.divudi.entity.LazyBill;
 import com.divudi.entity.Payment;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.WebUser;
@@ -307,7 +306,6 @@ public class BillSearch implements Serializable {
         billComponents = null;
         billFees = null;
         tempbillItems = null;
-        lazyBills = null;
         searchKeyword = null;
     }
 
@@ -483,7 +481,6 @@ public class BillSearch implements Serializable {
         printPreview = false;
         tempbillItems = null;
         comment = null;
-        lazyBills = null;
     }
 //
 //    public List<Bill> getSearchBills() {
@@ -503,14 +500,10 @@ public class BillSearch implements Serializable {
 //        return bills;
 //    }
 
-    private LazyDataModel<Bill> lazyBills;
-
-    public LazyDataModel<Bill> getSearchBills() {
-        return lazyBills;
-    }
+    
 
     public void createTableByKeyword2() {
-        lazyBills = null;
+        
         String sql;
         Map temMap = new HashMap();
 
@@ -537,7 +530,7 @@ public class BillSearch implements Serializable {
         List<Bill> lst = getBillFacade().findBySQL(sql, temMap, TemporalType.TIMESTAMP);
         //System.err.println("SIZE : " + lst.size());
 
-        lazyBills = new LazyBill(lst);
+
     }
 
     public void createDealorPaymentTable() {
@@ -949,7 +942,7 @@ public class BillSearch implements Serializable {
         printPreview = false;
         tempbillItems = null;
         comment = null;
-        lazyBills = null;
+
         searchKeyword = null;
     }
 
@@ -2113,13 +2106,7 @@ public class BillSearch implements Serializable {
         this.pharmacyPreSettleController = pharmacyPreSettleController;
     }
 
-    public LazyDataModel<Bill> getLazyBills() {
-        return lazyBills;
-    }
-
-    public void setLazyBills(LazyDataModel<Bill> lazyBills) {
-        this.lazyBills = lazyBills;
-    }
+    
 
     public BillType getBillType() {
         return billType;

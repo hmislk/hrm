@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
@@ -35,6 +36,163 @@ public abstract class AbstractFacade<T> {
 
     public List<Object> findObjects(String temSQL, Map<String, Object> parameters) {
         return findObjects(temSQL, parameters, TemporalType.DATE);
+    }
+    
+    public void batchCreate(List<T> entities) {
+        final int batchSize = 25; // you can set an appropriate batch size
+        int i = 0;
+        for (T entity : entities) {
+            getEntityManager().persist(entity);
+            i++;
+            if (i % batchSize == 0) {
+                getEntityManager().flush();
+                getEntityManager().clear();
+            }
+        }
+        // Flush one final time
+        getEntityManager().flush();
+        getEntityManager().clear();
+    }
+    
+    public T findFirstByJpql(String jpql) {
+        TypedQuery<T> qry = getEntityManager().createQuery(jpql, entityClass);
+        qry.setMaxResults(1);
+        try {
+            T result = qry.getSingleResult();
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public T findFirstByJpql(String jpql, Map<String, Object> parameters) {
+        TypedQuery<T> qry = getEntityManager().createQuery(jpql, entityClass);
+        Set s = parameters.entrySet();
+        Iterator it = s.iterator();
+        qry.setMaxResults(1);
+        while (it.hasNext()) {
+            Map.Entry m = (Map.Entry) it.next();
+            String pPara = (String) m.getKey();
+            if (m.getValue() instanceof Date) {
+                Date pVal = (Date) m.getValue();
+                qry.setParameter(pPara, pVal, TemporalType.DATE);
+//                //////// // System.out.println("Parameter " + pPara + "\tVal" + pVal);
+            } else {
+                Object pVal = (Object) m.getValue();
+                qry.setParameter(pPara, pVal);
+//                //////// // System.out.println("Parameter " + pPara + "\tVal" + pVal);
+            }
+        }
+        try {
+            return qry.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+    
+     public List<T> findByJpql(String jpql, int maxResults) {
+        TypedQuery<T> qry = getEntityManager().createQuery(jpql, entityClass);
+        qry.setMaxResults(maxResults);
+        return qry.getResultList();
+    }
+
+    public List<T> findByJpql(String jpql, Map<String, Object> parameters) {
+        TypedQuery<T> qry = getEntityManager().createQuery(jpql, entityClass);
+        Set s = parameters.entrySet();
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            Map.Entry m = (Map.Entry) it.next();
+            String pPara = (String) m.getKey();
+            if (m.getValue() instanceof Date) {
+                Date pVal = (Date) m.getValue();
+                qry.setParameter(pPara, pVal, TemporalType.DATE);
+            } else {
+                Object pVal = (Object) m.getValue();
+                qry.setParameter(pPara, pVal);
+            }
+        }
+
+        List<T> ts;
+        try {
+            ts = qry.getResultList();
+        } catch (Exception e) {
+            ts = new ArrayList<>();
+        }
+
+        return ts;
+    }
+
+    public List<T> findByJpql(String jpql, Map<String, Object> parameters, TemporalType tt) {
+        TypedQuery<T> qry = getEntityManager().createQuery(jpql, entityClass);
+        Set s = parameters.entrySet();
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            Map.Entry m = (Map.Entry) it.next();
+            Object pVal = m.getValue();
+            String pPara = (String) m.getKey();
+            if (pVal instanceof Date) {
+                Date d = (Date) pVal;
+                qry.setParameter(pPara, d, tt);
+            } else {
+                qry.setParameter(pPara, pVal);
+            }
+
+        }
+        return qry.getResultList();
+    }
+
+    public List<Object[]> findObjectsArrayByJpql(String jpql, Map<String, Object> parameters, TemporalType tt) {
+        TypedQuery<Object[]> qry = getEntityManager().createQuery(jpql, Object[].class);
+        Set s = parameters.entrySet();
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            Map.Entry m = (Map.Entry) it.next();
+            Object pVal = m.getValue();
+            String pPara = (String) m.getKey();
+            if (pVal instanceof Date) {
+                Date d = (Date) pVal;
+                qry.setParameter(pPara, d, tt);
+            } else {
+                qry.setParameter(pPara, pVal);
+            }
+            //    //////// // System.out.println("Parameter " + pPara + "\tVal" + pVal);
+        }
+        return qry.getResultList();
+    }
+
+    public List<Object> findObjectByJpql(String jpql, Map<String, Object> parameters, TemporalType tt) {
+        TypedQuery<Object> qry = getEntityManager().createQuery(jpql, Object.class);
+        Set s = parameters.entrySet();
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            Map.Entry m = (Map.Entry) it.next();
+            Object pVal = m.getValue();
+            String pPara = (String) m.getKey();
+            if (pVal instanceof Date) {
+                Date d = (Date) pVal;
+                qry.setParameter(pPara, d, tt);
+            } else {
+                qry.setParameter(pPara, pVal);
+            }
+            //    //////// // System.out.println("Parameter " + pPara + "\tVal" + pVal);
+        }
+        return qry.getResultList();
+    }
+    
+    public void batchEdit(List<T> entities) {
+        final int batchSize = 25; // you can set an appropriate batch size
+        int i = 0;
+        for (T entity : entities) {
+            getEntityManager().merge(entity);
+            i++;
+            if (i % batchSize == 0) {
+                getEntityManager().flush();
+                getEntityManager().clear();
+            }
+        }
+        // Flush one final time
+        getEntityManager().flush();
+        getEntityManager().clear();
     }
 
     public List<Object> findObjects(String temSQL, Map<String, Object> parameters, TemporalType tt) {

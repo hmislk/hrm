@@ -28,6 +28,7 @@ public class WebUserPrivilege implements Serializable {
     Long id;
     String name;
     String description;
+    private Department department;
     @ManyToOne
     WebUser webUser;
     @Enumerated(EnumType.STRING)
@@ -47,6 +48,8 @@ public class WebUserPrivilege implements Serializable {
     String sname;
     String tname;
 
+    
+    
     public Long getId() {
         return id;
     }
@@ -174,5 +177,13 @@ public class WebUserPrivilege implements Serializable {
     @Override
     public String toString() {
         return "com.divudi.data.WebUserPrivilege[ id=" + id + " ]";
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 }

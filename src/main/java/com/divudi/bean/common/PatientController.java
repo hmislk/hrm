@@ -19,6 +19,7 @@ import com.divudi.facade.util.JsfUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
-import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
@@ -40,7 +40,6 @@ import javax.inject.Named;
 import net.sourceforge.barbecue.Barcode;
 import net.sourceforge.barbecue.BarcodeFactory;
 import net.sourceforge.barbecue.BarcodeImageHandler;
-import org.primefaces.context.RequestContext;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -97,63 +96,80 @@ public class PatientController implements Serializable {
         if (current != null && current.getCode() != null && !current.getCode().trim().equals("")) {
             try {
                 BarcodeImageHandler.saveJPEG(BarcodeFactory.createCode128(getCurrent().getCode()), barcodeFile);
-                barcode = new DefaultStreamedContent(new FileInputStream(barcodeFile), "image/jpeg");
-
+                barcode = DefaultStreamedContent.builder()
+                        .stream(() -> {
+                            try {
+                                return new FileInputStream(barcodeFile);
+                            } catch (FileNotFoundException e) {
+                                // Handle FileNotFoundException
+                                return null;
+                            }
+                        })
+                        .contentType("image/jpeg")
+                        .build();
             } catch (Exception ex) {
-                //   //System.out.println("ex = " + ex.getMessage());
+                // Handle other exceptions
             }
         } else {
-            //   //System.out.println("else = ");
             try {
                 Barcode bc = BarcodeFactory.createCode128A("0000");
                 bc.setBarHeight(5);
                 bc.setBarWidth(3);
                 bc.setDrawingText(true);
                 BarcodeImageHandler.saveJPEG(bc, barcodeFile);
-                //   //System.out.println("12");
-                barcode = new DefaultStreamedContent(new FileInputStream(barcodeFile), "image/jpeg");
+                barcode = DefaultStreamedContent.builder()
+                        .stream(() -> {
+                            try {
+                                return new FileInputStream(barcodeFile);
+                            } catch (FileNotFoundException e) {
+                                // Handle FileNotFoundException
+                                return null;
+                            }
+                        })
+                        .contentType("image/jpeg")
+                        .build();
             } catch (Exception ex) {
-                //   //System.out.println("ex = " + ex.getMessage());
+                // Handle other exceptions
             }
         }
     }
 
     public void createFamilymembers(ActionEvent event) {
 
-        RequestContext context = RequestContext.getCurrentInstance();
-        FacesMessage message = null;
-        boolean loggedIn;
-
-        if (familyMember.getFullName() == null || familyMember.getFullName().equals("")) {
-            loggedIn = false;
-            UtilityController.addErrorMessage("Please enter full name");
-            return;
-
-        }
-        if (familyMember.getSex() == null) {
-            loggedIn = false;
-            UtilityController.addErrorMessage("Please enter gender");
-            return;
-
-        }
-        if (familyMember.getNic() == null || familyMember.getNic().equals("")) {
-            loggedIn = false;
-            UtilityController.addErrorMessage("Please enter NIC no");
-            return;
-        }
-        if (familyMember.getDob() == null) {
-            loggedIn = false;
-            UtilityController.addErrorMessage("Please enter Date Of Birth");
-            return;
-        }
-        familyMember.setSerealNumber(familyMembers.size());
-        familyMembers.add(familyMember);
-        loggedIn = true;
-        System.out.println("familyMembers.size() = " + familyMembers.size());
-
-        familyMember = null;
-
-        context.addCallbackParam("loggedIn", loggedIn);
+//        RequestContext context = RequestContext.
+//        FacesMessage message = null;
+//        boolean loggedIn;
+//
+//        if (familyMember.getFullName() == null || familyMember.getFullName().equals("")) {
+//            loggedIn = false;
+//            UtilityController.addErrorMessage("Please enter full name");
+//            return;
+//
+//        }
+//        if (familyMember.getSex() == null) {
+//            loggedIn = false;
+//            UtilityController.addErrorMessage("Please enter gender");
+//            return;
+//
+//        }
+//        if (familyMember.getNic() == null || familyMember.getNic().equals("")) {
+//            loggedIn = false;
+//            UtilityController.addErrorMessage("Please enter NIC no");
+//            return;
+//        }
+//        if (familyMember.getDob() == null) {
+//            loggedIn = false;
+//            UtilityController.addErrorMessage("Please enter Date Of Birth");
+//            return;
+//        }
+//        familyMember.setSerealNumber(familyMembers.size());
+//        familyMembers.add(familyMember);
+//        loggedIn = true;
+//        System.out.println("familyMembers.size() = " + familyMembers.size());
+//
+//        familyMember = null;
+//
+//        context.addCallbackParam("loggedIn", loggedIn);
     }
 
     public void removeFamilyMember(Person p) {
@@ -206,35 +222,31 @@ public class PatientController implements Serializable {
     }
 
     public StreamedContent getPhoto(Patient p) {
-        ////System.out.println("p is " + p);
         FacesContext context = FacesContext.getCurrentInstance();
-        if (context.getRenderResponse()) {
-            return new DefaultStreamedContent();
-        } else if (p == null) {
-            return new DefaultStreamedContent();
+        if (context.isPostback() || p == null || p.getId() == null || p.getBaImage() == null) {
+            return null;
         } else {
-            if (p.getId() != null && p.getBaImage() != null) {
-                ////System.out.println("giving image");
-                return new DefaultStreamedContent(new ByteArrayInputStream(p.getBaImage()), p.getFileType(), p.getFileName());
-            } else {
-                return new DefaultStreamedContent();
-            }
+            return DefaultStreamedContent.builder()
+                    .stream(() -> new ByteArrayInputStream(p.getBaImage()))
+                    .contentType(p.getFileType())
+                    .name(p.getFileName())
+                    .build();
         }
-
     }
 
     public StreamedContent getPhotoByByte(byte[] p) {
-        ////System.out.println("p is " + p);
-        FacesContext context = FacesContext.getCurrentInstance();
-        if (context.getRenderResponse()) {
-            return new DefaultStreamedContent();
-        } else if (p == null) {
-            return new DefaultStreamedContent();
-        } else {
-            //   //System.out.println("giving image");
-            return new DefaultStreamedContent(new ByteArrayInputStream(p), "image/png", "photo.");
-        }
+    FacesContext context = FacesContext.getCurrentInstance();
+    if (context.isPostback() || p == null) {
+        return null;
+    } else {
+        return DefaultStreamedContent.builder()
+            .stream(() -> new ByteArrayInputStream(p))
+            .contentType("image/png")
+            .name("photo.png")
+            .build();
     }
+}
+
 
     public Title[] getTitles() {
         return Title.values();
@@ -437,7 +449,7 @@ public class PatientController implements Serializable {
         System.out.println("5.getCurrent().getPerson().getTitle() = " + getCurrent().getPerson().getTitle());
         System.out.println("getCurrent().getPerson().getNameWithTitle() = " + getCurrent().getPerson().getNameWithTitle());
     }
-    
+
     public void saveSelectedPatient() {
         if (getCurrent().getPerson().getId() == null) {
             getCurrent().getPerson().setCreatedAt(Calendar.getInstance().getTime());
@@ -467,12 +479,12 @@ public class PatientController implements Serializable {
         String sql;
         Map m = new HashMap();
         sql = " select p from Patient p ";
-        
+
         if (getReportKeyWord().isAdditionalDetails()) {
             sql += " where ( p.code is not null "
                     + " or p.code=:code ) ";
-            if (getReportKeyWord().getMembershipScheme()!=null) {
-                sql+=" and p.person.membershipScheme=:mem ";
+            if (getReportKeyWord().getMembershipScheme() != null) {
+                sql += " and p.person.membershipScheme=:mem ";
                 m.put("mem", getReportKeyWord().getMembershipScheme());
             }
             if (getReportKeyWord().getString().equals("0")) {

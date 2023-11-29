@@ -14,7 +14,6 @@ import com.divudi.entity.BilledBill;
 import com.divudi.entity.CancelledBill;
 import com.divudi.entity.Department;
 import com.divudi.entity.Institution;
-import com.divudi.entity.LazyBillItem;
 import com.divudi.entity.RefundBill;
 import com.divudi.entity.lab.PatientInvestigation;
 import com.divudi.facade.BillFacade;
@@ -123,16 +122,14 @@ public class OpdBillItemSearchController implements Serializable {
         this.sessionController = sessionController;
     }
 
-    private LazyDataModel<BillItem> searchBillItems;
+    
 
     public void makeNull() {
-        searchBillItems = null;
         fromDate = null;
         toDate = null;
     }
 
     public void createTable() {
-        searchBillItems = null;
         String sql;
         Map m = new HashMap();
         m.put("toDate", toDate);
@@ -160,12 +157,11 @@ public class OpdBillItemSearchController implements Serializable {
         }
         List<BillItem> tmp = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
 
-        searchBillItems = new LazyBillItem(tmp);
+
 
     }
 
     public void createTableByKeyword2() {
-        searchBillItems = null;
         String sql;
         Map m = new HashMap();
         m.put("toDate", toDate);
@@ -189,7 +185,6 @@ public class OpdBillItemSearchController implements Serializable {
 
         List<BillItem> tmp = getBillItemFacade().findBySQL(sql, m, TemporalType.TIMESTAMP);
 
-        searchBillItems = new LazyBillItem(tmp);
 
     }
 
@@ -968,13 +963,7 @@ public class OpdBillItemSearchController implements Serializable {
         this.institution = institution;
     }
 
-    public LazyDataModel<BillItem> getSearchBillItems() {
-        return searchBillItems;
-    }
-
-    public void setSearchBillItems(LazyDataModel<BillItem> searchBillItems) {
-        this.searchBillItems = searchBillItems;
-    }
+   
 
     public SearchKeyword getSearchKeyword() {
         if (searchKeyword == null) {

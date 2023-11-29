@@ -402,7 +402,7 @@ public class InvestigationItemController implements Serializable {
 
         UtilityController.addSuccessMessage("Moved Successfully");
     }
-    
+
     public void moveDownAllReportItems() {
         if (getAllReportItemList().isEmpty()) {
             UtilityController.addErrorMessage("There is No items to move");
@@ -410,13 +410,13 @@ public class InvestigationItemController implements Serializable {
         }
 
         for (ReportItem ri : getAllReportItemList()) {
-            ri.setRiHeight(ri.getRiHeight()+ 1);
+            ri.setRiHeight(ri.getRiHeight() + 1);
             riFacade.edit(ri);
         }
 
         UtilityController.addSuccessMessage("Moved Successfully");
     }
-    
+
     public void moveRightAllReportItems() {
         if (getAllReportItemList().isEmpty()) {
             UtilityController.addErrorMessage("There is No items to move");
@@ -424,7 +424,7 @@ public class InvestigationItemController implements Serializable {
         }
 
         for (ReportItem ri : getAllReportItemList()) {
-            ri.setRiWidth(ri.getRiWidth()+ 1);
+            ri.setRiWidth(ri.getRiWidth() + 1);
             riFacade.edit(ri);
         }
 
@@ -439,14 +439,14 @@ public class InvestigationItemController implements Serializable {
                 ri.setCssFontFamily(fontFamily);
                 riFacade.edit(ri);
             }
-            
+
             if (fontSize != 0) {
                 System.out.println("update Font Size");
                 ri.setRiFontSize(fontSize);
                 riFacade.edit(ri);
             }
         }
-        
+
         UtilityController.addSuccessMessage("Update Success");
 
     }
@@ -589,7 +589,9 @@ public class InvestigationItemController implements Serializable {
 
                 try {
                     ri.setRiWidth(Double.parseDouble(ri.getCssWidth()));
-                    if(ri.getRiWidth()< 20) ri.setRiWidth(20);
+                    if (ri.getRiWidth() < 20) {
+                        ri.setRiWidth(20);
+                    }
                 } catch (Exception e) {
                     ri.setRiWidth(40);
                     System.out.println("ri.getCssWidth() = " + ri.getCssWidth());
@@ -704,19 +706,9 @@ public class InvestigationItemController implements Serializable {
 
     private StreamedContent downloadingFile;
 
-    public void createXml() {
-        if (currentInvestigation == null) {
-            return;
-        }
-        InputStream stream = new ByteArrayInputStream(ixToXml(currentInvestigation).getBytes(Charset.defaultCharset()));
-        downloadingFile = new DefaultStreamedContent(stream, "image/jpg", currentInvestigation.getName() + ".xml");
-    }
+    
 
-    public StreamedContent getDownloadingFile() {
-        createXml();
-        return downloadingFile;
-    }
-
+    
 //    public void get
     public String ixToXml(Item item) {
         if (item == null) {
@@ -1010,7 +1002,6 @@ public class InvestigationItemController implements Serializable {
 //        recreateModel();
 //        getItems();
     }
-    
 
     public InvestigationFacade getIxFacade() {
         return ixFacade;
@@ -1061,14 +1052,14 @@ public class InvestigationItemController implements Serializable {
         return ejbFacade;
     }
 
-   public List<InvestigationItem> getItems() {
+    public List<InvestigationItem> getItems() {
         items = getItems(currentInvestigation);
         return items;
     }
-    
+
     public List<InvestigationItem> getItems(Investigation ix) {
         List<InvestigationItem> iis;
-        if (ix!=null && ix.getId() != null) {
+        if (ix != null && ix.getId() != null) {
             String temSql;
             temSql = "SELECT i FROM InvestigationItem i where i.retired=false and i.item.id = " + ix.getId() + " order by i.ixItemType, i.cssTop , i.cssLeft";
             iis = getFacade().findBySQL(temSql);
@@ -1077,19 +1068,18 @@ public class InvestigationItemController implements Serializable {
         }
         return iis;
     }
-    
+
     public Long findItemCount(Investigation ix) {
         Long iis;
-        if (ix!=null && ix.getId() != null) {
+        if (ix != null && ix.getId() != null) {
             String temSql;
-            temSql = "SELECT i FROM InvestigationItem i where i.retired=false and i.item.id = " + ix.getId() ;
+            temSql = "SELECT i FROM InvestigationItem i where i.retired=false and i.item.id = " + ix.getId();
             iis = getFacade().countBySql(temSql);
         } else {
             iis = null;
         }
         return iis;
     }
-
 
     public Investigation getCurrentInvestigation() {
         if (currentInvestigation == null) {
@@ -1105,7 +1095,6 @@ public class InvestigationItemController implements Serializable {
         listInvestigationItem();
 
     }
-
 
     public enum EditMode {
 
@@ -1146,8 +1135,6 @@ public class InvestigationItemController implements Serializable {
         this.ixXml = ixXml;
     }
 
-    
-    
     /**
      *
      */

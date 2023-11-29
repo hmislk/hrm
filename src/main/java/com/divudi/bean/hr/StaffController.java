@@ -836,72 +836,63 @@ public class StaffController implements Serializable {
 
     public StreamedContent getSignatureById() {
         FacesContext context = FacesContext.getCurrentInstance();
-        if (context.getRenderResponse()) {
-            // So, we're rendering the view. Return a stub StreamedContent so that it will generate right URL.
-            return new DefaultStreamedContent();
+        if (context.isPostback()) {
+            // Rendering the view, return an empty StreamedContent to generate the right URL.
+            return null;
         } else {
-            // So, browser is requesting the image. Get ID value from actual request param.
+            // Browser is requesting the image. Get ID value from the actual request parameter.
             String id = context.getExternalContext().getRequestParameterMap().get("id");
             Long l;
             try {
                 l = Long.valueOf(id);
             } catch (NumberFormatException e) {
-                l = 0l;
+                l = 0L;
             }
-            Staff temImg = getFacade().find(Long.valueOf(id));
-            if (temImg != null) {
-                return new DefaultStreamedContent(new ByteArrayInputStream(temImg.getBaImage()), temImg.getFileType());
+            Staff tempImg = getFacade().find(l);
+            if (tempImg != null) {
+                return DefaultStreamedContent.builder()
+                        .stream(() -> new ByteArrayInputStream(tempImg.getBaImage()))
+                        .contentType(tempImg.getFileType())
+                        .build();
             } else {
-                return new DefaultStreamedContent();
+                return null;
             }
         }
     }
 
     public StreamedContent getSignature() {
-//        FacesContext context = FacesContext.getCurrentInstance();
-//        if (context.getRenderResponse()) {
-//            ////System.out.println("render response");
-//            return new DefaultStreamedContent();
-//        } else {
-        ////System.out.println("image resuest");
-
         if (current == null) {
-            ////System.out.println("staff null");
             return new DefaultStreamedContent();
         }
-        ////System.out.println("staf is " + current);
         if (current.getId() != null && current.getBaImage() != null) {
-            ////System.out.println(current.getFileType());
-            ////System.out.println(current.getFileName());
-            return new DefaultStreamedContent(new ByteArrayInputStream(current.getBaImage()), current.getFileType(), current.getFileName());
+            return DefaultStreamedContent.builder()
+                    .stream(() -> new ByteArrayInputStream(current.getBaImage()))
+                    .contentType(current.getFileType())
+                    .name(current.getFileName())
+                    .build();
         } else {
-            ////System.out.println("nulls");
             return new DefaultStreamedContent();
         }
-//        }
-
     }
 
     public StreamedContent displaySignature(Long stfId) {
         FacesContext context = FacesContext.getCurrentInstance();
-        if (context.getRenderResponse()) {
-            return new DefaultStreamedContent();
-        }
-        if (stfId == null) {
-            return new DefaultStreamedContent();
+        if (context.isPostback() || stfId == null) {
+            return null;
         }
 
-        Staff temStaff = getFacade().findFirstBySQL("select s from Staff s where s.baImage != null and s.id = " + stfId);
+        Staff tempStaff = getFacade().findFirstBySQL("select s from Staff s where s.baImage != null and s.id = " + stfId);
 
-        ////System.out.println("Printing");
-        if (temStaff == null) {
-            return new DefaultStreamedContent();
-        } else if (temStaff.getId() != null && temStaff.getBaImage() != null) {
-            ////System.out.println(temStaff.getFileType());
-            ////System.out.println(temStaff.getFileName());
-            return new DefaultStreamedContent(new ByteArrayInputStream(temStaff.getBaImage()), temStaff.getFileType(), temStaff.getFileName());
+        if (tempStaff == null) {
+            return null;
+        } else if (tempStaff.getId() != null && tempStaff.getBaImage() != null) {
+            return DefaultStreamedContent.builder()
+                    .stream(() -> new ByteArrayInputStream(tempStaff.getBaImage()))
+                    .contentType(tempStaff.getFileType())
+                    .name(tempStaff.getFileName())
+                    .build();
         } else {
-            return new DefaultStreamedContent();
+            return null;
         }
     }
 
