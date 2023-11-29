@@ -317,7 +317,7 @@
                                                      selectionMode="single" rowKey="#{bs.id}"
                                                      rowStyleClass="#{bs.bill.cancelled eq true or bs.bill.refunded eq true ? 'redText':''}"
                                                      selection="#{searchController.selectedBillSession}" scrollable="true" scrollHeight="275">
-                                            <p:ajax event="rowSelect" process="@this" update=":#{p:component('detail')}" 
+                                            <p:ajax event="rowSelect" process="@this" update=":#{p:resolveFirstComponentWithId('detail',view).clientId}" 
                                                     listener="#{bookingController.createBillfees}" />  
 
                                             <p:column headerText="No" style="width: 20px!important;">#{bs.serialNo}</p:column>

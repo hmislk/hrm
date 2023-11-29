@@ -201,7 +201,7 @@
                                  selectionMode="single" rowKey="#{bs.id}" styleClass="noBorder" 
                                  rowStyleClass="#{bs.bill.cancelled eq true or bs.bill.refunded eq true ? 'redText':''}"
                                  selection="#{bookingController.selectedBillSession}" scrollable="true" scrollHeight="275">
-                        <p:ajax event="rowSelect" process="@this" update=":#{p:component('detail')}" 
+                        <p:ajax event="rowSelect" process="@this" update=":#{p:resolveFirstComponentWithId('detail',view).clientId}" 
                                 listener="#{channelBillController.createBillfees}" />
                         <f:facet name="header">
                             <p:outputLabel value="Bookings" ></p:outputLabel>
