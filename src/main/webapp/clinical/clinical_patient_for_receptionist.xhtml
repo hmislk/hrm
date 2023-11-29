@@ -128,7 +128,7 @@
                                     <p:dataTable id="bSession" value="#{practiceBookingController.billSessions}" var='bs'
                                                  selectionMode="single" rowKey="#{bs.id}"
                                                  selection="#{practiceBookingController.selectedBillSession}">
-                                        <!--<p:ajax event="rowSelect" process="@this" update=":#{p:component('detail')}" />-->  
+                                        <!--<p:ajax event="rowSelect" process="@this" update=":#{p:resolveFirstComponentWithId('detail',view).clientId}" />-->  
 
                                         <p:column headerText="No">#{bs.serialNo}</p:column>
                                         <p:column headerText="Patient Name">#{bs.bill.patient.person.nameWithTitle}</p:column>
