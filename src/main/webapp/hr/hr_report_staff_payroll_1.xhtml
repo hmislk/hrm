@@ -34,25 +34,27 @@
                 <p:selectOneMenu id="advanced" 
                                  value="#{salaryCycleController.current}" 
                                  converter="salaryCycleConverter" 
-                                 effect="fade" var="t" 
+                                 
                                  filter="true" 
                                  filterMatchMode="startsWith">
                     <f:selectItem itemLabel="Select Salary Cycle" />
                     <f:selectItems value="#{salaryCycleController.salaryCycles}" 
                                    var="theme" 
                                    itemLabel="#{theme.name}" 
-                                   itemValue="#{theme}" ></f:selectItems>
-
-                    <p:column style="width:10%" headerText="Name">
-                        <h:outputText value="#{t.name}" />
+                                   itemValue="#{theme}" >
+                        <p:column style="width:10%" headerText="Name">
+                        <h:outputText value="#{theme.name}" />
                     </p:column>
 
                     <p:column headerText="Year">
-                        <h:outputText value="#{t.salaryYear}" />
+                        <h:outputText value="#{theme.salaryYear}" />
                     </p:column>
                     <p:column headerText="Month">
-                        <h:outputText value="#{t.salaryMonth}" />
+                        <h:outputText value="#{theme.salaryMonth}" />
                     </p:column>
+                    </f:selectItems>
+
+                    
                 </p:selectOneMenu>
                 <h:outputLabel value="Institution"/>
                 <hr:institution value="#{salaryCycleController.reportKeyWord.institution}"/>

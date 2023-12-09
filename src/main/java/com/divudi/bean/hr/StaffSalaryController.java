@@ -2368,6 +2368,7 @@ public class StaffSalaryController implements Serializable {
         if (dateCheck()) {
             return;
         }
+        
 
         items = null;
         int i = 0;
@@ -2457,7 +2458,11 @@ public class StaffSalaryController implements Serializable {
                 }
 
             }
+            if (current.getCompletedAt()==null){
+                current.setCompletedAt(new Date());
+            }
 
+            
             getCurrent().calculateComponentTotal();
 //            getCurrent().calcualteEpfAndEtf();
             getItems().add(current);

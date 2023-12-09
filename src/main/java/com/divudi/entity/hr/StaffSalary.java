@@ -194,6 +194,7 @@ public class StaffSalary implements Serializable {
     @Transient
     double WorkingDaysAditional;
     String comments;
+    private Date completedAt;
 
     public String getChequeNumberSalary() {
         return chequeNumberSalary;
@@ -1293,6 +1294,14 @@ public class StaffSalary implements Serializable {
 
     public void setTraVal(double traVal) {
         this.traVal = traVal;
+    }
+
+    public Date getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Date completedAt) {
+        this.completedAt = completedAt;
     }
 
 }

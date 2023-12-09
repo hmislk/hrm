@@ -144,9 +144,17 @@ public class StaffBasicController implements Serializable {
     }
 
     public void save() {
+        if (getCurrent() == null) {
+            return;
+        }
         if (errorCheck()) {
             return;
         }
+        if(getCurrent().getCompletedAt()==null){
+            getCurrent().setCompletedAt(new Date());
+        }
+
+        
 
         getCurrent().setCreatedAt(new Date());
         getCurrent().setCreater(getSessionController().getLoggedUser());
@@ -447,7 +455,7 @@ public class StaffBasicController implements Serializable {
         return getPaysheetComponentFacade().findFirstBySQL(sql, hm, TemporalType.DATE);
 
     }
-    
+
     public List<PaysheetComponent> getBasicCompnents() {
         String sql = "Select pc From PaysheetComponent pc where pc.retired=false and pc.componentType=:tp";
         HashMap hm = new HashMap();

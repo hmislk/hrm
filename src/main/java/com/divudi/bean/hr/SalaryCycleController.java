@@ -252,6 +252,22 @@ public class SalaryCycleController implements Serializable {
             return true;
         }
 
+        if (current.getExtraDutyFromDate() == null) {
+            current.setExtraDutyFromDate(current.getWorkedFromDate());
+        }
+
+        if (current.getExtraDutyToDate() == null) {
+            current.setExtraDutyToDate(current.getWorkedToDate());
+        }
+
+        if (current.getOverTimeFromDate() == null) {
+            current.setOverTimeFromDate(current.getWorkedFromDate());
+        }
+
+        if (current.getOverTimeToDate() == null) {
+            current.setOverTimeToDate(current.getWorkedToDate());
+        }
+
         //Check Salry Date        
         if (humanResourceBean.checkSalaryCycleDate(current, DateType.SalaryDate, current.getSalaryFromDate(), current.getSalaryToDate())) {
             UtilityController.addErrorMessage("Salary Date Already Exist");

@@ -180,15 +180,10 @@
                         </p:tooltip>
 
                     </p:column>
-
-
-
-
-                    <p:column headerText="Comments" >        
+                    <p:column headerText="Comments" style="width:100px;">        
                         <p:commandLink value="#{sts.leaveType}" action="#{hrReportController.fromStaffFingerprintAnalysisToStaffLeave(sts.shiftDate, sts.staff)}" ></p:commandLink>
                         <h:outputLabel value="Half Shift " rendered="#{sts.shift.halfShift}"  />
                     </p:column>
-
 
                     <!--                    <p:column>
                                             <f:facet name="header">

@@ -265,10 +265,16 @@ public class StaffPaysheetComponent implements Serializable {
     }
 
     public Date getCompletedAt() {
+        if(completedAt==null){
+            completedAt = new Date();
+        }
         return completedAt;
     }
 
     public void setCompletedAt(Date completedAt) {
+        if(completedAt==null){
+            completedAt = new Date();
+        }
         this.completedAt = completedAt;
     }
     
